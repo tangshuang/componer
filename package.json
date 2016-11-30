@@ -1,0 +1,45 @@
+{
+  "name": "componer",
+  "version": "0.0.1",
+  "description": "A components work flow frame dependented on gulp",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tangshuang/componer.git"
+  },
+  "keywords": [
+    "gulp",
+    "component"
+  ],
+  "author": "tangshuang",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tangshuang/componer/issues"
+  },
+  "homepage": "https://github.com/tangshuang/componer#readme",
+  "dependencies": {
+    "babel-core": "^6.18.2",
+    "babel-loader": "^6.2.8",
+    "babel-preset-latest": "^6.16.0",
+    "babel-register": "^6.18.0",
+    "gulp": "^3.9.1",
+    "gulp-babel": "^6.1.2",
+    "gulp-concat": "^2.6.1",
+    "gulp-cssmin": "^0.1.7",
+    "gulp-rename": "^1.2.2",
+    "gulp-sass": "^2.3.2",
+    "gulp-uglify": "^2.0.0",
+    "gulp-webserver": "^0.9.1",
+    "pipe-concat": "0.0.2",
+    "process.args": "0.0.3",
+    "process.logger": "^1.0.2",
+    "shelljs": "^0.7.5",
+    "ts-server": "0.0.1",
+    "webpack-stream": "^3.2.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.18.0",
+    "gulp-cli": "^1.2.2"
+  }
+}

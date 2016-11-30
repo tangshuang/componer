@@ -1,0 +1,15 @@
+{
+    "name": "{{component-name}}",
+    "version": "0.0.1",
+    "main": [
+        "build/{{component-name}}.min.js",
+        "build/{{component-name}}.min.css"
+    ],
+    "keywords": [],
+    "dependencies": {},
+    "devDependencies": {},
+    "ignore": [
+        "preview/"
+        "test/"
+    ]
+}

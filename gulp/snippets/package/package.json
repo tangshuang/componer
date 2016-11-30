@@ -1,0 +1,24 @@
+{
+  "name": "{{component-name}}",
+  "version": "0.0.1",
+  "description": "",
+  "main": "dist/{{component-name}}.js",
+  "scripts": {
+    "babel": "babel src/{{component-name}}.js -o dist/{{component-name}}.js"
+  },
+  "keywords": [
+  ],
+  "author": "{{author}}",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/{{author}}/{{component-name}}.git"
+  },
+  "bugs": {
+    "url": "https://github.com/{{author}}/{{component-name}}/issues"
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "babel-cli": "^6.18.0",
+    "babel-preset-latest": "^6.16.0"
+  }
+}
