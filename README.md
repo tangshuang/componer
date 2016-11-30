@@ -31,7 +31,7 @@ gulp ls
 Add a component, e.g. jquery plugin, npm package, frontend component.
 
 ```
-gulp add --name=component-name --type[=package|bower|jq-plugin] [--author=your-name]
+gulp add --name=component-name [--type=package|bower|jq-plugin] [--author=your-name]
 ```
 
 `type` relates to directories in `gulp/snippets`.
@@ -78,6 +78,7 @@ I support these types: package, bower, default
 
 #### Component Directory Structure
 
+```
 components/component-name
 	|
 	|--src
@@ -96,7 +97,18 @@ components/component-name
 	|--preview
 	|--README.md
 	|--...
+```
 
 In fact, your coding workspace is in components direcotry.
 
 ## Development
+
+If you want to contribute to this project, follow rules:
+
+1/ just coding in `gulp` direcotry and gulp.babel.js
+
+2/ code style
+
+3/ use ES6
+
+4/ less dependences

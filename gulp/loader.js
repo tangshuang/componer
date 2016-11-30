@@ -1,14 +1,14 @@
-import gulp from 'gulp'
-import fs from 'fs'
-import path from 'path'
-import logger from 'process.logger'
-import processArgs from 'process.args'
+import gulp from "gulp"
+import fs from "fs"
+import path from "path"
+import logger from "process.logger"
+import processArgs from "process.args"
 
 const rootPath = path.resolve(__dirname, "..")
 const gulpDir = path.basename(__dirname)
-const componentsDir = 'components'
-const snippetsDir = 'snippets'
-const tasksDir = 'tasks'
+const componentsDir = "components"
+const snippetsDir = "snippets"
+const tasksDir = "tasks"
 
 const args = processArgs()
 const config = {
