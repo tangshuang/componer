@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Preview Logger</title>
+</head>
+<body>
+	<h1>Preview Logger</h1>
+	<p>Press F12 to open console.</p>
+
+	<script src="../dist/js/browser-logger.min.js"></script>
+	<script>
+		var data = {
+			100: "go die!"
+		}
+		// Notice the following line! in fact BrowserLogger is a function, you can use it directly
+		var Logger = window.BrowserLogger; 
+		// 1. logger
+		Logger("You are cute!", "background: blue; color: #fff;", "info");
+		// 2. prototype
+		Logger.data(data);
+		Logger.log(100, "color: red");
+		Logger.error(100, "color: red");
+		// 3. set, put and print
+		Logger.set("warn").put("You", "color: red").put("are", "color: green; background: #ccc").put("right", "color: bule").print();
+	</script>
+</body>
+</html>

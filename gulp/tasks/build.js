@@ -1,6 +1,6 @@
 import {gulp, fs, path, args, logger, config} from "../loader"
 import isValidName from "../utils/isValidName"
-import {dashlineName} from "../utils/nameConvert"
+import {dashlineName, capitalName} from "../utils/nameConvert"
 
 import merge from "pipe-concat"
 
@@ -78,6 +78,10 @@ module.exports = function() {
 						},
 					],
 				},
+				output: {
+			        library: capitalName(name),
+			        libraryTarget: "umd",
+			    },
 			}))
 			.pipe(rename(name + ".js"))
 			.pipe(gulp.dest(distPath + "/js/"))

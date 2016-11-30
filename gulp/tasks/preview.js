@@ -33,7 +33,7 @@ module.exports = function() {
 	var $server = new TsServer()
 	$server.setup({
 		root: config.paths.root,
-		open: `${config.dirs.components}/${name}/preview/`,
+		open: `${config.dirs.components}/${name}/preview/index.html`,
 		livereload: {
 			directory: `${componentPath}`,
 			filter: function (file) {
