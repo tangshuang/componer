@@ -10,7 +10,12 @@ npm install -g gulp-cli
 git clone https://github.com/tangshuang/componer.git
 cd componer
 npm install
+
+
+gulp build preview ---name=browser-logger
 ```
+
+`browser-logger` is a defualt type component I have created by componer.
 
 ## Usage
 

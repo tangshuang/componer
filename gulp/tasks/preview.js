@@ -31,10 +31,13 @@ module.exports = function() {
 	})
 
 	var $server = new TsServer()
+	var port = Math.floor(Math.random() * 1000) + 8000
 	$server.setup({
+		port: port,
 		root: config.paths.root,
 		open: `${config.dirs.components}/${name}/preview/index.html`,
 		livereload: {
+			port: port + Math.floor(Math.random() * 10),
 			directory: `${componentPath}`,
 			filter: function (file) {
 				var filepos = file.replace(componentPath, "")

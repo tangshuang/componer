@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Preview Logger</title>
+	<title>Preview BrowserLogger</title>
 </head>
 <body>
-	<h1>Preview Logger</h1>
+	<h1>Preview BrowserLogger</h1>
 	<p>Press F12 to open console.</p>
+	<p>And then edit preview/index.html to change content.</p>
 
 	<script src="../dist/js/browser-logger.min.js"></script>
 	<script>
@@ -16,12 +17,13 @@
 		var Logger = window.BrowserLogger; 
 		// 1. logger
 		Logger("You are cute!", "background: blue; color: #fff;", "info");
+		BrowserLogger("Now you can see the info.")
 		// 2. prototype
 		Logger.data(data);
 		Logger.log(100, "color: red");
 		Logger.error(100, "color: red");
 		// 3. set, put and print
-		Logger.set("warn").put("You", "color: red").put("are", "color: green; background: #ccc").put("right", "color: bule").print();
+		Logger.set("warn").put("You", "color: red").put("are", "color: green; background: #ccc").put("right", "color: bule; font-size: 2em;").print();
 	</script>
 </body>
 </html>

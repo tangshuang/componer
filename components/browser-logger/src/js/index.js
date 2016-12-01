@@ -1,5 +1,5 @@
 var _messages = []
-var _colors = []
+var _style = []
 var _method = "log"
 var _data = {}
 
@@ -18,16 +18,16 @@ Logger.set = function(method = "log") {
 
 Logger.put = function(msg, style = "") {
 	_messages.push("%c" + msg)
-	_colors.push(style)
+	_style.push(style)
 	return Logger
 }
 
 Logger.print = function() {
-	var message = [_messages.join(" ")].concat(_colors)
+	var message = [_messages.join(" ")].concat(_style)
     console[_method].apply({},message)
 
     _messages = []
-	_colors = []
+	_style = []
 	_method = "log"
 }
 
@@ -54,6 +54,11 @@ Logger.info = function(code, style) {
 Logger.log = function(code, style) {
 	var msg = _data[code]
     return Logger(msg, style, "log")
+}
+
+Logger.success = function(code, style) {
+	var msg = _data[code]
+    return Logger(msg, "color: green;" + style, "log")
 }
 
 export default Logger
