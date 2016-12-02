@@ -10,7 +10,7 @@ export default function paserSnippet(pairs) {
 		}
 
 		if(file.isStream()) {
-			logger().timestamp().error("gulp error: streaming not supported")
+			logger.set("timestamp", true).error("gulp error: streaming not supported")
 			return callback()
 		}
 

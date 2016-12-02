@@ -16,7 +16,7 @@ module.exports = function() {
 	var srcPath = path.join(componentPath, "src")
 
 	var watcher = gulp.watch([srcPath + "/**/*"], event => {
-		logger().help('File ' + event.path + ' was ' + event.type + ', running tasks...')
+		logger.set("timestamp", true).help('File ' + event.path + ' was ' + event.type + ', running tasks...')
 		runTask("build", {
 			name: name
 		})

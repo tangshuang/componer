@@ -32,14 +32,23 @@
     "gulp-uglify": "^2.0.0",
     "gulp-webserver": "^0.9.1",
     "pipe-concat": "0.0.2",
-    "process.args": "0.0.3",
-    "process.logger": "^1.0.2",
+    "process.args": "0.0.5",
+    "process.logger": "^1.1.3",
     "shelljs": "^0.7.5",
-    "ts-server": "0.0.1",
+    "ts-server": "0.0.2",
     "webpack-stream": "^3.2.0"
   },
   "devDependencies": {
     "babel-cli": "^6.18.0",
-    "gulp-cli": "^1.2.2"
+    "css-loader": "^0.26.0",
+    "extend": "^3.0.0",
+    "file-loader": "^0.9.0",
+    "gulp-cli": "^1.2.2",
+    "html-loader": "^0.4.4",
+    "process.args": "0.0.4",
+    "process.logger": "^1.1.2",
+    "sass-loader": "^4.0.2",
+    "style-loader": "^0.13.1",
+    "url-loader": "^0.5.7"
   }
 }

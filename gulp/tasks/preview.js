@@ -17,14 +17,21 @@ module.exports = function() {
 	var componentPath = path.join(config.paths.components, name)
 	var srcPath = path.join(componentPath, "src")
 	var previewPath = path.join(componentPath, "preview")
+	var distPath = path.join(componentPath, "dist")
 
 	if(!fs.existsSync(previewPath)) {
-		logger().timestamp().error(`gulp error: component ${name} has no preveiw directory.`)
+		logger.set("timestamp", true).error(`gulp error: component ${name} has no preveiw directory.`)
 		return
 	}
 
+	if(!fs.existsSync(distPath)) {
+		runTask("build", {
+			name: name
+		})
+	}
+
 	var watcher = gulp.watch([srcPath + "/**/*"], event => {
-		logger().help('File ' + event.path + ' was ' + event.type + ', running tasks...')
+		logger.set("timestamp", true).help('File ' + event.path + ' was ' + event.type + ', running tasks...')
 		runTask("build", {
 			name: name
 		})

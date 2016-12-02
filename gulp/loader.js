@@ -3,6 +3,7 @@ import fs from "fs"
 import path from "path"
 import logger from "process.logger"
 import processArgs from "process.args"
+import webpack from "../webpack.config"
 
 const rootPath = path.resolve(__dirname, "..")
 const gulpDir = path.basename(__dirname)
@@ -10,7 +11,11 @@ const componentsDir = "components"
 const snippetsDir = "snippets"
 const tasksDir = "tasks"
 
-const args = processArgs()
+const args = processArgs({
+	n: "name",
+	a: "author",
+	t: "type",
+})
 const config = {
 	dirs: {
 		gulp: gulpDir,
@@ -25,6 +30,7 @@ const config = {
 		snippets: path.join(rootPath, gulpDir, snippetsDir),
 		components: path.join(rootPath, componentsDir),
 	},
+	webpack,
 }
 
 export {

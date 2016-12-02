@@ -2,6 +2,7 @@ import {gulp, fs, path, args, logger, config} from "../loader"
 import paserSnippet from "../utils/paserSnippet"
 import isValidName from "../utils/isValidName"
 import {dashlineName} from "../utils/nameConvert"
+import runTask from "../utils/runTask"
 
 module.exports = function() {
 	var arg = args.add
@@ -17,7 +18,7 @@ module.exports = function() {
 	var snippetPath = path.join(config.paths.snippets, type)
 
 	if(fs.existsSync(componentPath)) {
-		logger().timestamp().error(`gulp error: ${name} exists, delete "components/${name}" before you add.`)
+		logger.set("timestamp", true).error(`gulp error: ${name} exists, delete "components/${name}" before you add.`)
 		return
 	}
 	else {
@@ -35,7 +36,11 @@ module.exports = function() {
 	}
 
 	function doneMsg() {
-		logger().timestamp().done(`gulp success: ${name} has been completely created.`)
+		logger.set("timestamp", true).done(`gulp success: ${name} has been completely created.`)
+		logger("Go coding now! Every time you change your code, I will build this component for you automaticly...")
+		runTask("watch", {
+			name: name
+		})
 	}
 
 	function addComponent() {
@@ -69,7 +74,7 @@ module.exports = function() {
 			.pipe(gulp.dest(componentPath))
 			.on("end", () => {
 				fs.renameSync(componentPath + "/src/js/index.js", componentPath + "/src/js/" + name + ".js")
-				fs.renameSync(componentPath + "/src/style/style.scss", componentPath + "/src/style/" + name + ".scss")
+				fs.renameSync(componentPath + "/src/style/index.scss", componentPath + "/src/style/" + name + ".scss")
 				doneMsg()
 			})
 	}

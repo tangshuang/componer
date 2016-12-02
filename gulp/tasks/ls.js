@@ -1,6 +1,5 @@
-import {config} from "../loader"
+import {config, logger} from "../loader"
 import fs from "fs"
-import logger from "process.logger"
 
 module.exports = function() {
 	var componentsPath = config.paths.components
@@ -9,7 +8,7 @@ module.exports = function() {
 	var lines = []
 	var line = []
 
-	logger().help(`----------------------- You have ${components.length} components: ---------------------\n`)
+	logger.help(`----------------------- You have ${components.length} components: ---------------------\n`)
 	if(components.length < 5) {
 		lines.push(components.join("\t"))
 	}
@@ -22,6 +21,6 @@ module.exports = function() {
 			}
 		})
 	}
-	logger().help(lines.join("\n"))
-	logger().help("\n-----------------------------------------------------------------------")
+	logger.help(lines.join("\n"))
+	logger.help("\n-----------------------------------------------------------------------")
 }

@@ -1,6 +1,6 @@
 import {gulp, fs, path, args, logger, config} from "../loader"
 import isValidName from "../utils/isValidName"
-import {dashlineName, capitalName} from "../utils/nameConvert"
+import {dashlineName, camelName} from "../utils/nameConvert"
 
 import merge from "pipe-concat"
 
@@ -33,13 +33,42 @@ module.exports = function() {
 	if(fs.existsSync(componentPath + "/package.json")) {
 		return buildPackage()
 	}
+	// pack component if there is a index.js in src dir
+	else if(fs.existsSync(srcPath + "/index.js")) {
+		return buildScript(srcPath + "/index.js", distPath)
+	}
 	// if it is a normal component
 	else {
 		return buildComponent()
 	}
 
-	function doneMsg() {
-		logger().timestamp().done(`gulp success: ${name} has been completely built.`)
+	function buildPackage() {
+		return gulp.src(srcPath + "/**/*")
+			.pipe(babel())
+			.pipe(gulp.dest(distPath))
+			.on("end", doneMsg)
+	}
+
+	function buildComponent() {
+		return merge(buildScript(), buildStyle(), copyImages(), copyFonts()).on("end", doneMsg)
+	}
+
+	function buildScript(entryFile = srcPath + "/js/" + name + ".js", outDir = distPath + "/js/") {
+		return gulp.src(entryFile)
+			// webpack
+			.pipe(webpack(config.webpack({
+				output: {
+					filename: name + ".js",
+					library: camelName(name),
+				},
+			})))
+			.pipe(gulp.dest(outDir))
+			// minify code
+			.pipe(uglify())
+			.pipe(rename({
+				suffix: ".min",
+			}))
+			.pipe(gulp.dest(outDir))
 	}
 
 	function buildStyle() {
@@ -66,53 +95,7 @@ module.exports = function() {
 			.pipe(gulp.dest(distPath + "/fonts/"))
 	}
 
-	function buildComponentScript() {
-		var stream = gulp.src(srcPath + "/js/index.js")
-			// webpack code
-			.pipe(webpack({
-				module: {
-					loaders: [
-						{
-							test: /\.js$/, 
-							loaders: ["babel?presets[]=latest"],
-						},
-					],
-				},
-				output: {
-			        library: capitalName(name),
-			        libraryTarget: "umd",
-			    },
-			}))
-			.pipe(rename(name + ".js"))
-			.pipe(gulp.dest(distPath + "/js/"))
-			// browserify
-			// minify code
-			.pipe(uglify())
-			.pipe(rename({
-				suffix: ".min",
-			}))
-			.pipe(gulp.dest(distPath + "/js/"))
-		return stream
-	}
-
-	function buildPackageScript() {
-		var stream = gulp.src(srcPath + "/" + name + ".js")
-			// compile code
-			.pipe(babel())
-			.pipe(rename(name + ".js"))
-			.pipe(gulp.dest(distPath))
-		return stream
-	}
-
-	function buildPackage() {
-		var stream = buildPackageScript()
-		stream.on("end", doneMsg)
-		return stream
-	}
-
-	function buildComponent() {
-		var stream = merge(buildComponentScript(), buildStyle(), copyImages(), copyFonts())
-		stream.on("end", doneMsg)
-		return stream
+	function doneMsg() {
+		logger.set("timestamp", true).done(`gulp success: ${name} has been completely built.`)
 	}
 }

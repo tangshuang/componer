@@ -4,7 +4,6 @@
   "description": "",
   "main": "dist/{{component-name}}.js",
   "scripts": {
-    "babel": "babel src/{{component-name}}.js -o dist/{{component-name}}.js"
   },
   "keywords": [
   ],
@@ -16,9 +15,5 @@
   "bugs": {
     "url": "https://github.com/{{author}}/{{component-name}}/issues"
   },
-  "license": "ISC",
-  "devDependencies": {
-    "babel-cli": "^6.18.0",
-    "babel-preset-latest": "^6.16.0"
-  }
+  "license": "ISC"
 }
