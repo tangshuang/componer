@@ -31,7 +31,7 @@ module.exports = function() {
 		fs.mkdir(distPath)
 	}
 
-	// if it is a package
+	// package
 	if(fs.existsSync(componentPath + "/package.json")) {
 		return gulp.src(srcPath + "/**/*")
 			.pipe(babel())
@@ -59,7 +59,7 @@ module.exports = function() {
 	else if(fs.existsSync(srcPath + "/index.js")) {
 		return buildScript(srcPath + "/index.js", distPath)
 	}
-	// like a jquery plugin
+	// like a plugin
 	else {
 		return merge(buildScript(), buildStyle(), copyImages(), copyFonts()).on("end", doneMsg)
 	}
