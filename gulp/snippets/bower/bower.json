@@ -21,7 +21,7 @@
     "dependencies": {},
     "devDependencies": {},
     "ignore": [
-        "preview/"
+        "preview/",
         "test/"
     ]
 }

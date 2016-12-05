@@ -19,10 +19,13 @@
   },
   "homepage": "https://github.com/tangshuang/componer#readme",
   "dependencies": {
+  },
+  "devDependencies": {
     "babel-core": "^6.18.2",
     "babel-loader": "^6.2.8",
     "babel-preset-latest": "^6.16.0",
     "babel-register": "^6.18.0",
+    "extend": "^3.0.0",
     "gulp": "^3.9.1",
     "gulp-babel": "^6.1.2",
     "gulp-concat": "^2.6.1",
@@ -36,12 +39,9 @@
     "process.logger": "^1.1.3",
     "shelljs": "^0.7.5",
     "ts-server": "0.0.2",
-    "webpack-stream": "^3.2.0"
-  },
-  "devDependencies": {
+    "webpack-stream": "^3.2.0",
     "babel-cli": "^6.18.0",
     "css-loader": "^0.26.0",
-    "extend": "^3.0.0",
     "file-loader": "^0.9.0",
     "gulp-cli": "^1.2.2",
     "html-loader": "^0.4.4",

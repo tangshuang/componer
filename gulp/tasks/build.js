@@ -2,6 +2,8 @@ import {gulp, fs, path, args, logger, config} from "../loader"
 import isValidName from "../utils/isValidName"
 import {dashlineName, camelName} from "../utils/nameConvert"
 
+import extend from "extend"
+
 import merge from "pipe-concat"
 
 import webpack from "webpack-stream"
@@ -31,43 +33,49 @@ module.exports = function() {
 
 	// if it is a package
 	if(fs.existsSync(componentPath + "/package.json")) {
-		return buildPackage()
-	}
-	// bower
-	else if(fs.existsSync(componentPath + "/bower.json")) {
-		var bowerInfo = fs.readfileSync(componentPath + "/bower.json")
-		var bowerInfo = JSON.parse(bowerInfo)
-		
-	}
-	// pack component if there is a index.js in src dir
-	else if(fs.existsSync(srcPath + "/index.js")) {
-		return buildScript(srcPath + "/index.js", distPath)
-	}
-	// if it is a normal component
-	else {
-		return buildComponent()
-	}
-
-	function buildPackage() {
 		return gulp.src(srcPath + "/**/*")
 			.pipe(babel())
 			.pipe(gulp.dest(distPath))
 			.on("end", doneMsg)
 	}
+	// bower
+	else if(fs.existsSync(componentPath + "/bower.json")) {
+		var bowerInfo = fs.readFileSync(componentPath + "/bower.json")
+		bowerInfo = JSON.parse(bowerInfo)
+		var dependencies = bowerInfo.dependencies
+		var externals = {}
 
-	function buildComponent() {
+		for(let dependence in dependencies) {
+			externals[dependence] = dependence
+		}
+
+		var settings = {
+			externals: externals
+		}
+
+		return merge(buildScript( undefined, undefined, settings), buildStyle(), copyImages(), copyFonts()).on("end", doneMsg)
+	}
+	// pack component in a file
+	else if(fs.existsSync(srcPath + "/index.js")) {
+		return buildScript(srcPath + "/index.js", distPath)
+	}
+	// like a jquery plugin
+	else {
 		return merge(buildScript(), buildStyle(), copyImages(), copyFonts()).on("end", doneMsg)
 	}
 
-	function buildScript(entryFile = srcPath + "/js/" + name + ".js", outDir = distPath + "/js/") {
-		return gulp.src(entryFile)
-			// webpack
-			.pipe(webpack(config.webpack({
+	function buildScript(entryFile = srcPath + "/js/" + name + ".js", outDir = distPath + "/js/", options = {}) {
+		var defaults = config.webpack({
 				output: {
 					filename: name + ".js",
 					library: camelName(name),
 				},
-			})))
+			})
+		var settings = extend(true, {}, defaults, options)
+
+		return gulp.src(entryFile)
+			// webpack
+			.pipe(webpack(settings))
 			.pipe(gulp.dest(outDir))
 			// minify code
 			.pipe(uglify())

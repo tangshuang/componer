@@ -25,57 +25,28 @@ module.exports = function() {
 		fs.mkdir(componentPath)
 	}
 
-	if(type === "package") {
-		return addPackage()
-	}
-	else if(type === "bower") {
-		return addBower()
-	}
-	else {
-		return addComponent()
-	}
-
-	function doneMsg() {
-		logger.set("timestamp", true).done(`gulp success: ${name} has been completely created.`)
-		logger("Go coding now! Every time you change your code, I will build this component for you automaticly...")
-		runTask("watch", {
-			name: name
-		})
-	}
-
-	function addPackage() {
-		return gulp.src([snippetPath + "/**/*", snippetPath + "/.*"])
-			.pipe(paserSnippet({
-				componentName: name,
-				author: arg.author || "",
-			}))
-			.pipe(gulp.dest(componentPath))
-			.on("end", () => {
+	return gulp.src([snippetPath + "/**/*", snippetPath + "/.*"])
+		.pipe(paserSnippet({
+			componentName: name,
+			author: arg.author || "",
+		}))
+		.pipe(gulp.dest(componentPath))
+		.on("end", () => {
+			logger.set("timestamp", true).done(`gulp success: ${name} has been completely created.`)
+			logger("Go coding now! Every time you change your code, Componer will build this component for you automaticly...")
+			
+			if(type === "package") {
 				fs.renameSync(componentPath + "/src/index.js", componentPath + "/src/" + name + ".js")
-				doneMsg()
-			})
-	}
-
-	function addBower() {
-		return gulp.src([snippetPath + "/**/*", snippetPath + "/.*"])
-			.pipe(paserSnippet({
-				componentName: name,
-				author: arg.author || "",
-			}))
-			.pipe(gulp.dest(componentPath))
-			.on("end", () => {
+				runTask("watch", {
+					name: name
+				})
+			}
+			else {
 				fs.renameSync(componentPath + "/src/js/index.js", componentPath + "/src/js/" + name + ".js")
 				fs.renameSync(componentPath + "/src/style/index.scss", componentPath + "/src/style/" + name + ".scss")
-				doneMsg()
-			})
-	}
-	
-	function addComponent() {
-		return gulp.src([snippetPath + "/**/*", snippetPath + "/.*"])
-			.pipe(paserSnippet({
-				componentName: name,
-			}))
-			.pipe(gulp.dest(componentPath))
-			.on("end", doneMsg)
-	}
+				runTask("preview", {
+					name: name
+				})
+			}
+		})
 }
