@@ -33,6 +33,12 @@ module.exports = function() {
 	if(fs.existsSync(componentPath + "/package.json")) {
 		return buildPackage()
 	}
+	// bower
+	else if(fs.existsSync(componentPath + "/bower.json")) {
+		var bowerInfo = fs.readfileSync(componentPath + "/bower.json")
+		var bowerInfo = JSON.parse(bowerInfo)
+		
+	}
 	// pack component if there is a index.js in src dir
 	else if(fs.existsSync(srcPath + "/index.js")) {
 		return buildScript(srcPath + "/index.js", distPath)

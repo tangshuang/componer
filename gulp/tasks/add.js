@@ -43,15 +43,6 @@ module.exports = function() {
 		})
 	}
 
-	function addComponent() {
-		return gulp.src([snippetPath + "/**/*", snippetPath + "/.*"])
-			.pipe(paserSnippet({
-				componentName: name,
-			}))
-			.pipe(gulp.dest(componentPath))
-			.on("end", doneMsg)
-	}
-
 	function addPackage() {
 		return gulp.src([snippetPath + "/**/*", snippetPath + "/.*"])
 			.pipe(paserSnippet({
@@ -77,5 +68,14 @@ module.exports = function() {
 				fs.renameSync(componentPath + "/src/style/index.scss", componentPath + "/src/style/" + name + ".scss")
 				doneMsg()
 			})
+	}
+	
+	function addComponent() {
+		return gulp.src([snippetPath + "/**/*", snippetPath + "/.*"])
+			.pipe(paserSnippet({
+				componentName: name,
+			}))
+			.pipe(gulp.dest(componentPath))
+			.on("end", doneMsg)
 	}
 }

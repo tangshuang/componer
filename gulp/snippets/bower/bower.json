@@ -2,9 +2,21 @@
     "name": "{{component-name}}",
     "version": "0.0.1",
     "main": [
-        "build/{{component-name}}.min.js",
-        "build/{{component-name}}.min.css"
+        "src/js/{{component-name}}.js",
+        "src/style/{{component-name}}.scss"
     ],
+    "moduleType": [
+        "es6",
+        "node"
+    ],
+    "authors": [
+        "{{author}}"
+    ],
+    "homepage": "https://github.com/{{author}}/{{component-name}}",
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/{{author}}/{{component-name}}.git"
+    },
     "keywords": [],
     "dependencies": {},
     "devDependencies": {},
