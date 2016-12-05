@@ -19,6 +19,13 @@ module.exports = function() {
 	var previewPath = path.join(componentPath, "preview")
 	var distPath = path.join(componentPath, "dist")
 
+	gulp.watch([srcPath + "/**/*"], event => {
+		logger.set("timestamp", true).help('File ' + event.path + ' was ' + event.type + ', running tasks...')
+		runTask("build", {
+			name: name
+		})
+	})
+
 	if(!fs.existsSync(previewPath)) {
 		logger.set("timestamp", true).error(`gulp error: component ${name} has no preveiw directory.`)
 		return
@@ -29,13 +36,6 @@ module.exports = function() {
 			name: name
 		})
 	}
-
-	var watcher = gulp.watch([srcPath + "/**/*"], event => {
-		logger.set("timestamp", true).help('File ' + event.path + ' was ' + event.type + ', running tasks...')
-		runTask("build", {
-			name: name
-		})
-	})
 
 	var $server = new TsServer()
 	var port = Math.floor(Math.random() * 1000) + 8000

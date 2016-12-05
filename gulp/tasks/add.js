@@ -35,11 +35,12 @@ module.exports = function() {
 		return addComponent()
 	}
 
-	function doneMsg() {
+	function done() {
 		logger.set("timestamp", true).done(`gulp success: ${name} has been completely created.`)
 		logger("Go coding now! Every time you change your code, I will build this component for you automaticly...")
-		runTask("watch", {
-			name: name
+		// build and open a browser to open preview page
+		runTask("preview", {
+			name: name,
 		})
 	}
 
@@ -49,7 +50,7 @@ module.exports = function() {
 				componentName: name,
 			}))
 			.pipe(gulp.dest(componentPath))
-			.on("end", doneMsg)
+			.on("end", done)
 	}
 
 	function addPackage() {
@@ -61,7 +62,7 @@ module.exports = function() {
 			.pipe(gulp.dest(componentPath))
 			.on("end", () => {
 				fs.renameSync(componentPath + "/src/index.js", componentPath + "/src/" + name + ".js")
-				doneMsg()
+				done()
 			})
 	}
 
@@ -75,7 +76,7 @@ module.exports = function() {
 			.on("end", () => {
 				fs.renameSync(componentPath + "/src/js/index.js", componentPath + "/src/js/" + name + ".js")
 				fs.renameSync(componentPath + "/src/style/index.scss", componentPath + "/src/style/" + name + ".scss")
-				doneMsg()
+				done()
 			})
 	}
 }
