@@ -1,7 +1,14 @@
 import extend from "extend"
 
-function WebpackConfig(options) {
+module.exports = function(options) {
 	var defaults = {
+		output: {
+			filename: "",
+			library: "",
+			libraryTarget: "umd",
+		},
+		externals: {
+		},
 		module: {
 			loaders: [
 				{
@@ -38,14 +45,7 @@ function WebpackConfig(options) {
 				},
 			],
 		},
-		output: {
-			// library: "",
-			libraryTarget: "umd",
-		},
 	}
 
 	return extend(true, {}, defaults, options)
 }
-
-export default WebpackConfig
-module.exports = WebpackConfig

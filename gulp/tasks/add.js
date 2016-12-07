@@ -37,16 +37,10 @@ module.exports = function() {
 			
 			if(type === "package") {
 				fs.renameSync(componentPath + "/src/index.js", componentPath + "/src/" + name + ".js")
-				runTask("watch", {
-					name: name
-				})
 			}
 			else {
 				fs.renameSync(componentPath + "/src/js/index.js", componentPath + "/src/js/" + name + ".js")
 				fs.renameSync(componentPath + "/src/style/index.scss", componentPath + "/src/style/" + name + ".scss")
-				runTask("preview", {
-					name: name
-				})
 			}
 		})
 }

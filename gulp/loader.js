@@ -3,7 +3,9 @@ import fs from "fs"
 import path from "path"
 import logger from "process.logger"
 import processArgs from "process.args"
+
 import webpack from "../webpack.config"
+import karma from "../karma.config"
 
 const rootPath = path.resolve(__dirname, "..")
 const gulpDir = path.basename(__dirname)
@@ -31,6 +33,7 @@ const config = {
 		components: path.join(rootPath, componentsDir),
 	},
 	webpack,
+	karma,
 }
 
 export {
