@@ -73,7 +73,9 @@ module.exports = function() {
 
 		var dependencies = componerInfo.dependencies
 		var externals = {}
-		dependencies.forEach(dependence => externals[dependence] = dependence)
+		for(let dependence in dependencies) {
+			externals[dependence] = dependence
+		}
 		var settings = {
 			externals: externals
 		}
