@@ -128,11 +128,18 @@ Just put jquery in dependencies in `bower.json` as bower always do. Dependences 
 
 Componer use sass to build css, `src/style/component-name.scss` is the entry file. Notice that, all images and fonts will **not** be packed in the final css! Because we always want to use a image from a static server by url. So absolute url is recommended.
 
-3. normal component
+3. component
 
-A normal component is a component without any another dependencies. It works everywhere, provide apis. So in fact, a normal component is a project which works for one thing.
+A component is a project, which can be provide all services in one package. For example, a chart component with settings, different chart views, data sources apis.
 
-So at last, the component will be build into a file to contains all it needs.
+A component can work without any another dependencies. It works everywhere, provide apis. 
+So at last, the component will be build into a file to contains all it dependencies.
+
+This is recommended, however, you can change config in `component.json`.
+
+4. default
+
+Like a jquery plugin, or some other normal js/css package.
 
 ## Development
 

@@ -4,9 +4,10 @@ import {dashlineName} from "../utils/nameConvert"
 import runTask from "../utils/runTask"
 
 import {server as karma} from "gulp-karma-runner"
+import shell from "shelljs"
 
 module.exports = function() {
-	var arg = args.watch
+	var arg = args.test
 	var name = arg.name
 	
 	if(!isValidName(name)) {
@@ -24,13 +25,6 @@ module.exports = function() {
 		return
 	}
 
-	gulp.watch([srcPath + "/**/*"], event => {
-		logger.set("timestamp", true).help('File ' + event.path + ' was ' + event.type + ', running tasks...')
-		runTask("build", {
-			name: name
-		})
-	})
-
 	if(!fs.existsSync(distPath)) {
 		runTask("build", {
 			name: name
@@ -39,18 +33,14 @@ module.exports = function() {
 
 	// package
 	if(fs.existsSync(componentPath + "/package.json")) {
-		return gulp.src([testPath + "/**/*.js"])
-			.pipe(karma(config.karma({
-				port: 9000 + parseInt(Math.random() * 1000),
-				browsers: ["PhantomJS", "Chrome"],
-			})))
+		shell.exec("babel-node " + testPath + "/index.js --color")
 	}
 	// others
 	else {
-		return gulp.src([testPath + "/**/*.js"])
-			.pipe(karma(config.karma({
-				port: 9000 + parseInt(Math.random() * 1000),
-				browsers: [],
-			})))
+		// return gulp.src([testPath + "/**/*.js"])
+		// 	.pipe(karma(config.karma({
+		// 		port: 9000 + parseInt(Math.random() * 1000),
+		// 		browsers: [],
+		// 	})))
 	}
 }

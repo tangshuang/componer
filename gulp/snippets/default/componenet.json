@@ -1,0 +1,6 @@
+{
+	"entry": "src/index.js",
+	"pack": true,
+	"dependencies": [
+	]
+}

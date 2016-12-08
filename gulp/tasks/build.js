@@ -5,6 +5,7 @@ import {dashlineName, camelName} from "../utils/nameConvert"
 import extend from "extend"
 
 import merge from "pipe-concat"
+import shell from "shelljs"
 
 import webpack from "webpack-stream"
 import rename from "gulp-rename"
@@ -27,9 +28,13 @@ module.exports = function() {
 	var srcPath = path.join(componentPath, "src")
 	var distPath = path.join(componentPath, "dist")
 
+	// mkdir
 	if(!fs.existsSync(distPath)) {
 		fs.mkdir(distPath)
 	}
+
+	// clean the dist dir
+	shell.exec("rm -rf " + distPath + "/*")
 
 	// package
 	if(fs.existsSync(componentPath + "/package.json")) {
@@ -55,11 +60,32 @@ module.exports = function() {
 
 		return merge(buildScript( undefined, undefined, settings), buildStyle(), copyImages(), copyFonts()).on("end", doneMsg)
 	}
-	// pack component in a file
-	else if(fs.existsSync(srcPath + "/index.js")) {
-		return buildScript(srcPath + "/index.js", distPath)
+	// component
+	else if(fs.existsSync(componentPath + "/component.json")) {
+		var componerInfo = fs.readFileSync(componentPath + "/component.json")
+		componerInfo = JSON.parse(componerInfo)
+
+		var entryFile = componerInfo.entry
+		if(!entryFile || !fs.existsSync(componentPath + "/" + entryFile)) {
+			logger.error(`error: not found entry file when build ${name}.`)
+			return
+		}
+
+		var dependencies = componerInfo.dependencies
+		var externals = {}
+		dependencies.forEach(dependence => externals[dependence] = dependence)
+		var settings = {
+			externals: externals
+		}
+
+		if(componerInfo.pack) {
+			return buildScript(entryFile, distPath, settings).on("end", doneMsg)
+		}
+		else {
+			return merge(buildScript(entryFile, distPath + "/js/", settings), buildStyle(), copyImages(), copyFonts()).on("end", doneMsg)
+		}
 	}
-	// like a plugin
+	// plugin
 	else {
 		return merge(buildScript(), buildStyle(), copyImages(), copyFonts()).on("end", doneMsg)
 	}
