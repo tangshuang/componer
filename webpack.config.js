@@ -3,9 +3,10 @@ import extend from "extend"
 module.exports = function(options) {
 	var defaults = {
 		output: {
-			filename: "",
+			filename: "index.js",
 			library: "",
 			libraryTarget: "umd",
+			sourceMapFilename: "",
 		},
 		externals: {
 		},
@@ -13,38 +14,43 @@ module.exports = function(options) {
 			loaders: [
 				{
 					test: /\.js$/, 
-					loaders: ["babel?presets[]=latest"],
+					loader: "babel?presets[]=latest",
 				},
 				{
 					test: /^(?:(?!http).)*\.scss$/,
-					loader: "style!css!sass"
+					loader: "style!css!sass",
 				},
 				{
 					test: /^(?:(?!http).)*\.css$/,
-					loader: "style!css"
+					loader: "style!css",
 				},
 				{
 					test: /\.jpg$/,
-					loader: "file"
+					loader: "file",
 				},
 				{
 					test: /\.svg$/,
-					loader: "url?limit=15000&mimetype=image/svg+xml"
+					loader: "url?limit=15000&mimetype=image/svg+xml",
 				},
 				{
 					test: /\.woff(\?v=\d+\.\d+\.\d+)?$/,
-					loader: "url?limit=100000&minetype=application/x-font-woff"
+					loader: "url?limit=100000&minetype=application/x-font-woff",
 				},
 				{
 					test: /\.png$/,
-					loader: "url?limit=15000&mimetype=image/png"
+					loader: "url?limit=15000&mimetype=image/png",
 				},
 				{
 					test: /\.html$/,
-					loader: "html?attrs=img:src input:src"
+					loader: "html?attrs=img:src input:src",
 				},
 			],
 		},
+		resolve: {
+			packageAlias: "bowerComponents",
+		},
+		target: "web",
+		devtool: "source-map",
 	}
 
 	return extend(true, {}, defaults, options)

@@ -1,0 +1,12 @@
+{
+	"name": "{{component-name}}",
+	"pack": false,
+	"entry": "src/index.js",
+	"settings": {
+		"externals": {},
+		"resolve": {
+			"packageAlias": "bowerComponents",
+			"alias": {}
+		}
+	}
+}

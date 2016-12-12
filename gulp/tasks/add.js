@@ -33,7 +33,6 @@ module.exports = function() {
 		.pipe(gulp.dest(componentPath))
 		.on("end", () => {
 			logger.set("timestamp", true).done(`gulp success: ${name} has been completely created.`)
-			logger("Go coding now! Every time you change your code, Componer will build this component for you automaticly...")
 			
 			if(type === "package") {
 				fs.renameSync(componentPath + "/src/index.js", componentPath + "/src/" + name + ".js")

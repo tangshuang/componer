@@ -1,0 +1,17 @@
+{
+    "name": "componer",
+    "description": "use `bower install` to install your bower components shared with all components",
+    "version": "0.0.1",
+    "main": "",
+    "authors": [
+        "tangshuang"
+    ],
+    "homepage": "https://github.com/tangshuang/componer",
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/tangshuang/componer.git"
+    },
+    "keywords": [],
+    "dependencies": {},
+    "devDependencies": {}
+}

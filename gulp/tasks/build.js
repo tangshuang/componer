@@ -6,6 +6,7 @@ import extend from "extend"
 
 import merge from "pipe-concat"
 import shell from "shelljs"
+import PipeQueue from "pipe-queue"
 
 import webpack from "webpack-stream"
 import rename from "gulp-rename"
@@ -61,34 +62,28 @@ module.exports = function() {
 		return merge(buildScript( undefined, undefined, settings), buildStyle(), copyImages(), copyFonts()).on("end", doneMsg)
 	}
 	// component
-	else if(fs.existsSync(componentPath + "/component.json")) {
-		var componerInfo = fs.readFileSync(componentPath + "/component.json")
-		componerInfo = JSON.parse(componerInfo)
+	else if(fs.existsSync(componentPath + "/componer.json")) {
+		var componentInfo = fs.readFileSync(componentPath + "/componer.json")
+		componentInfo = JSON.parse(componentInfo)
 
-		var entryFile = componerInfo.entry
-		if(!entryFile || !fs.existsSync(componentPath + "/" + entryFile)) {
-			logger.error(`error: not found entry file when build ${name}.`)
-			return
-		}
-
-		var dependencies = componerInfo.dependencies
-		var externals = {}
-		for(let dependence in dependencies) {
-			externals[dependence] = dependence
-		}
-		var settings = {
-			externals: externals
-		}
-
-		if(componerInfo.pack) {
-			return buildScript(entryFile, distPath, settings).on("end", doneMsg)
+		if(componentInfo.pack) {
+			var entryFile = componentPath + "/" + componentInfo.entry
+			if(!entryFile || !fs.existsSync(entryFile)) {
+				logger.error(`error: not found entry file when build ${name}.`)
+				return
+			}
+			return buildScript(entryFile, distPath, componentInfo.settings).on("end", doneMsg)
 		}
 		else {
-			return merge(buildScript(entryFile, distPath + "/js/", settings), buildStyle(), copyImages(), copyFonts()).on("end", doneMsg)
+			return buildNormalComponent()
 		}
 	}
 	// plugin
 	else {
+		return buildNormalComponent()
+	}
+
+	function buildNormalComponent() {
 		return merge(buildScript(), buildStyle(), copyImages(), copyFonts()).on("end", doneMsg)
 	}
 
@@ -96,21 +91,28 @@ module.exports = function() {
 		var defaults = config.webpack({
 				output: {
 					filename: name + ".js",
+					sourceMapFilename: name + ".js.map",
 					library: camelName(name),
 				},
 			})
 		var settings = extend(true, {}, defaults, options)
 
-		return gulp.src(entryFile)
-			// webpack
-			.pipe(webpack(settings))
-			.pipe(gulp.dest(outDir))
-			// minify code
-			.pipe(uglify())
-			.pipe(rename({
-				suffix: ".min",
-			}))
-			.pipe(gulp.dest(outDir))
+		var stream = gulp.src(entryFile)
+				.pipe(webpack(settings))
+				.pipe(gulp.dest(outDir))
+		var $queue = new PipeQueue()
+
+		$queue.when(stream).then(next => {
+			gulp.src(outDir + "/*.js")
+				.pipe(uglify())
+				.pipe(rename({
+					suffix: ".min",
+				}))
+				.pipe(gulp.dest(outDir))
+				.on("end", next)
+		})
+
+		return $queue.stream()
 	}
 
 	function buildStyle() {
