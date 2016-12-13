@@ -141,6 +141,19 @@ This is recommended, however, you can change config in `component.json`.
 
 Like a jquery plugin, or some other normal js/css package.
 
+## Componer CLI
+
+Componer provide a cli command tool:
+
+```
+npm install -g componer
+componer --help
+```
+
+You can read all from help document.
+
+And event you can develop your custom cli command. You should know `commander` firstly, then code in `./bin/custom-cli.js`. Do it!
+
 ## Development
 
 If you want to contribute to this project, follow rules:
