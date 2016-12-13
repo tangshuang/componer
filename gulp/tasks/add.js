@@ -18,7 +18,7 @@ module.exports = function() {
 	var snippetPath = path.join(config.paths.snippets, type)
 
 	if(fs.existsSync(componentPath)) {
-		logger.set("timestamp", true).error(`gulp error: ${name} exists, delete "components/${name}" before you add.`)
+		logger.error(`Error: ${name} exists, delete "components/${name}" before you add.`)
 		return
 	}
 	else {
@@ -32,7 +32,7 @@ module.exports = function() {
 		}))
 		.pipe(gulp.dest(componentPath))
 		.on("end", () => {
-			logger.set("timestamp", true).done(`gulp success: ${name} has been completely created.`)
+			logger.done(`Success: ${name} has been completely created.`)
 			
 			if(type === "package") {
 				fs.renameSync(componentPath + "/src/index.js", componentPath + "/src/" + name + ".js")

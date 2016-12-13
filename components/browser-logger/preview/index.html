@@ -8,20 +8,21 @@
 	<p>Press F12 to open console.</p>
 	<p>And then edit preview/index.html to change content.</p>
 
-	<script src="../dist/js/browser-logger.min.js"></script>
+	<script src="../dist/js/browser-logger.js"></script>
 	<script>
 		var data = {
 			100: "go die!"
 		}
 		// Notice the following line! in fact BrowserLogger is a function, you can use it directly
-		var Logger = window.BrowserLogger; 
+		var Logger = window.browserLogger; 
 		// 1. logger
 		Logger("You are cute!", "background: blue; color: #fff;", "info");
-		BrowserLogger("Now you can see the info.")
-		// 2. prototype
+		browserLogger("Now you can see the info.")
+		// 2. apis
 		Logger.data(data);
 		Logger.log(100, "color: red");
 		Logger.error(100, "color: red");
+		Logger.success("What you said is not true.", "color: red")
 		// 3. set, put and print
 		Logger.set("warn").put("You", "color: red").put("are", "color: green; background: #ccc").put("right", "color: bule; font-size: 2em;").print();
 	</script>

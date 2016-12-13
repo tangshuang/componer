@@ -1,5 +1,6 @@
 import {gulp, fs, path, args, logger, config} from "../loader"
 import isValidName from "../utils/isValidName"
+import hasComponent from "../utils/hasComponent"
 import {dashlineName, camelName} from "../utils/nameConvert"
 
 import extend from "extend"
@@ -16,11 +17,16 @@ import concat from "gulp-concat"
 import cssmin from "gulp-cssmin"
 import babel from "gulp-babel"
 
+import sourcemaps from "gulp-sourcemaps"
+
 module.exports = function() {
 	var arg = args.build
 	var name = arg.name
 
 	if(!isValidName(name)) {
+		return
+	}
+	if(!hasComponent(name)) {
 		return
 	}
 
@@ -66,28 +72,28 @@ module.exports = function() {
 		var componentInfo = fs.readFileSync(componentPath + "/componer.json")
 		componentInfo = JSON.parse(componentInfo)
 
+		var entryFile = componentInfo.entry ? componentPath + "/" + componentInfo.entry : srcPath + "/js/" + name + ".js"
+		if(!fs.existsSync(entryFile)) {
+			logger.error(`Error: not found entry file when build ${name}.`)
+			return
+		}
+
+		var outDir = componentInfo.output ? componentPath + "/" + componentInfo.output : distPath + "/js/"
+		var settings = componentInfo.settings
+
 		if(componentInfo.pack) {
-			var entryFile = componentPath + "/" + componentInfo.entry
-			if(!entryFile || !fs.existsSync(entryFile)) {
-				logger.error(`error: not found entry file when build ${name}.`)
-				return
-			}
-			return buildScript(entryFile, distPath, componentInfo.settings).on("end", doneMsg)
+			return buildScript(entryFile, outDir, settings).on("end", doneMsg)
 		}
 		else {
-			return buildNormalComponent()
+			return merge(buildScript(entryFile, outDir, settings), buildStyle(), copyImages(), copyFonts()).on("end", doneMsg)
 		}
 	}
-	// plugin
+	// other
 	else {
-		return buildNormalComponent()
-	}
-
-	function buildNormalComponent() {
 		return merge(buildScript(), buildStyle(), copyImages(), copyFonts()).on("end", doneMsg)
 	}
 
-	function buildScript(entryFile = srcPath + "/js/" + name + ".js", outDir = distPath + "/js/", options = {}) {
+	function buildScript(entryFile = `${srcPath}/js/${name}.js"`, outDir = `${distPath}/js/`, options = {}) {
 		var defaults = config.webpack({
 				output: {
 					filename: name + ".js",
@@ -97,36 +103,37 @@ module.exports = function() {
 			})
 		var settings = extend(true, {}, defaults, options)
 
-		var stream = gulp.src(entryFile)
-				.pipe(webpack(settings))
-				.pipe(gulp.dest(outDir))
 		var $queue = new PipeQueue()
 
-		$queue.when(stream).then(next => {
-			gulp.src(outDir + "/*.js")
-				.pipe(uglify())
-				.pipe(rename({
-					suffix: ".min",
-				}))
-				.pipe(gulp.dest(outDir))
-				.on("end", next)
-		})
+		$queue.when(gulp.src(entryFile)
+				.pipe(webpack(settings))
+				.pipe(gulp.dest(outDir)))
+			.then(next => {
+				gulp.src(outDir + "/" + name + ".js")
+					.pipe(uglify())
+					.pipe(rename({
+						suffix: ".min",
+					}))
+					.pipe(gulp.dest(outDir))
+					.on("end", next)
+			})
 
 		return $queue.stream()
 	}
 
-	function buildStyle() {
-		return gulp.src(srcPath + "/style/*.scss")
+	function buildStyle(entryFile = `${srcPath}/style/${name}.scss"`, outDir = `${distPath}/css/`, options = {}) {
+		return gulp.src(entryFile)
 			// compile scss
-			.pipe(sass())
-			.pipe(concat(name + ".css"))
+			.pipe(sourcemaps.init())
+			.pipe(sass().on('error', sass.logError))
+			.pipe(sourcemaps.write())
 			.pipe(gulp.dest(distPath + "/css/"))
 			// minify code
 			.pipe(cssmin())
 			.pipe(rename({
 				suffix: ".min",
 			}))
-			.pipe(gulp.dest(distPath + "/css/"))
+			.pipe(gulp.dest(outDir))
 	}
 
 	function copyImages() {
@@ -140,6 +147,6 @@ module.exports = function() {
 	}
 
 	function doneMsg() {
-		logger.set("timestamp", true).done(`gulp success: ${name} has been completely built.`)
+		logger.done(`Success: ${name} has been completely built.`)
 	}
 }

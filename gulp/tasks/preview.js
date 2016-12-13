@@ -1,5 +1,6 @@
 import {gulp, path, fs, args, logger, config} from "../loader"
 import isValidName from "../utils/isValidName"
+import hasComponent from "../utils/hasComponent"
 import {dashlineName} from "../utils/nameConvert"
 import runTask from "../utils/runTask"
 
@@ -12,6 +13,9 @@ module.exports = function() {
 	if(!isValidName(name)) {
 		return
 	}
+	if(!hasComponent(name)) {
+		return
+	}
 
 	name = dashlineName(name)
 	var componentPath = path.join(config.paths.components, name)
@@ -20,12 +24,12 @@ module.exports = function() {
 	var distPath = path.join(componentPath, "dist")
 
 	if(!fs.existsSync(previewPath)) {
-		logger.set("timestamp", true).error(`gulp error: component ${name} has no preveiw directory.`)
+		logger.error(`Error: component ${name} has no preveiw directory.`)
 		return
 	}
 
 	gulp.watch([srcPath + "/**/*"], event => {
-		logger.set("timestamp", true).help('File ' + event.path + ' was ' + event.type + ', running tasks...')
+		logger.help('File ' + event.path + ' was ' + event.type + ', running tasks...')
 		runTask("build", {
 			name: name
 		})

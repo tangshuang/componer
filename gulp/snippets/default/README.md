@@ -19,15 +19,14 @@ This package is written by ES6, use [componer](https://github.com/tangshuang/com
 
 ```
 {
+	"name": "{{component-name}}", // your component name
+	"pack": true, // whether pack all sources into a .js file, contains css, images, fonts
 	"entry": "src/index.js", // which is the entry file to be pack with by webpack
-	"pack": {
-		"enable": true, // whether pack all sources into a .js file, contains css, images, fonts
-		"settings": { // if enable is true. referer to webpack configuration
-			"externals": {},
-			"resolve": {
-				"packageAlias": "bowerComponents",
-				"alias": {}
-			}
+	"settings": { // if pack is true. webpack configuration
+		"externals": {},
+		"resolve": {
+			"packageAlias": "bowerComponents",
+			"alias": {}
 		}
 	}
 }

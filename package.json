@@ -1,8 +1,11 @@
 {
   "name": "componer",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A components work flow frame dependented on gulp",
   "main": "index.js",
+  "bin": {
+    "componer": "bin/componer-cli.js"
+  },
   "scripts": {},
   "repository": {
     "type": "git",
@@ -18,7 +21,11 @@
     "url": "https://github.com/tangshuang/componer/issues"
   },
   "homepage": "https://github.com/tangshuang/componer#readme",
-  "dependencies": {},
+  "dependencies": {
+    "commander": "^2.9.0",
+    "process.logger": "^1.1.2",
+    "shelljs": "^0.7.5"
+  },
   "devDependencies": {
     "babel-cli": "^6.18.0",
     "babel-core": "^6.18.2",
@@ -51,9 +58,7 @@
     "pipe-concat": "0.0.2",
     "pipe-queue": "0.0.6",
     "process.args": "0.0.4",
-    "process.logger": "^1.1.2",
     "sass-loader": "^4.0.2",
-    "shelljs": "^0.7.5",
     "style-loader": "^0.13.1",
     "through2": "^2.0.3",
     "ts-server": "0.0.2",

@@ -1,13 +1,12 @@
 {
-	"name": "{{component-name}}",
+	"name": "browser-logger",
+	"pack": false,
 	"entry": "src/index.js",
-	"output": "dist/",
 	"settings": {
 		"externals": {},
 		"resolve": {
 			"packageAlias": "bowerComponents",
 			"alias": {}
 		}
-	},
-	"pack": true
+	}
 }

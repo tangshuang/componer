@@ -1,5 +1,6 @@
 import {gulp, path, fs, args, logger, config} from "../loader"
 import isValidName from "../utils/isValidName"
+import hasComponent from "../utils/hasComponent"
 import {dashlineName} from "../utils/nameConvert"
 import runTask from "../utils/runTask"
 
@@ -13,7 +14,10 @@ module.exports = function() {
 	if(!isValidName(name)) {
 		return
 	}
-
+	if(!hasComponent(name)) {
+		return
+	}
+	
 	name = dashlineName(name)
 	var componentPath = path.join(config.paths.components, name)
 	var srcPath = path.join(componentPath, "src")
@@ -21,7 +25,7 @@ module.exports = function() {
 	var testPath = path.join(componentPath, "test")
 
 	if(!fs.existsSync(testPath)) {
-		logger.set("timestamp", true).error(`gulp error: component ${name} has no test directory.`)
+		logger.error(`Error: component ${name} has no test directory.`)
 		return
 	}
 
