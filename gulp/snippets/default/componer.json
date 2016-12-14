@@ -1,13 +1,18 @@
 {
 	"name": "{{component-name}}",
-	"entry": "src/index.js",
-	"output": "dist/",
+	"entry": {
+		"js": "src/js/{{component-name}}.js",
+		"style": "src/style/{{component-name}}.scss"
+	},
+	"output": {
+		"js": "dist/js/",
+		"style": "dist/css/"
+	},
 	"settings": {
 		"externals": {},
 		"resolve": {
 			"packageAlias": "bowerComponents",
 			"alias": {}
 		}
-	},
-	"pack": true
+	}
 }

@@ -69,24 +69,17 @@ module.exports = function() {
 	}
 	// component
 	else if(fs.existsSync(componentPath + "/componer.json")) {
-		var componentInfo = fs.readFileSync(componentPath + "/componer.json")
-		componentInfo = JSON.parse(componentInfo)
+		var componentInfo = JSON.parse(fs.readFileSync(componentPath + "/componer.json"))
+		var settings = componentInfo.settings
+		var entry = componentInfo.entry
+		var output = componentInfo.output
 
-		var entryFile = componentInfo.entry ? componentPath + "/" + componentInfo.entry : srcPath + "/js/" + name + ".js"
-		if(!fs.existsSync(entryFile)) {
+		if(!fs.existsSync(componentPath + "/" + entry.js) && !fs.existsSync(componentPath + "/" + entry.style)) {
 			logger.error(`Error: not found entry file when build ${name}.`)
 			return
 		}
 
-		var outDir = componentInfo.output ? componentPath + "/" + componentInfo.output : distPath + "/js/"
-		var settings = componentInfo.settings
-
-		if(componentInfo.pack) {
-			return buildScript(entryFile, outDir, settings).on("end", doneMsg)
-		}
-		else {
-			return merge(buildScript(entryFile, outDir, settings), buildStyle(), copyImages(), copyFonts()).on("end", doneMsg)
-		}
+		return merge(buildScript(componentPath + "/" + entry.js, componentPath + "/" + output.js, settings), buildStyle(componentPath + "/" + entry.style, componentPath + "/" + output.style, settings), copyImages(), copyFonts()).on("end", doneMsg)
 	}
 	// other
 	else {
