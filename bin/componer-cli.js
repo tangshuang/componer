@@ -5,7 +5,7 @@ var fs = require("fs")
 var shell = require("shelljs")
 var logger = require("process.logger")
 var path = require("path")
-
+var readline = require('readline')
 // ----------------------------------
 
 var cwd = process.cwd()
@@ -35,12 +35,12 @@ function isComponer(dir) {
 function ValidComponer() {
 	cwd = __cwd()
 	if(!isComponer(cwd)) {
-		logger.error("\n  You are not in a componer project directory.\n")
-		process.exit(1)
+		logger.error("\nYou are not in a componer project directory.\n")
+		process.exit(0)
 	}
 	if(!fs.existsSync(cwd + "/node_modules/.bin/gulp")) {
-		logger.error("\n  You have not install gulp, not need to global install, just run `npm install` to finish it.\n")
-		process.exit(1)
+		logger.error("\nYou have not install completely, run `npm install` to finish it.\n")
+		process.exit(0)
 	}
 }
 
@@ -51,7 +51,19 @@ function excute(cmd, done, fail) {
 	}
 	else {
 		typeof fail === "function" && fail(result.stderr)
+		process.exit(0)
 	}
+}
+
+function prompt(question, callback) {
+	var rl = readline.createInterface({
+		input: process.stdin,
+		output: process.stdout,
+	})
+	rl.question(question, function(answer) {
+		rl.close()
+		callback(answer)
+	})
 }
 
 var info = JSON.parse(fs.readFileSync(__dirname + "/../package.json"))
@@ -66,7 +78,7 @@ program
 program
 	.arguments('<cmd>')
 	.action(function (cmd) {
-		logger.warn("\n  Not found " + cmd + " command, use `componer -h` to read more.\n")
+		logger.warn("\nNot found " + cmd + " command, use `componer -h` to read more.\n")
 	})
 
 program
@@ -75,7 +87,7 @@ program
 	.option("-i, --install", "run `npm install` automaticly after instance created")
 	.action(function(options) {
 		if(fs.readdirSync(cwd).length > 0) {
-			logger.error("\n  Current directory is not empty, you should begin in a new directory.\n")
+			logger.error("\nCurrent directory is not empty, you should begin in a new directory.\n")
 			process.exit(1)
 		}
 		excute("cp -r " + __dirname + "/../. " + cwd + "/")
@@ -85,9 +97,9 @@ program
 			return true
 		}
 		excute("cd " + cwd + " && npm install", function() {
-			logger.success("\n  Componer has copy to your current directory. Enjoy it!\n")
+			logger.success("\nComponer has copy to your current directory. Enjoy it!\n")
 		}, function(error) {
-			logger.error("\n  " + error + "\n  Init break! Run npm install again.\n")
+			logger.error("\n" + error + "\nInit break! Run npm install again.\n")
 		})
 	})
 
@@ -151,9 +163,7 @@ program
 	.action(function(name) {
 		ValidComponer()
 		excute("cd " + cwd + " && cd components && rm -rf " + name, function() {
-			logger.success("\n  Done! " + name + " has been deleted.\n")
-		}, function(error) {
-			logger.error("\n  " + error + "\n")
+			logger.success("\nDone! " + name + " has been deleted.\n")
 		})
 	})
 
@@ -168,9 +178,7 @@ program
 		ValidComponer()
 		var url = options.url || "https://github.com/componer/" + name + ".git"
 		excute("cd " + cwd + " && cd components && git clone " + url + " " + name, function() {
-			logger.success("\n  Done! Component has been add to components directory.\n")
-		}, function(error) {
-			logger.error("\n  " + error + "\n")
+			logger.success("\nDone! Component has been add to components directory.\n")
 		})
 	})
 
@@ -179,14 +187,15 @@ program
 	.description("push a component to https://github.com/componer")
 	.action(function(name, params) {
 		ValidComponer()
-		var cmd = "cd " + cwd + " && cd components && cd " + name + " && git push"
-		if(params.length > 0) {
-			cmd += " " + params.join(" ")
-		}
-		excute(cmd, function() {
-			logger.success("\n  Done! Component has been push to https://github.com/componer.\n")
-		}, function(error) {
-			logger.error("\n  " + error + "\n")
+		prompt("Commit message: ", function(message) {
+			var cmd = "cd " + cwd + " && cd components && cd " + name + " && git add * && git commit -m \"" + message + "\" && git push"
+			if(params.length > 0) {
+				cmd += " " + params.join(" ")
+			}
+			excute(cmd, function() {
+				logger.success("\nDone! Component has been push to https://github.com/componer/" + name + "\n")
+				process.exit(0)
+			})
 		})
 	})
 

@@ -1,7 +1,12 @@
 {
 	"name": "browser-logger",
-	"pack": false,
-	"entry": "src/index.js",
+	"version": "0.0.1",
+	"entry": {
+		"js": "src/browser-logger.js"
+	},
+	"output": {
+		"js": "dist/"
+	},
 	"settings": {
 		"externals": {},
 		"resolve": {

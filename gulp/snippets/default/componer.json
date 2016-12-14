@@ -1,5 +1,6 @@
 {
 	"name": "{{component-name}}",
+	"version": "0.0.1",
 	"entry": {
 		"js": "src/js/{{component-name}}.js",
 		"style": "src/style/{{component-name}}.scss"
