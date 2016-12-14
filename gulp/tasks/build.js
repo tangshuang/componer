@@ -52,8 +52,7 @@ module.exports = function() {
 	}
 	// bower
 	else if(fs.existsSync(componentPath + "/bower.json")) {
-		var bowerInfo = fs.readFileSync(componentPath + "/bower.json")
-		bowerInfo = JSON.parse(bowerInfo)
+		var bowerInfo = JSON.parse(fs.readFileSync(componentPath + "/bower.json"))
 		var dependencies = bowerInfo.dependencies
 		var externals = {}
 

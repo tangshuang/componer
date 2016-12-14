@@ -6,6 +6,7 @@ import runTask from "../utils/runTask"
 
 import {server as karma} from "gulp-karma-runner"
 import shell from "shelljs"
+import TsServer from "ts-server"
 
 module.exports = function() {
 	var arg = args.test
@@ -41,10 +42,47 @@ module.exports = function() {
 	}
 	// others
 	else {
-		// return gulp.src([testPath + "/**/*.js"])
-		// 	.pipe(karma(config.karma({
-		// 		port: 9000 + parseInt(Math.random() * 1000),
-		// 		browsers: [],
-		// 	})))
+		var entryFiles = []
+		// bower
+		if(fs.existsSync(componentPath + "/bower.json")) {
+			var bowerInfo = JSON.parse(fs.readFileSync(componentPath + "/bower.json"))
+			entryFiles = bowerInfo.main
+		}
+		// component
+		else if(fs.existsSync(componentPath + "/componer.json")) {
+			var componentInfo = JSON.parse(fs.readFileSync(componentPath + "/componer.json"))
+			componentInfo.entry.js && entryFiles.push(componentInfo.entry.js)
+			componentInfo.entry.style && entryFiles.push(componentInfo.entry.style)
+		}
+		// other
+		else {
+			entryFiles = [srcPath + "/**/*.js"]
+		}
+
+		console.log(entryFiles)
+
+		return gulp.src([...entryFiles, testPath + "/specs/*.js"])
+			.pipe(karma(config.karma({
+				port: 9000 + parseInt(Math.random() * 1000),
+				browsers: ["Firefox"],
+				preprocessors: {
+					"**/src/**/*.js": ["webpack"],
+					"**/test/specs/*.js": ["webpack"],
+				},
+				coverageReporter: {
+					type : "html",
+					dir : testPath + "/reports/",
+				},
+			}))).on("end", () => {
+				var $server = new TsServer()
+				var port = Math.floor(Math.random() * 1000) + 8000
+				$server.setup({
+					port: port,
+					root: config.paths.root,
+					open: `${config.dirs.components}/${name}/test/reports/`,
+					livereload: false,
+					indexes: true,
+				})
+			})
 	}
 }

@@ -2,6 +2,7 @@
 // Generated on Wed Dec 07 2016 15:46:50 GMT+0800 (HKT)
 
 import extend from "extend"
+import webpack from "./webpack.config"
 
 module.exports = function(options) {
     var defaults = {
@@ -20,6 +21,8 @@ module.exports = function(options) {
         // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
         preprocessors: {
         },
+
+        webpack: webpack(),
 
         // test results reporter to use
         // possible values: "dots", "progress"
@@ -47,7 +50,9 @@ module.exports = function(options) {
 
         // start these browsers
         // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-        browsers: ["PhantomJS", "Chrome"],
+        // ["PhantomJS", "Chrome", "Firefox"]
+        browsers: [
+        ],
 
         // Continuous Integration mode
         // if true, Karma captures browsers, runs the tests and exits
