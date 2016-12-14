@@ -65,7 +65,7 @@ module.exports = function() {
 			externals: externals
 		}
 
-		return merge(buildScript( undefined, undefined, settings), buildStyle(), copyImages(), copyFonts()).on("end", doneMsg)
+		return merge(buildScript(undefined, undefined, settings), buildStyle(), copyImages(), copyFonts()).on("end", doneMsg)
 	}
 	// component
 	else if(fs.existsSync(componentPath + "/componer.json")) {

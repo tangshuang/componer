@@ -38,6 +38,10 @@ function ValidComponer() {
 		logger.error("\n  You are not in a componer project directory.\n")
 		process.exit(1)
 	}
+	if(!fs.existsSync(cwd + "/node_modules/.bin/gulp")) {
+		logger.error("\n  You have not install gulp, not need to global install, just run `npm install` to finish it.\n")
+		process.exit(1)
+	}
 }
 
 function excute(cmd, done, fail) {
@@ -96,7 +100,7 @@ program
 		ValidComponer()
 		var type = options.type || "default"
 		var author = options.author
-		excute("cd " + cwd + " && gulp add --name=" + name + " --type=" + type + " --author=" + author + " --color")
+		excute("cd " + cwd + " && npm run -s gulp -- add --name=" + name + " --type=" + type + " --author=" + author + " --color")
 	})
 
 program
@@ -104,7 +108,7 @@ program
 	.description("build a component")
 	.action(function(name) {
 		ValidComponer()
-		excute("cd " + cwd + " && gulp build --name=" + name + " --color")
+		excute("cd " + cwd + " && npm run -s gulp -- build --name=" + name + " --color")
 	})
 
 program
@@ -112,7 +116,7 @@ program
 	.description("preview a component")
 	.action(function(name) {
 		ValidComponer()
-		excute("cd " + cwd + " && gulp preview --name=" + name + " --color")
+		excute("cd " + cwd + " && npm run -s gulp -- preview --name=" + name + " --color")
 	})
 
 program
@@ -120,7 +124,7 @@ program
 	.description("test a component")
 	.action(function(name) {
 		ValidComponer()
-		excute("cd " + cwd + " && gulp test --name=" + name + " --color")
+		excute("cd " + cwd + " && npm run -s gulp -- test --name=" + name + " --color")
 	})
 
 program
@@ -128,7 +132,7 @@ program
 	.description("watch a component to build it automaticly when it change")
 	.action(function(name) {
 		ValidComponer()
-		excute("cd " + cwd + " && gulp watch --name=" + name + " --color")
+		excute("cd " + cwd + " && npm run -s gulp -- watch --name=" + name + " --color")
 	})
 
 program
@@ -137,7 +141,7 @@ program
 	.description("list all components")
 	.action(function() {
 		ValidComponer()
-		excute("cd " + cwd + " && gulp ls --color")
+		excute("cd " + cwd + " && npm run -s gulp -- ls --color")
 	})
 
 program
