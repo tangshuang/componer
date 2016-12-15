@@ -91,12 +91,17 @@ program
 			logger.error("\nCurrent directory is not empty, you should begin in a new directory.\n")
 			process.exit(1)
 		}
+
+		logger.log("Begin to copy files...")
 		excute("cp -r " + __dirname + "/../. " + cwd + "/")
 		excute("cd " + cwd + " && cd bin && rm componer-cli.js")
 		excute("cd " + cwd + " && mkdir components")
+		
 		if(!options.install) {
 			return true
 		}
+
+		logger.log("Begin to run `npm install`")
 		excute("cd " + cwd + " && npm install", function() {
 			logger.success("\nComponer has copy to your current directory. Enjoy it!\n")
 		}, function(error) {
@@ -135,9 +140,11 @@ program
 program
 	.command("test <name>")
 	.description("test a component")
-	.action(function(name) {
+	.option("-b, --browser", "which browser to test with")
+	.action(function(name, options) {
 		ValidComponer()
-		excute("cd " + cwd + " && npm run -s gulp -- test --name=" + name + " --color")
+		var browser = options.browser || "phantomjs"
+		excute("cd " + cwd + " && npm run -s gulp -- test --name=" + name + " --browser=" + browser + " --color")
 	})
 
 program
@@ -174,7 +181,7 @@ program
 	.command("install <name>")
 	.alias("i")
 	.description("install a component from https://github.com/componer")
-	.option("-u, --url", "git remote registry url")
+	.option("-u, --url", "git remote registry url, only https:// supported")
 	.action(function(name, options) {
 		ValidComponer()
 		var url = options.url || "https://github.com/componer/" + name + ".git"

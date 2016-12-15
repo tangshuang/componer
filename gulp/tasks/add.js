@@ -1,8 +1,16 @@
-import {gulp, fs, path, args, logger, config} from "../loader"
+import {gulp, fs, path, logger, config} from "../loader"
 import paserSnippet from "../utils/paserSnippet"
 import isValidName from "../utils/isValidName"
 import {dashlineName} from "../utils/nameConvert"
 import runTask from "../utils/runTask"
+
+import processArgs from "process.args"
+
+const args = processArgs({
+	n: "name",
+	a: "author",
+	t: "type",
+})
 
 module.exports = function() {
 	var arg = args.add

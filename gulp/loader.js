@@ -15,8 +15,6 @@ const tasksDir = "tasks"
 
 const args = processArgs({
 	n: "name",
-	a: "author",
-	t: "type",
 })
 const config = {
 	dirs: {

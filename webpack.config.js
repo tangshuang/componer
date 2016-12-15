@@ -1,14 +1,9 @@
 import extend from "extend"
 
-module.exports = function(options) {
+function webpack(settings = {}, deep = true) {
 	var defaults = {
 		output: {
-			filename: "index.js",
-			library: "",
 			libraryTarget: "umd",
-			sourceMapFilename: "",
-		},
-		externals: {
 		},
 		module: {
 			loaders: [
@@ -49,9 +44,9 @@ module.exports = function(options) {
 		resolve: {
 			packageAlias: "bowerComponents",
 		},
-		target: "web",
-		devtool: "source-map",
 	}
-
-	return extend(true, {}, defaults, options)
+	return extend(deep, {}, defaults, settings)
 }
+
+export default webpack
+module.exports = webpack

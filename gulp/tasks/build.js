@@ -56,8 +56,9 @@ module.exports = function() {
 		var dependencies = bowerInfo.dependencies
 		var externals = {}
 
-		for(let dependence in dependencies) {
-			externals[dependence] = dependence
+		dependencies = dependencies && dependencies.keys()
+		if(dependencies.length > 0) {
+			dependencies.forEach(dependence => externals[dependence] = dependence)
 		}
 
 		var settings = {
@@ -92,6 +93,7 @@ module.exports = function() {
 					sourceMapFilename: name + ".js.map",
 					library: camelName(name),
 				},
+				devtool: "source-map",
 			})
 		var settings = extend(true, {}, defaults, options)
 

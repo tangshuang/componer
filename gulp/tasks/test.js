@@ -1,22 +1,42 @@
-import {gulp, path, fs, args, logger, config} from "../loader"
+import {gulp, path, fs, logger, config} from "../loader"
 import isValidName from "../utils/isValidName"
 import hasComponent from "../utils/hasComponent"
 import {dashlineName} from "../utils/nameConvert"
 import runTask from "../utils/runTask"
+import getBowerFiles from "../utils/getBowerStatic"
 
 import {server as karma} from "gulp-karma-runner"
 import shell from "shelljs"
 import TsServer from "ts-server"
+import open from "open"
+
+import processArgs from "process.args"
+
+const args = processArgs({
+	n: "name",
+	b: "browser",
+})
 
 module.exports = function() {
 	var arg = args.test
 	var name = arg.name
-	
+	var browser = arg.browser || "phantomjs"
+
 	if(!isValidName(name)) {
 		return
 	}
 	if(!hasComponent(name)) {
 		return
+	}
+	
+	if(browser === "p" || browser.toLowerCase() === "phantomjs") {
+		browser = "PhantomJS"
+	}
+	else if(browser === "f" || browser.toLowerCase() === "firefox") {
+		browser = "Firefox"
+	}
+	else if(browser === "c" || browser.toLowerCase() === "chrome") {
+		browser = "Chrome"
 	}
 	
 	name = dashlineName(name)
@@ -42,47 +62,67 @@ module.exports = function() {
 	}
 	// others
 	else {
-		var entryFiles = []
+		var denpendenciesFiles = []
+		var bowers = []
 		// bower
 		if(fs.existsSync(componentPath + "/bower.json")) {
 			var bowerInfo = JSON.parse(fs.readFileSync(componentPath + "/bower.json"))
-			entryFiles = bowerInfo.main
+			var dependencies = bowerInfo.dependencies
+
+			if(dependencies) {
+				dependencies = dependencies.keys()
+				if(dependencies.length > 0) {
+					dependencies.forEach(dependence => bowers.push(dependence))
+				}
+			}
 		}
 		// component
 		else if(fs.existsSync(componentPath + "/componer.json")) {
 			var componentInfo = JSON.parse(fs.readFileSync(componentPath + "/componer.json"))
-			componentInfo.entry.js && entryFiles.push(componentInfo.entry.js)
-			componentInfo.entry.style && entryFiles.push(componentInfo.entry.style)
-		}
-		// other
-		else {
-			entryFiles = [srcPath + "/**/*.js"]
+			var dependencies = componentInfo.dependencies
+
+			if(dependencies) {
+				dependencies = dependencies.keys()
+				if(dependencies.length > 0) {
+					dependencies.forEach(dependence => bowers.push(dependence))
+				}
+			}
 		}
 
-		console.log(entryFiles)
+		if(bowers.length > 0) {
+			bowers.forEach(bower => {
+				let files = getBowerFiles(bower)
+				denpendenciesFiles = denpendenciesFiles.concat(files)
+			})
+		}
 
-		return gulp.src([...entryFiles, testPath + "/specs/*.js"])
+		denpendenciesFiles = denpendenciesFiles.filter((e, i, arr) => arr.lastIndexOf(e) === i)
+
+		var testFiles = testPath + "/specs/*.js"
+		var preprocessors = {}
+		
+		preprocessors[testFiles] = ["webpack"]
+
+		return gulp.src([...denpendenciesFiles, testFiles])
 			.pipe(karma(config.karma({
-				port: 9000 + parseInt(Math.random() * 1000),
-				browsers: ["Firefox"],
-				preprocessors: {
-					"**/src/**/*.js": ["webpack"],
-					"**/test/specs/*.js": ["webpack"],
-				},
+				browsers: [browser],
+				preprocessors: preprocessors,
 				coverageReporter: {
-					type : "html",
-					dir : testPath + "/reports/",
+					reporters: [
+						{
+							type: "html",
+							dir: testPath + "/reporters/"
+						}
+					]
 				},
-			}))).on("end", () => {
-				var $server = new TsServer()
-				var port = Math.floor(Math.random() * 1000) + 8000
-				$server.setup({
-					port: port,
-					root: config.paths.root,
-					open: `${config.dirs.components}/${name}/test/reports/`,
-					livereload: false,
-					indexes: true,
-				})
+				htmlReporter: {
+		            outputDir: testPath + "/reporters/",
+		            reportName: name,
+		        },
+			})))
+			.on("end", () => {
+				logger.help("Reporters ware created in " + testPath + "/reporters/")
+				open(testPath + "/reporters/" + name + "/index.html")
 			})
 	}
 }

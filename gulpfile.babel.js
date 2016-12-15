@@ -1,8 +1,5 @@
 import {gulp, fs, path, config} from "./gulp/loader"
 
-/**
- * create tasks
- */
 var dirPath = config.paths.tasks
 var files = fs.readdirSync(dirPath)
 files.forEach(file => {
