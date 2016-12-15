@@ -101,7 +101,7 @@ program
 			return true
 		}
 
-		logger.log("Begin to run `npm install`")
+		logger.log("\nBegin to run `npm install`")
 		excute("cd " + cwd + " && npm install", function() {
 			logger.success("\nComponer has copy to your current directory. Enjoy it!\n")
 		}, function(error) {
