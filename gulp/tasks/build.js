@@ -9,9 +9,9 @@ import merge from "pipe-concat"
 import shell from "shelljs"
 import PipeQueue from "pipe-queue"
 
+import {optimize} from "webpack"
 import webpack from "webpack-stream"
 import rename from "gulp-rename"
-import uglify from "gulp-uglify"
 import sass from "gulp-sass"
 import concat from "gulp-concat"
 import cssmin from "gulp-cssmin"
@@ -79,7 +79,18 @@ module.exports = function() {
 			return
 		}
 
-		return merge(buildScript(componentPath + "/" + entry.js, componentPath + "/" + output.js, settings), buildStyle(componentPath + "/" + entry.style, componentPath + "/" + output.style, settings), copyImages(), copyFonts()).on("end", doneMsg)
+		var copyStreams = []
+
+		if(entry.copy && Array.isArray(entry.copy)) {
+			entry.copy.forEach(files => copyStreams.push(copy(files)))
+		}
+
+		var streams = [buildScript(componentPath + "/" + entry.js, componentPath + "/" + output.js, settings), buildStyle(componentPath + "/" + entry.style, componentPath + "/" + output.style, settings)]
+		if(copyStreams.length) {
+			streams.push(merge(...copyStreams))
+		}
+
+		return merge(...streams).on("end", doneMsg)
 	}
 	// other
 	else {
@@ -95,6 +106,7 @@ module.exports = function() {
 				},
 				devtool: "source-map",
 			})
+
 		var settings = extend(true, {}, defaults, options)
 
 		var $queue = new PipeQueue()
@@ -103,11 +115,19 @@ module.exports = function() {
 				.pipe(webpack(settings))
 				.pipe(gulp.dest(outDir)))
 			.then(next => {
-				gulp.src(outDir + "/" + name + ".js")
-					.pipe(uglify())
-					.pipe(rename({
-						suffix: ".min",
-					}))
+				defaults.output = {
+					filename: name + ".min.js",
+					sourceMapFilename: name + ".min.js.map",
+				}
+				defaults.plugins = [
+					new optimize.UglifyJsPlugin({
+						minimize: true,
+					}),
+				]
+				settings = extend(true, {}, defaults, options)
+
+				gulp.src(entryFile)
+					.pipe(webpack(settings))
 					.pipe(gulp.dest(outDir))
 					.on("end", next)
 			})
@@ -127,17 +147,13 @@ module.exports = function() {
 			.pipe(rename({
 				suffix: ".min",
 			}))
+			.pipe(sourcemaps.write())
 			.pipe(gulp.dest(outDir))
 	}
 
-	function copyImages() {
-		return gulp.src(srcPath + "/img/**")
-			.pipe(gulp.dest(distPath + "/img/"))
-	}
-
-	function copyFonts() {
-		return gulp.src(srcPath + "/fonts/**")
-			.pipe(gulp.dest(distPath + "/fonts/"))
+	function copy(from, to = "") {
+		return gulp.src(srcPath + "/" + from)
+			.pipe(gulp.dest(distPath + "/" + to))
 	}
 
 	function doneMsg() {

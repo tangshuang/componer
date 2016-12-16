@@ -178,9 +178,8 @@ program
 // ---------------------------------
 
 program
-	.command("install <name>")
-	.alias("i")
-	.description("install a component from https://github.com/componer")
+	.command("pull <name>")
+	.description("pull a component from https://github.com/componer")
 	.option("-u, --url", "git remote registry url, only https:// supported")
 	.action(function(name, options) {
 		ValidComponer()
