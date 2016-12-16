@@ -70,7 +70,7 @@ module.exports = function() {
 			var dependencies = bowerInfo.dependencies
 
 			if(dependencies) {
-				dependencies = dependencies.keys()
+				dependencies = Object.keys(dependencies)
 				if(dependencies.length > 0) {
 					dependencies.forEach(dependence => bowers.push(dependence))
 				}
@@ -82,7 +82,7 @@ module.exports = function() {
 			var dependencies = componentInfo.dependencies
 
 			if(dependencies) {
-				dependencies = dependencies.keys()
+				dependencies = Object.keys(dependencies)
 				if(dependencies.length > 0) {
 					dependencies.forEach(dependence => bowers.push(dependence))
 				}

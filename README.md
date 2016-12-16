@@ -108,13 +108,13 @@ In fact, your coding workspace is in components direcotry.
 
 ## Component Spec
 
-1. package
+#### package
 
 A npm package which runs in node environment is usually follows `CommonJS` modules spec. So, when you run a `gulp add` task with `--type=package`, you can find the new package contains a component named js file in src directory.
 
 You can `require` or `import` in this js files, after you run `gulp build` task, the package codes will build by babel, and all built files will lay in `dist`. In fact, the built files follow CommonJS also, this is the reason why all files in `dist` like copied from `src`.
 
-2. bower
+#### bower
 
 A bower component is different from a npm package, a bower component is always used in brower side. In browser client environment, no original modules is provided, so `UMD` is used to adapt to client side environment.
 
@@ -128,18 +128,45 @@ Just put jquery in dependencies in `bower.json` as bower always do. Dependences 
 
 Componer use sass to build css, `src/style/component-name.scss` is the entry file. Notice that, all images and fonts will **not** be packed in the final css! Because we always want to use a image from a static server by url. So absolute url is recommended.
 
-3. component
+#### component
 
 A component is a project, which can be provide all services in one package. For example, a chart component with settings, different chart views, data sources apis.
 
 A component can work without any another dependencies. It works everywhere, provide apis. 
 So at last, the component will be build into a file to contains all it dependencies.
 
-This is recommended, however, you can change config in `component.json`.
+This is recommended, however, you can change config in `componer.json`.
 
-4. default
+**componer.json**
 
-Like a jquery plugin, or some other normal js/css package.
+When you use componer to add a default component, you will get a componer.json under your new component directory. The structure of componer.json is :
+
+```
+{
+    "name": "component-name", // your component name
+    "entry": { 
+        // which is the entry file to be pack with by webpack
+        // if there is no js or style entry file, js or style will not be build, but you can follow webpack to require(css) in entry js file
+        "js": "src/js/component-name.js",
+        "style": "src/style/component-name.scss",
+        "copy": "src/fonts" // copy means copy this files to dist directory, relative path
+    },
+    "output": {
+        // which directory to put built files
+        "js": "dist/js/",
+        "style": "dist/css/"
+    },
+    "settings": { // settings will be merged with webpack configuration
+        "externals": {},
+        "resolve": {
+            "packageAlias": "bowerComponents",
+            "alias": {}
+        }
+    }
+}
+```
+
+componer.json is useful for webpack to build codes. It tells wepack which files to enter, and which directories to put built files. Settings will be mereged to pass to webpack.
 
 ## Componer CLI
 

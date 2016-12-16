@@ -55,8 +55,9 @@ module.exports = function() {
 		var bowerInfo = JSON.parse(fs.readFileSync(componentPath + "/bower.json"))
 		var dependencies = bowerInfo.dependencies
 		var externals = {}
+		var entryFiles = bowerInfo.main
 
-		dependencies = dependencies && dependencies.keys()
+		dependencies = dependencies && Object.keys(dependencies)
 		if(dependencies.length > 0) {
 			dependencies.forEach(dependence => externals[dependence] = dependence)
 		}
@@ -65,7 +66,16 @@ module.exports = function() {
 			externals: externals
 		}
 
-		return merge(buildScript(undefined, undefined, settings), buildStyle(), copyImages(), copyFonts()).on("end", doneMsg)
+		var entry = {}
+		var output = {}
+		
+		if(entryFiles && Array.isArray(entryFiles)) {
+			entryFiles.forEach(file => {
+
+			})
+		}
+
+		return merge(buildScript(entryJs, undefined, settings), buildStyle(entryScss)).on("end", doneMsg)
 	}
 	// component
 	else if(fs.existsSync(componentPath + "/componer.json")) {
