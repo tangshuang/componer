@@ -1,6 +1,6 @@
 import {config, fs} from "../loader"
 
-export default function getComponents() {
+export function getComponents() {
 	var componentsPath = config.paths.components
 	var components = []
 	fs.readdirSync(componentsPath).forEach(file => {

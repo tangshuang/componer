@@ -1,6 +1,6 @@
 import {config, path, fs} from "../loader"
 
-export default function getBowerStatic(bower) {
+export function getBowerStatic(bower) {
 	var rootPath = config.paths.root
 	var bowerFiles = []
 	var packageInfo = JSON.parse(fs.readFileSync(rootPath + "/package.json"))

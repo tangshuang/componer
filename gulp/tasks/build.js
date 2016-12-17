@@ -1,12 +1,10 @@
-import {gulp, fs, path, args, logger, config} from "../loader"
-import isValidName from "../utils/isValidName"
-import hasComponent from "../utils/hasComponent"
-import {dashlineName, camelName} from "../utils/nameConvert"
+import {gulp, fs, path, args, logger, config, exit} from "../loader"
+import {isValidName, hasComponent, dashlineName, camelName, getFileExt} from "../utils"
 
 import extend from "extend"
+import shell from "shelljs"
 
 import merge from "pipe-concat"
-import shell from "shelljs"
 import PipeQueue from "pipe-queue"
 
 import {optimize} from "webpack"
@@ -24,10 +22,10 @@ module.exports = function() {
 	var name = arg.name
 
 	if(!isValidName(name)) {
-		return
+		exit()
 	}
 	if(!hasComponent(name)) {
-		return
+		exit()
 	}
 
 	name = dashlineName(name)
@@ -43,130 +41,160 @@ module.exports = function() {
 	// clean the dist dir
 	shell.exec("rm -rf " + distPath + "/*")
 
-	// package
+	/**
+	 * if it is a package, just build it with babel
+	 */
 	if(fs.existsSync(componentPath + "/package.json")) {
+
 		return gulp.src(srcPath + "/**/*")
 			.pipe(babel())
 			.pipe(gulp.dest(distPath))
 			.on("end", doneMsg)
+
 	}
-	// bower
-	else if(fs.existsSync(componentPath + "/bower.json")) {
-		var bowerInfo = JSON.parse(fs.readFileSync(componentPath + "/bower.json"))
-		var dependencies = bowerInfo.dependencies
-		var externals = {}
-		var entryFiles = bowerInfo.main
+
+	/**
+	 * if it is a bower or component
+	 * because bower.json and componer.json both use main option to point entry files, we can use some same codes
+	 * static files of component should be put under component root directory
+	 */
+
+	var type
+	var isComponent = fs.existsSync(componentPath + "/componer.json")
+	var isBower = fs.existsSync(componentPath + "/bower.json")
+
+	if(isComponent) {
+		type = "componer"
+	}
+	else if(isBower) {
+		type = "bower"
+	}
+
+	if(isComponent || isBower) {
+
+		let info = JSON.parse(fs.readFileSync(`${componentPath}/${type}.json`))
+		let settings = info.webpack || {}
+
+		/**
+		 * find out externals
+		 */
+		let externals = {}
+		let dependencies = info.dependencies
 
 		dependencies = dependencies && Object.keys(dependencies)
 		if(dependencies.length > 0) {
 			dependencies.forEach(dependence => externals[dependence] = dependence)
 		}
 
-		var settings = {
-			externals: externals
-		}
+		settings.externals = typeof settings.externals === "object" ? extend(false, {}, settings.externals, externals) : externals
 
-		var entry = {}
-		var output = {}
+		/**
+		 * find out which files to be build entry
+		 */
 		
+		let entryFiles = info.main
+
 		if(entryFiles && Array.isArray(entryFiles)) {
+			let entryJs
+			let entryScss
+			let outputJs
+			let outputCss
+
 			entryFiles.forEach(file => {
-
-			})
-		}
-
-		return merge(buildScript(entryJs, undefined, settings), buildStyle(entryScss)).on("end", doneMsg)
-	}
-	// component
-	else if(fs.existsSync(componentPath + "/componer.json")) {
-		var componentInfo = JSON.parse(fs.readFileSync(componentPath + "/componer.json"))
-		var settings = componentInfo.settings
-		var entry = componentInfo.entry
-		var output = componentInfo.output
-
-		if(!fs.existsSync(componentPath + "/" + entry.js) && !fs.existsSync(componentPath + "/" + entry.style)) {
-			logger.error(`Error: not found entry file when build ${name}.`)
-			return
-		}
-
-		var copyStreams = []
-
-		if(entry.copy && Array.isArray(entry.copy)) {
-			entry.copy.forEach(files => copyStreams.push(copy(files)))
-		}
-
-		var streams = [buildScript(componentPath + "/" + entry.js, componentPath + "/" + output.js, settings), buildStyle(componentPath + "/" + entry.style, componentPath + "/" + output.style, settings)]
-		if(copyStreams.length) {
-			streams.push(merge(...copyStreams))
-		}
-
-		return merge(...streams).on("end", doneMsg)
-	}
-	// other
-	else {
-		return merge(buildScript(), buildStyle(), copyImages(), copyFonts()).on("end", doneMsg)
-	}
-
-	function buildScript(entryFile = `${srcPath}/js/${name}.js"`, outDir = `${distPath}/js/`, options = {}) {
-		var defaults = config.webpack({
-				output: {
-					filename: name + ".js",
-					sourceMapFilename: name + ".js.map",
-					library: camelName(name),
-				},
-				devtool: "source-map",
-			})
-
-		var settings = extend(true, {}, defaults, options)
-
-		var $queue = new PipeQueue()
-
-		$queue.when(gulp.src(entryFile)
-				.pipe(webpack(settings))
-				.pipe(gulp.dest(outDir)))
-			.then(next => {
-				defaults.output = {
-					filename: name + ".min.js",
-					sourceMapFilename: name + ".min.js.map",
+				if(getFileExt(file) == ".js") {
+					entryJs = componentPath + "/" + file
+					outputJs = distPath + "/js/"
 				}
-				defaults.plugins = [
-					new optimize.UglifyJsPlugin({
-						minimize: true,
-					}),
-				]
-				settings = extend(true, {}, defaults, options)
-
-				gulp.src(entryFile)
-					.pipe(webpack(settings))
-					.pipe(gulp.dest(outDir))
-					.on("end", next)
+				else if(getFileExt(file) == ".scss") {
+					entryScss = componentPath + "/" + file
+					outputCss = distPath + "/css/"
+				}
 			})
 
-		return $queue.stream()
+			if(entryJs && entryScss) {
+				return merge(script(entryJs, outputJs, settings), style(entryScss, outputCss)).on("end", doneMsg)
+			}
+			else if(entryJs && !entryScss) {
+				return script(entryJs, distPath, settings).on("end", doneMsg)
+			}
+			else if(entryScss && !entryJs) {
+				return style(entryScss, distPath).on("end", doneMsg)
+			}
+		}
+
+		logger.error("Can't find entry files. Only `.js` and `.scss` files allowed. Check your bower.json `main` option.")
+		exit()
+	}
+	
+	/**
+	 * can't find out the type of this component
+	 */
+	logger.error("I don't know what is the type of this component. \nPlease follow rules of Componer.")
+	exit()
+
+	// ===============================================================================
+
+	function script(entryFile = `${srcPath}/js/${name}.js"`, outDir = `${distPath}/js/`, options = {}) {
+		
+		// build js with webpack
+		var settings1 = extend(true, {}, config.webpack(), options, {
+			output: {
+				filename: name + ".js",
+				sourceMapFilename: name + ".js.map",
+				library: camelName(name),
+			},
+		})
+		var stream1 = gulp.src(entryFile)
+			.pipe(webpack(settings1))
+			.pipe(gulp.dest(outDir))
+
+		// build js with webpack (minify)
+		var settings2 = extend(true, {}, config.webpack(), {
+			output: {
+				filename: name + ".min.js",
+				sourceMapFilename: name + ".min.js.map",
+				library: camelName(name),
+			},
+			plugins: [
+				new optimize.UglifyJsPlugin({
+					minimize: true,
+				}),
+			],
+		})
+		var stream2 = gulp.src(entryFile)
+			.pipe(webpack(settings2))
+			.pipe(gulp.dest(outDir))
+
+		return merge(stream1, stream2).on("end", doneMsg)
+
 	}
 
-	function buildStyle(entryFile = `${srcPath}/style/${name}.scss"`, outDir = `${distPath}/css/`, options = {}) {
-		return gulp.src(entryFile)
-			// compile scss
+	function style(entryFile = `${srcPath}/style/${name}.scss"`, outDir = `${distPath}/css/`, options = {}) {
+		
+		// compile scss
+		var stream1 = gulp.src(entryFile)
 			.pipe(sourcemaps.init())
-			.pipe(sass().on('error', sass.logError))
-			.pipe(sourcemaps.write())
-			.pipe(gulp.dest(distPath + "/css/"))
-			// minify code
+			.pipe(sass())
+			.pipe(sourcemaps.write("./"))
+			.pipe(gulp.dest(outDir))
+
+		// compile scss and minify css
+		var stream2 = gulp.src(entryFile)
+			.pipe(sourcemaps.init())
+			.pipe(sass())
 			.pipe(cssmin())
 			.pipe(rename({
 				suffix: ".min",
 			}))
-			.pipe(sourcemaps.write())
+			.pipe(sourcemaps.write("./"))
 			.pipe(gulp.dest(outDir))
-	}
 
-	function copy(from, to = "") {
-		return gulp.src(srcPath + "/" + from)
-			.pipe(gulp.dest(distPath + "/" + to))
+		return merge(stream1, stream2)
+
 	}
 
 	function doneMsg() {
 		logger.done(`Success: ${name} has been completely built.`)
 	}
+
 }

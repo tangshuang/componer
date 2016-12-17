@@ -1,8 +1,5 @@
 import {gulp, path, fs, args, logger, config} from "../loader"
-import isValidName from "../utils/isValidName"
-import hasComponent from "../utils/hasComponent"
-import {dashlineName} from "../utils/nameConvert"
-import runTask from "../utils/runTask"
+import {isValidName, hasComponent, dashlineName, runTask} from "../utils"
 
 module.exports = function() {
 	var arg = args.watch
@@ -19,10 +16,12 @@ module.exports = function() {
 	var componentPath = path.join(config.paths.components, name)
 	var srcPath = path.join(componentPath, "src")
 
-	var watcher = gulp.watch([srcPath + "/**/*"], event => {
-		logger.help('File ' + event.path + ' was ' + event.type + ', running tasks...')
+	gulp.watch([srcPath + "/**/*"], event => {
+		logger.help(`File ${event.path} was ${event.type}, running tasks...`)
 		runTask("build", {
 			name: name
 		})
 	})
+
+	return new Promise((resolve, reject) => {})
 }

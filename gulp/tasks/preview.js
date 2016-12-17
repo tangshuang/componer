@@ -1,8 +1,5 @@
-import {gulp, path, fs, args, logger, config} from "../loader"
-import isValidName from "../utils/isValidName"
-import hasComponent from "../utils/hasComponent"
-import {dashlineName} from "../utils/nameConvert"
-import runTask from "../utils/runTask"
+import {gulp, path, fs, args, logger, config, exit} from "../loader"
+import {isValidName, hasComponent, dashlineName, runTask} from "../utils"
 
 import TsServer from "ts-server"
 
@@ -11,10 +8,10 @@ module.exports = function() {
 	var name = arg.name
 	
 	if(!isValidName(name)) {
-		return
+		exit()
 	}
 	if(!hasComponent(name)) {
-		return
+		exit()
 	}
 
 	name = dashlineName(name)
@@ -25,7 +22,7 @@ module.exports = function() {
 
 	if(!fs.existsSync(previewPath)) {
 		logger.error(`Error: component ${name} has no preveiw directory.`)
-		return
+		exit()
 	}
 
 	gulp.watch([srcPath + "/**/*"], event => {

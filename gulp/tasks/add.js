@@ -1,9 +1,5 @@
-import {gulp, fs, path, logger, config} from "../loader"
-import paserSnippet from "../utils/paserSnippet"
-import isValidName from "../utils/isValidName"
-import {dashlineName} from "../utils/nameConvert"
-import runTask from "../utils/runTask"
-
+import {gulp, fs, path, logger, config, exit} from "../loader"
+import {paserSnippet, isValidName, dashlineName, runTask} from "../utils"
 import processArgs from "process.args"
 
 const args = processArgs({
@@ -17,7 +13,7 @@ module.exports = function() {
 	var name = arg.name
 
 	if(!isValidName(name)) {
-		return
+		exit()
 	}
 
 	name = dashlineName(name)
@@ -27,7 +23,7 @@ module.exports = function() {
 
 	if(fs.existsSync(componentPath)) {
 		logger.error(`Error: ${name} exists, delete "components/${name}" before you add.`)
-		return
+		exit()
 	}
 	else {
 		fs.mkdir(componentPath)

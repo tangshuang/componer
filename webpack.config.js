@@ -1,6 +1,7 @@
 import extend from "extend"
 
-function webpack(settings = {}, deep = true) {
+function webpack(settings) {
+
 	var defaults = {
 		output: {
 			libraryTarget: "umd",
@@ -44,8 +45,15 @@ function webpack(settings = {}, deep = true) {
 		resolve: {
 			packageAlias: "bowerComponents",
 		},
+		devtool: "source-map",
 	}
-	return extend(deep, {}, defaults, settings)
+
+	if(typeof settings === "object") {
+		return extend(true, defaults, settings)
+	}
+
+	return defaults
+
 }
 
 export default webpack

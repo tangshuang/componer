@@ -2,7 +2,7 @@ import through from "through2"
 import logger from "process.logger"
 import {capitalName, camelName, dashlineName, separateName} from "../utils/nameConvert"
 
-export default function paserSnippet(pairs) {
+export function paserSnippet(pairs) {
 	return through.obj(function(file, endcoding, callback) {
 		if(file.isNull()) {
 			this.push(file)

@@ -1,6 +1,6 @@
 import {logger} from "../loader"
 
-export default function(name) {
+export function isValidName(name) {
 	if(!name) {
 		logger.error("Error: You should input a name. e.g. `--name=your-component`")
 		return false

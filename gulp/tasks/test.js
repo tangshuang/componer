@@ -1,9 +1,5 @@
-import {gulp, path, fs, logger, config} from "../loader"
-import isValidName from "../utils/isValidName"
-import hasComponent from "../utils/hasComponent"
-import {dashlineName} from "../utils/nameConvert"
-import runTask from "../utils/runTask"
-import getBowerFiles from "../utils/getBowerStatic"
+import {gulp, path, fs, logger, config, exit} from "../loader"
+import {isValidName, hasComponent, dashlineName, runTask, getBowerFiles, getFileExt} from "../utils"
 
 import {server as karma} from "gulp-karma-runner"
 import shell from "shelljs"
@@ -20,23 +16,12 @@ const args = processArgs({
 module.exports = function() {
 	var arg = args.test
 	var name = arg.name
-	var browser = arg.browser || "phantomjs"
 
 	if(!isValidName(name)) {
-		return
+		exit()
 	}
 	if(!hasComponent(name)) {
-		return
-	}
-	
-	if(browser === "p" || browser.toLowerCase() === "phantomjs") {
-		browser = "PhantomJS"
-	}
-	else if(browser === "f" || browser.toLowerCase() === "firefox") {
-		browser = "Firefox"
-	}
-	else if(browser === "c" || browser.toLowerCase() === "chrome") {
-		browser = "Chrome"
+		exit()
 	}
 	
 	name = dashlineName(name)
@@ -47,45 +32,65 @@ module.exports = function() {
 
 	if(!fs.existsSync(testPath)) {
 		logger.error(`Error: component ${name} has no test directory.`)
+		exit()
+	}
+
+	/**
+	 * if it is a package
+	 */
+	if(fs.existsSync(componentPath + "/package.json")) {
+		
+		if(!fs.existsSync(testPath + "/index.js")) {
+			logger.error(`Error: can't find test entry file at ${testPath}/index.js, please check.`)
+			exit()
+		}
+
+		shell.exec("babel-node " + testPath + "/index.js")
 		return
 	}
 
-	if(!fs.existsSync(distPath)) {
-		runTask("build", {
-			name: name
-		})
+	/**
+	 * if it is a bower or component
+	 */
+	
+	if(!fs.existsSync(testPath + "/specs/index.js")) {
+		logger.error(`Error: can't find test entry file at ${testPath}/specs/index.js, please check.`)
+		exit()
 	}
 
-	// package
-	if(fs.existsSync(componentPath + "/package.json")) {
-		shell.exec("babel-node " + testPath + "/index.js --color")
+	var browser = arg.browser || "phantomjs"
+	if(browser === "p" || browser.toLowerCase() === "phantomjs") {
+		browser = "PhantomJS"
 	}
-	// others
-	else {
-		var denpendenciesFiles = []
-		var bowers = []
-		// bower
-		if(fs.existsSync(componentPath + "/bower.json")) {
-			var bowerInfo = JSON.parse(fs.readFileSync(componentPath + "/bower.json"))
-			var dependencies = bowerInfo.dependencies
+	else if(browser === "f" || browser.toLowerCase() === "firefox") {
+		browser = "Firefox"
+	}
+	else if(browser === "c" || browser.toLowerCase() === "chrome") {
+		browser = "Chrome"
+	}
+	
+	var type
+	var isComponent = fs.existsSync(componentPath + "/componer.json")
+	var isBower = fs.existsSync(componentPath + "/bower.json")
 
-			if(dependencies) {
-				dependencies = Object.keys(dependencies)
-				if(dependencies.length > 0) {
-					dependencies.forEach(dependence => bowers.push(dependence))
-				}
-			}
-		}
-		// component
-		else if(fs.existsSync(componentPath + "/componer.json")) {
-			var componentInfo = JSON.parse(fs.readFileSync(componentPath + "/componer.json"))
-			var dependencies = componentInfo.dependencies
+	if(isComponent) {
+		type = "componer"
+	}
+	else if(isBower) {
+		type = "bower"
+	}
 
-			if(dependencies) {
-				dependencies = Object.keys(dependencies)
-				if(dependencies.length > 0) {
-					dependencies.forEach(dependence => bowers.push(dependence))
-				}
+	if(isComponent || isBower) {
+
+		let info = JSON.parse(fs.readFileSync(`${componentPath}/${type}.json`))
+		let settings = info.webpack || {}
+		let dependencies = bowerInfo.dependencies
+		let denpendenciesFiles = []
+
+		if(dependencies) {
+			dependencies = Object.keys(dependencies)
+			if(dependencies.length > 0) {
+				dependencies.forEach(dependence => bowers.push(dependence))
 			}
 		}
 
@@ -94,16 +99,21 @@ module.exports = function() {
 				let files = getBowerFiles(bower)
 				denpendenciesFiles = denpendenciesFiles.concat(files)
 			})
+			denpendenciesFiles = denpendenciesFiles.filter((e, i, arr) => arr.lastIndexOf(e) === i)
 		}
 
-		denpendenciesFiles = denpendenciesFiles.filter((e, i, arr) => arr.lastIndexOf(e) === i)
+		let testFiles = [...denpendenciesFiles, testPath + "/specs/*.js"]
+		let preprocessors = {}
+		testFiles.forEach(file => {
+			if(getFileExt(file) === ".js") {
+				preprocessors[file] = ["webpack"]
+			}
+			else if(getFileExt(file) === ".scss") {
+				preprocessors[file] = ["scss"]
+			}
+		})
 
-		var testFiles = testPath + "/specs/*.js"
-		var preprocessors = {}
-		
-		preprocessors[testFiles] = ["webpack"]
-
-		return gulp.src([...denpendenciesFiles, testFiles])
+		return gulp.src(testFiles)
 			.pipe(karma(config.karma({
 				browsers: [browser],
 				preprocessors: preprocessors,
@@ -111,18 +121,26 @@ module.exports = function() {
 					reporters: [
 						{
 							type: "html",
-							dir: testPath + "/reporters/"
-						}
-					]
+							dir: testPath + "/reporters/",
+						},
+					],
 				},
 				htmlReporter: {
-		            outputDir: testPath + "/reporters/",
-		            reportName: name,
-		        },
+					outputDir: testPath + "/reporters/",
+					reportName: name,
+				},
 			})))
 			.on("end", () => {
 				logger.help("Reporters ware created in " + testPath + "/reporters/")
 				open(testPath + "/reporters/" + name + "/index.html")
 			})
+
 	}
+
+	/**
+	 * can't find out the type of this component
+	 */
+	logger.error("I don't know what is the type of this component. \nPlease follow rules of Componer.")
+	exit()
+
 }

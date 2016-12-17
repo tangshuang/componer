@@ -1,7 +1,8 @@
 import extend from "extend"
 import webpack from "./webpack.config"
 
-function karma(settings = {}, deep = true) {
+function karma(settings) {
+
     var defaults = {
         port: 9000 + parseInt(Math.random() * 1000),
         singleRun: true,
@@ -29,10 +30,18 @@ function karma(settings = {}, deep = true) {
                 ],
             },
         }),
+        scssPreprocessor: {
+            options: {
+                sourceMap: true,
+                includePaths: [],
+            },
+        },
         plugins: [],
     }
 
-    var settings = extend(deep, {}, defaults, settings)
+    if(typeof settings === "object") {
+        settings = extend(true, {}, defaults, settings)
+    }
 
     settings.coverageReporter.reporters.push({
         type: "text",
@@ -45,10 +54,14 @@ function karma(settings = {}, deep = true) {
         require("karma-firefox-launcher"),
         require("karma-coverage"),
         require("karma-webpack"),
+        require("karma-scss-preprocessor"),
         require("karma-html-reporter"),
     ])
 
+    settings.scssPreprocessor.options.includePaths.push("bower_components")
+
     return settings
+
 }
 
 export default karma

@@ -7,6 +7,8 @@ import processArgs from "process.args"
 import webpack from "../webpack.config"
 import karma from "../karma.config"
 
+import * as utils from "./utils"
+
 const rootPath = path.resolve(__dirname, "..")
 const gulpDir = path.basename(__dirname)
 const componentsDir = "components"
@@ -34,6 +36,10 @@ const config = {
 	karma,
 }
 
+function exit() {
+	process.exit(0)
+}
+
 export {
     gulp,
     fs,
@@ -41,4 +47,6 @@ export {
     args,
     logger,
     config,
+    utils,
+    exit,
 }

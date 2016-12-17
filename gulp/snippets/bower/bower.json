@@ -17,9 +17,12 @@
         "type": "git",
         "url": "git://github.com/{{author}}/{{component-name}}.git"
     },
-    "keywords": [],
-    "dependencies": {},
-    "devDependencies": {},
+    "keywords": [
+    ],
+    "dependencies": {
+    },
+    "devDependencies": {
+    },
     "ignore": [
         "preview/",
         "test/"
