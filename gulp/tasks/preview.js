@@ -1,5 +1,5 @@
 import {gulp, path, fs, args, logger, config, exit} from "../loader"
-import {isValidName, hasComponent, dashlineName, runTask} from "../utils"
+import {validComponent, hasComponent, dashlineName, runTask} from "../utils"
 
 import TsServer from "ts-server"
 
@@ -7,7 +7,7 @@ module.exports = function() {
 	var arg = args.preview
 	var name = arg.name
 	
-	if(!isValidName(name)) {
+	if(!validComponent(name)) {
 		exit()
 	}
 	if(!hasComponent(name)) {

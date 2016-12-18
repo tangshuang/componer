@@ -1,6 +1,6 @@
 import through from "through2"
 import logger from "process.logger"
-import {capitalName, camelName, dashlineName, separateName} from "../utils/nameConvert"
+import {capitalName, camelName, dashlineName, separateName} from "./index"
 
 export function paserSnippet(pairs) {
 	return through.obj(function(file, endcoding, callback) {
@@ -10,7 +10,7 @@ export function paserSnippet(pairs) {
 		}
 
 		if(file.isStream()) {
-			logger.set("timestamp", true).error("gulp error: streaming not supported")
+			logger.error("gulp error: streaming not supported")
 			return callback()
 		}
 

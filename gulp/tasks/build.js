@@ -1,5 +1,5 @@
 import {gulp, fs, path, args, logger, config, exit} from "../loader"
-import {isValidName, hasComponent, dashlineName, camelName, getFileExt} from "../utils"
+import {validComponent, hasComponent, dashlineName, camelName, getFileExt} from "../utils"
 
 import extend from "extend"
 import shell from "shelljs"
@@ -21,7 +21,7 @@ module.exports = function() {
 	var arg = args.build
 	var name = arg.name
 
-	if(!isValidName(name)) {
+	if(!validComponent(name)) {
 		exit()
 	}
 	if(!hasComponent(name)) {
@@ -149,7 +149,7 @@ module.exports = function() {
 			.pipe(gulp.dest(outDir))
 
 		// build js with webpack (minify)
-		var settings2 = extend(true, {}, config.webpack(), {
+		var settings2 = extend(true, {}, config.webpack(), options, {
 			output: {
 				filename: name + ".min.js",
 				sourceMapFilename: name + ".min.js.map",
@@ -165,7 +165,7 @@ module.exports = function() {
 			.pipe(webpack(settings2))
 			.pipe(gulp.dest(outDir))
 
-		return merge(stream1, stream2).on("end", doneMsg)
+		return merge(stream1, stream2)
 
 	}
 

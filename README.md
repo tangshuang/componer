@@ -2,20 +2,14 @@
 
 A components development workflow framework dependented on gulp
 
-## Install
+## Install and initialize
 
 ```
-npm install -g gulp-cli
-
-git clone https://github.com/tangshuang/componer.git
-cd componer
-npm install
-
-
-gulp build preview ---name=browser-logger
+npm install -g componer
+mkdir test-project
+cd test-project
+componer init -i
 ```
-
-`browser-logger` is a defualt type component I have created by componer.
 
 ## Usage
 
@@ -28,35 +22,36 @@ Componer is a workflow framework, so you can use it to finish your work automati
 List components in your `components` directory.
 
 ```
-gulp ls
+componer ls
 ```
 
 **add**
 
-Add a component, e.g. jquery plugin, npm package, frontend component.
+Add a component, e.g. bower component, npm package, frontend component.
 
 ```
-gulp add --name=component-name [--type=package|bower|jq-plugin] [--author=your-name]
+componer add component-name -t bower -a your-github-name
 ```
 
-`type` relates to directories in `gulp/snippets`.
+`-t` is `--type`, relates to directories in `gulp/snippets`.
 
 **build**
 
 Build a component source code from it's `src` directory to `dist` directory.
 
 ```
-gulp build --name=component-name
+componer build component-name
 ```
 
-When build, Componer will compile your ES6 code to ES5 code and pack your code into a file by webpack, entry file is `src/js/index.js`, minified by uglify, dest to `dist/js/`. At the some time, scss files in `src/style/` will be compiled to css files, minified by cssmin, and be put in `dist/css/`, images in `src/img/` and font files in `src/fonts` will be copied to `dist` directory.
+When build, Componer will compile your ES6 code to ES5 code and pack your code into a file by webpack. 
+At the some time, scss files will be compiled to css files, minified by cssmin, and be put in `dist` directory.
 
 **preview**
 
 Preview a component if it has a `preview/index.html` file.
 
 ```
-gulp preview --name=component-name
+componer preview component-name
 ```
 
 When preview a component, it will firstly build it and then setup a local static webserver ([ts-server](https://github.com/tangshuang/ts-server), which is also written following Componer).
@@ -66,7 +61,25 @@ When preview a component, it will firstly build it and then setup a local static
 When you are coding, you can run a watch task to build your code automaticly after you change your code and save the changes.
 
 ```
-gulp watch --name=component-name
+componer watch component-name
+```
+
+**test**
+
+Before you publish your component, a unit test is needed. Run:
+
+```
+componer test component-name
+```
+
+`test/specs/index.js` will be the entry file, and reporters will be put in `test/reporters`.
+
+**remove**
+
+You may want to remove your code, run:
+
+```
+componer rm component-name
 ```
 
 #### Component types
@@ -88,7 +101,7 @@ components/component-name
 	|
 	|--src
 	|  `--js
-	|  |  `--index.js/component-name.js
+	|  |  `--component-name.js
 	|  |  |--..
 	|  |--style
 	|  |--img
@@ -108,34 +121,7 @@ In fact, your coding workspace is in components direcotry.
 
 ## Component Spec
 
-#### package
 
-A npm package which runs in node environment is usually follows `CommonJS` modules spec. So, when you run a `gulp add` task with `--type=package`, you can find the new package contains a component named js file in src directory.
-
-You can `require` or `import` in this js files, after you run `gulp build` task, the package codes will build by babel, and all built files will lay in `dist`. In fact, the built files follow CommonJS also, this is the reason why all files in `dist` like copied from `src`.
-
-#### bower
-
-A bower component is different from a npm package, a bower component is always used in brower side. In browser client environment, no original modules is provided, so `UMD` is used to adapt to client side environment.
-
-You can code in src directory following CommonJS/ES6 Modules. After your coding, webpack will pack all js codes beginning with `src/js/component-name.js`, this file is the entry file.
-
-What to do with dependencies? For example, your component is dependented on jquery, what should you do?
-
-There are two choice: 1. pack jquery in component, so that users can use the component anywhere, 2. do not pack in, but record as a dependence. Componer choosed the second rule. Because we have `require.js` in frontend. Now what should you do? 
-
-Just put jquery in dependencies in `bower.json` as bower always do. Dependences in `dependencies` will be include in built files, but in `devDependences` will not, devDpendences will only be used when preview.
-
-Componer use sass to build css, `src/style/component-name.scss` is the entry file. Notice that, all images and fonts will **not** be packed in the final css! Because we always want to use a image from a static server by url. So absolute url is recommended.
-
-#### component
-
-A component is a project, which can be provide all services in one package. For example, a chart component with settings, different chart views, data sources apis.
-
-A component can work without any another dependencies. It works everywhere, provide apis. 
-So at last, the component will be build into a file to contains all it dependencies.
-
-This is recommended, however, you can change config in `componer.json`.
 
 **componer.json**
 

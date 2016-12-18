@@ -1,6 +1,10 @@
-import {logger} from "../loader"
+import {logger, exit} from "../loader"
+import {dashlineName} from "./index"
 
-export function isValidName(name) {
+export function validComponent(name) {
+
+	name = dashlineName(name)
+
 	if(!name) {
 		logger.error("Error: You should input a name. e.g. `--name=your-component`")
 		return false
@@ -12,4 +16,5 @@ export function isValidName(name) {
 	}
 
 	return true
+
 }
