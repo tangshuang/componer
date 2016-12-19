@@ -1,5 +1,13 @@
 #!/usr/bin/env node
 
+/**
+ * @package componer-cli
+ * @author frustigor
+ * @registry https://github.com/tangshuang/componer
+ *
+ * Notice: change of this file has no affects when you use global componer.
+ */
+
 var program = require("commander")
 var fs = require("fs")
 var shell = require("shelljs")
@@ -107,7 +115,6 @@ program
 
 		logger.log("Begin to copy files...")
 		excute("cp -r " + __dirname + "/../. " + cwd + "/")
-		excute("cd " + cwd + " && cd bin && rm componer-cli.js")
 		excute("cd " + cwd + " && mkdir components")
 		
 		if(!options.install) {
