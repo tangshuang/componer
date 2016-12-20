@@ -1,5 +1,5 @@
 export function strPadLeft(str, sep, len) {
-	str = str.toString()
+	str = str ? str.toString() : ""
 	if(str.length >= len) {
 		return str
 	}
@@ -9,7 +9,7 @@ export function strPadLeft(str, sep, len) {
 }
 
 export function strPadRight(str, sep, len) {
-	str = str.toString()
+	str = str ? str.toString() : ""
 	if(str.length >= len) {
 		return str
 	}

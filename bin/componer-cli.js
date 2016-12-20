@@ -56,7 +56,7 @@ function HasComponent(name, exit) {
 	if(!fs.existsSync(cwd + "/components/" + dashlineName(name))) {
 		
 		if(exit) {
-			logger.error(`Component ${name} is not exists.`)
+			logger.error("Component " + name + " is not exists.")
 			process.exit(0)
 		}
 
@@ -120,7 +120,7 @@ program
 
 program
 	.arguments('<cmd>')
-	.action(function (cmd) {
+	.action(function (cmd, options) {
 		logger.warn("Not found " + cmd + " command, use `componer -h` to read more.")
 	})
 
@@ -138,8 +138,8 @@ program
 		console.log("cp -r " + path.resolve(__dirname, "..") + "/. " + cwd + "/")
 
 		excute("cp -r " + path.resolve(__dirname, "..") + "/. " + cwd + "/")
-		excute(`cd ${cwd} && cd bin && rm componer-cli.js`)
-		excute(`cd ${cwd} && mkdir components`)
+		excute("cd " + cwd + " && cd bin && rm componer-cli.js")
+		excute("cd " + cwd + " && mkdir components")
 		
 		if(!options.install) {
 			logger.success("Now you may need to run `npm install` to install neccessary modules.")
@@ -165,7 +165,7 @@ program
 		var type = options.type || "default"
 		var author = options.author
 
-		var sh = `cd ${cwd} && ${gulp} add --name=${name} --type=${type} --author=${author}`
+		var sh = "cd " + cwd + " && " + gulp + " add --name=" + name + " --type=" + type + " --author=" + author
 		excute(sh)
 	})
 
@@ -176,7 +176,7 @@ program
 		ValidComponer()
 		HasComponent(name, true)
 
-		var sh = `cd ${cwd} && ${gulp} build --name=${name}`
+		var sh = "cd " + cwd + " && " + gulp + " build --name=" + name
 		excute(sh)
 	})
 
@@ -187,7 +187,7 @@ program
 		ValidComponer()
 		HasComponent(name, true)
 
-		var sh = `cd ${cwd} && ${gulp} preview --name=${name}`
+		var sh = "cd " + cwd + " && " + gulp + " preview --name=" + name
 		excute(sh)
 	})
 
@@ -200,10 +200,10 @@ program
 		ValidComponer()
 		HasComponent(name, true)
 
-		var sh = `cd ${cwd} && ${gulp} test --name=${name}`
+		var sh = "cd " + cwd + " && " + gulp + " test --name=" + name
 
 		if(options.browser) {
-			sh += ` --browser=${options.browser}`
+			sh += " --browser=" + options.browser
 		}
 
 		if(options.debug) {
@@ -220,7 +220,7 @@ program
 		ValidComponer()
 		HasComponent(name, true)
 
-		var sh = `cd ${cwd} && ${gulp} watch --name=${name}`
+		var sh = "cd " + cwd + " && " + gulp + " watch --name=" + name
 		excute(sh)
 	})
 
@@ -244,7 +244,7 @@ program
 	.action(function() {
 		ValidComponer()
 
-		var sh = `cd ${cwd} && ${gulp} ls`
+		var sh = "cd " + cwd + " && " + gulp + " ls"
 		excute(sh)
 	})
 
@@ -293,13 +293,11 @@ program
 		})
 	})
 
+program
+	.parse(process.argv)
+
 // -----------------------------------
 
 if(fs.existsSync(__cwd() + "/bin/custom-cli.js")) {
 	require(__cwd() + "/bin/custom-cli.js")(program)
 }
-
-// -----------------------------------
-
-program
-	.parse(process.argv)
