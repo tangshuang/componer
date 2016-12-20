@@ -7,7 +7,6 @@
     "componer": "bin/componer-cli.js"
   },
   "scripts": {
-    "gulp": "gulp"
   },
   "repository": {
     "type": "git",

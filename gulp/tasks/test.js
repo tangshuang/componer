@@ -46,8 +46,10 @@ module.exports = function() {
 			exit()
 		}
 
-		shell.exec(`"babel-node ${testPath}/${name}.js`)
+		let sh = `babel-node ${testPath}/${name}.js`
+		shell.exec(sh)
 		return
+
 	}
 
 	/**

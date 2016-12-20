@@ -18,6 +18,8 @@ var readline = require('readline')
 // ----------------------------------
 
 var cwd = process.cwd()
+var gulp = path.resolve(__dirname, "../node_modules/.bin/gulp")
+var info = JSON.parse(fs.readFileSync(__dirname + "/../package.json"))
 
 function __cwd(num) {
 	var flag = false
@@ -43,25 +45,45 @@ function isComponer(dir) {
 
 function ValidComponer() {
 	cwd = __cwd()
-	if(!isComponer(cwd)) {
+	if(!isComponer(cwd) || !fs.existsSync(cwd + "/gulpfile.babel.js")) {
 		logger.error("You are not in a componer project directory.")
 		process.exit(0)
 	}
-	if(!fs.existsSync(cwd + "/node_modules/.bin/gulp")) {
-		logger.error("You have not install completely, run `npm install` to finish it.")
-		process.exit(0)
-	}
 }
 
-function HasComponent(name) {
+function HasComponent(name, exit) {
 	cwd = __cwd()
 	if(!fs.existsSync(cwd + "/components/" + dashlineName(name))) {
-		logger.error(`Component ${name} is not exists.`)
-		process.exit(0)
+		
+		if(exit) {
+			logger.error(`Component ${name} is not exists.`)
+			process.exit(0)
+		}
+
+		return false
 	}
+
+	return true
 }
 
 function excute(cmd, done, fail) {
+	
+	if(cmd.indexOf(gulp) > -1) {
+		var rcfile = cwd + "/bin/.componerrc"
+		if(!fs.existsSync(rcfile)) {
+			rcfile = __dirname + "/.componerrc"
+		}
+
+		var config = JSON.parse(fs.readFileSync(rcfile))
+		if(config.color) {
+			cmd += " --color"
+		}
+		if(config.silent) {
+			cmd += " --silent"
+		}
+	}
+	
+
 	var result = shell.exec(cmd)
 	if(result.code === 0) {
 		typeof done === "function" && done()
@@ -70,6 +92,7 @@ function excute(cmd, done, fail) {
 		typeof fail === "function" && fail(result.stderr)
 		process.exit(0)
 	}
+
 }
 
 function prompt(question, callback) {
@@ -87,8 +110,6 @@ function dashlineName(name) {
 	name = name.substr(0, 1).toLowerCase() + name.substr(1)
 	return name.replace(/([A-Z])/g, "-$1").toLowerCase()
 }
-
-var info = JSON.parse(fs.readFileSync(__dirname + "/../package.json"))
 
 // -----------------------------------
 
@@ -114,10 +135,13 @@ program
 		}
 
 		logger.log("Begin to copy files...")
-		excute("cp -r " + __dirname + "/../. " + cwd + "/")
+		console.log("cp -r " + path.resolve(__dirname, "..") + "/. " + cwd + "/")
+
+		excute("cp -r " + path.resolve(__dirname, "..") + "/. " + cwd + "/")
 		excute("cd " + cwd + " && mkdir components")
 		
 		if(!options.install) {
+			logger.success("Now you may need to run `npm install` to install neccessary modules.")
 			return true
 		}
 
@@ -139,7 +163,9 @@ program
 
 		var type = options.type || "default"
 		var author = options.author
-		excute("cd " + cwd + " && npm run -s gulp -- add --name=" + name + " --type=" + type + " --author=" + author + " --color")
+
+		var sh = `cd ${cwd} && ${gulp} add --name=${name} --type=${type} --author=${author}`
+		excute(sh)
 	})
 
 program
@@ -147,9 +173,10 @@ program
 	.description("build a component")
 	.action(function(name) {
 		ValidComponer()
-		HasComponent(name)
+		HasComponent(name, true)
 
-		excute("cd " + cwd + " && npm run -s gulp -- build --name=" + name + " --color")
+		var sh = `cd ${cwd} && ${gulp} build --name=${name}`
+		excute(sh)
 	})
 
 program
@@ -157,9 +184,10 @@ program
 	.description("preview a component")
 	.action(function(name) {
 		ValidComponer()
-		HasComponent(name)
+		HasComponent(name, true)
 
-		excute("cd " + cwd + " && npm run -s gulp -- preview --name=" + name + " --color")
+		var sh = `cd ${cwd} && ${gulp} preview --name=${name}`
+		excute(sh)
 	})
 
 program
@@ -169,11 +197,19 @@ program
 	.option("-d, --debug", "whether to shot browser to debug")
 	.action(function(name, options) {
 		ValidComponer()
-		HasComponent(name)
+		HasComponent(name, true)
 
-		var browser = options.browser || "phantomjs"
-		var sh = "cd " + cwd + " && npm run -s gulp -- test --name=" + name + " --browser=" + browser + (options.debug ? " --debug" : "") + " --color"
-		excute()
+		var sh = `cd ${cwd} && ${gulp} test --name=${name}`
+
+		if(options.browser) {
+			sh += ` --browser=${options.browser}`
+		}
+
+		if(options.debug) {
+			sh += " --debug"
+		}
+
+		excute(sh)
 	})
 
 program
@@ -181,9 +217,10 @@ program
 	.description("watch a component to build it automaticly when it change")
 	.action(function(name) {
 		ValidComponer()
-		HasComponent(name)
+		HasComponent(name, true)
 
-		excute("cd " + cwd + " && npm run -s gulp -- watch --name=" + name + " --color")
+		var sh = `cd ${cwd} && ${gulp} watch --name=${name}`
+		excute(sh)
 	})
 
 program
@@ -192,7 +229,7 @@ program
 	.description("remove a component from components directory")
 	.action(function(name) {
 		ValidComponer()
-		HasComponent(name)
+		HasComponent(name, true)
 
 		excute("cd " + cwd + " && cd components && rm -rf " + name, function() {
 			logger.success("Done! " + name + " has been deleted.")
@@ -206,38 +243,34 @@ program
 	.action(function() {
 		ValidComponer()
 
-		excute("cd " + cwd + " && npm run -s gulp -- ls --color")
+		var sh = `cd ${cwd} && ${gulp} ls`
+		excute(sh)
 	})
 
 // ---------------------------------
 
 program
-	.command("clone <name>")
-	.description("clone a component from https://github.com/componer")
-	.option("-u, --url", "git remote registry url, only `https://` supported")
-	.action(function(name, options) {
-		ValidComponer()
-
-		var url = options.url || "https://github.com/componer/" + name + ".git"
-		excute("cd " + cwd + " && cd components && git clone " + url + " " + name, function() {
-			logger.success("Done! Component has been add to components directory.")
-		})
-	})
-
-program
 	.command("pull <name> [params...]")
-	.description("pull a component from https://github.com/componer")
-	.action(function(name, options) {
+	.description("clone/pull a component from https://github.com/componer")
+	.action(function(name, options, params) {
 		ValidComponer()
-		HasComponent(name)
 
-		var sh = "cd " + cwd + " && cd components && cd " + name + " && git pull"
-		if(params.length > 0) {
-			sh += " " + params.join(" ")
+		if(!HasComponent(name)) {
+			excute("cd " + cwd + " && cd components && git clone https://github.com/componer/" + name + ".git", function() {
+				logger.success("Done! Component has been added to components directory.")
+			})
+
+			return
 		}
-		excute(sh, function() {
-			logger.success("Done! Component has been pulled to components directory.")
-		})
+		else {
+			var sh = "cd " + cwd + " && cd components && cd " + name + " && git pull"
+			if(params.length > 0) {
+				sh += " " + params.join(" ")
+			}
+			excute(sh, function() {
+				logger.success("Done! Component has been the latest code.")
+			})
+		}
 	})
 
 program

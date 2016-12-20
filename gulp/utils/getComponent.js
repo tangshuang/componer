@@ -7,9 +7,8 @@ export function getComponent(name) {
 
 	var componentsPath = config.paths.components
 
-	var type
+	var type = "None"
 	var info
-	var version
 	var path = `${componentsPath}/${name}`
 
 	if(!fs.existsSync(path)) {
@@ -33,7 +32,7 @@ export function getComponent(name) {
 		name: name,
 		path,
 		type,
-		version: info ? info.version : undefined,
+		version: info ? info.version : "None",
 		info,
 	}
 

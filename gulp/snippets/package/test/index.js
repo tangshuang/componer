@@ -1,5 +1,6 @@
-describe("{{Component Name}}", function() {
-    it('test', function() {
-        expect(1).toEqual(1);
-    });
-});
+import {{ComponentName}} from "../src/{{component-name}}.js"
+
+var {{componentName}} = new {{ComponentName}}()
+
+// delete the following code
+console.log({{componentName}})
