@@ -138,7 +138,8 @@ program
 		console.log("cp -r " + path.resolve(__dirname, "..") + "/. " + cwd + "/")
 
 		excute("cp -r " + path.resolve(__dirname, "..") + "/. " + cwd + "/")
-		excute("cd " + cwd + " && mkdir components")
+		excute(`cd ${cwd} && cd bin && rm componer-cli.js`)
+		excute(`cd ${cwd} && mkdir components`)
 		
 		if(!options.install) {
 			logger.success("Now you may need to run `npm install` to install neccessary modules.")
