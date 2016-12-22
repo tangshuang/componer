@@ -1,10 +1,13 @@
 {
 	"name": "{{component-name}}",
 	"version": "0.0.1",
-	"main": [
-        "src/js/{{component-name}}.js",
-        "src/style/{{component-name}}.scss"
-    ],
+	"entry": {
+		"script": "src/script/{{component-name}}.js",
+        "style": "src/style/{{component-name}}.scss",
+        "template": "src/template/{{component-name}}.hbs"
+    },
+    "dependencies": {
+    },
 	"webpack": {
 		"externals": {},
 		"resolve": {

@@ -6,8 +6,7 @@
   "bin": {
     "componer": "bin/componer-cli.js"
   },
-  "scripts": {
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/tangshuang/componer.git"
@@ -23,6 +22,7 @@
   },
   "homepage": "https://github.com/tangshuang/componer#readme",
   "dependencies": {
+    "bower": "^1.8.0",
     "commander": "^2.9.0",
     "process.logger": "^1.1.2",
     "shelljs": "^0.7.5"
@@ -73,5 +73,5 @@
     "webpack": "^1.14.0",
     "webpack-stream": "^3.2.0"
   },
-  "bowerComponents": {}
+  "components": {}
 }

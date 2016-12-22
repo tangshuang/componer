@@ -1,13 +1,5 @@
 #!/usr/bin/env node
 
-/**
- * @package componer-cli
- * @author frustigor
- * @registry https://github.com/tangshuang/componer
- *
- * Notice: change of this file has no affects when you use global componer.
- */
-
 var program = require("commander")
 var fs = require("fs")
 var shell = require("shelljs")
@@ -20,7 +12,11 @@ var readline = require('readline')
 var cwd = process.cwd()
 var gulp = path.resolve(__dirname, "../node_modules/.bin/gulp")
 var info = JSON.parse(fs.readFileSync(__dirname + "/../package.json"))
+var bowerInfo = JSON.parse(fs.readFileSync(__dirname + "/../.bowerrc"))
 
+/**
+ * @param number num: the num of directory level to check
+ */
 function __cwd(num) {
 	var flag = false
 	var current = cwd
@@ -39,6 +35,9 @@ function __cwd(num) {
 	return flag ? current : cwd
 }
 
+/**
+ * @param string dir: the path of directory to check whether it is a componer work directory.
+ */
 function isComponer(dir) {
 	return fs.existsSync(dir + "/package.json") && fs.existsSync(dir + "/gulpfile.babel.js") && fs.existsSync(dir + "/components")
 }
@@ -51,6 +50,10 @@ function ValidComponer() {
 	}
 }
 
+/**
+ * @param string name: the name of a component that will be check
+ * @param boolean exit: whether to exit process when the result is false.
+ */
 function HasComponent(name, exit) {
 	cwd = __cwd()
 	if(!fs.existsSync(cwd + "/components/" + dashlineName(name))) {
@@ -66,6 +69,11 @@ function HasComponent(name, exit) {
 	return true
 }
 
+/**
+ * @param string cmd: the command to run in shell
+ * @param function done: callback function when run successfully
+ * @param function fail: callback function when error or fail
+ */
 function excute(cmd, done, fail) {
 	
 	if(cmd.indexOf(gulp) > -1) {
@@ -95,6 +103,10 @@ function excute(cmd, done, fail) {
 
 }
 
+/**
+ * @param string question: display before input something
+ * @param function callback: what to do after input, with answer as a parameter
+ */
 function prompt(question, callback) {
 	var rl = readline.createInterface({
 		input: process.stdin,
@@ -139,7 +151,7 @@ program
 
 		excute("cp -r " + path.resolve(__dirname, "..") + "/. " + cwd + "/")
 		excute("cd " + cwd + " && cd bin && rm componer-cli.js")
-		excute("cd " + cwd + " && mkdir components")
+		excute("cd " + cwd + " && mkdir " + (bowerInfo.directory || "bower_components") + " && mkdir components")
 		
 		if(!options.install) {
 			logger.success("Now you may need to run `npm install` to install neccessary modules.")
@@ -165,8 +177,7 @@ program
 		var type = options.type || "default"
 		var author = options.author
 
-		var sh = "cd " + cwd + " && " + gulp + " add --name=" + name + " --type=" + type + " --author=" + author
-		excute(sh)
+		excute("cd " + cwd + " && " + gulp + " add --name=" + name + " --type=" + type + " --author=" + author)
 	})
 
 program
@@ -176,8 +187,7 @@ program
 		ValidComponer()
 		HasComponent(name, true)
 
-		var sh = "cd " + cwd + " && " + gulp + " build --name=" + name
-		excute(sh)
+		excute("cd " + cwd + " && " + gulp + " build --name=" + name)
 	})
 
 program
@@ -187,8 +197,7 @@ program
 		ValidComponer()
 		HasComponent(name, true)
 
-		var sh = "cd " + cwd + " && " + gulp + " preview --name=" + name
-		excute(sh)
+		excute("cd " + cwd + " && " + gulp + " preview --name=" + name)
 	})
 
 program
@@ -220,8 +229,7 @@ program
 		ValidComponer()
 		HasComponent(name, true)
 
-		var sh = "cd " + cwd + " && " + gulp + " watch --name=" + name
-		excute(sh)
+		excute("cd " + cwd + " && " + gulp + " watch --name=" + name)
 	})
 
 program
@@ -232,6 +240,7 @@ program
 		ValidComponer()
 		HasComponent(name, true)
 
+		excute("cd " + cwd + " && bower unlink " + name)
 		excute("cd " + cwd + " && cd components && rm -rf " + name, function() {
 			logger.success("Done! " + name + " has been deleted.")
 		})
@@ -244,8 +253,7 @@ program
 	.action(function() {
 		ValidComponer()
 
-		var sh = "cd " + cwd + " && " + gulp + " ls"
-		excute(sh)
+		excute("cd " + cwd + " && " + gulp + " ls")
 	})
 
 // ---------------------------------
@@ -272,6 +280,7 @@ program
 				logger.success("Done! Component has been the latest code.")
 			})
 		}
+
 	})
 
 program
@@ -279,7 +288,7 @@ program
 	.description("push a component to https://github.com/componer")
 	.action(function(name, params) {
 		ValidComponer()
-		HasComponent(name)
+		HasComponent(name, true)
 
 		prompt("Commit message: ", function(message) {
 			var sh = "cd " + cwd + " && cd components && cd " + name + " && git add * && git commit -m \"" + message + "\" && git push"
@@ -293,11 +302,58 @@ program
 		})
 	})
 
+// -----------------------------------
+
 program
-	.parse(process.argv)
+	.command("bower <action> [name]")
+	.description("select action from [link, install]")
+	.action(function(action, name) {
+		ValidComponer()
+		HasComponent(name, true)
+
+		var bower = path.resolve(__dirname, "../node_modules/.bin/bower")
+		var componentsPath = cwd + "/components"
+
+		function bowerLink(name) {
+			excute("cd " + cwd + " && cd components && cd " + name + " && " + bower + " link --config.cwd=" + cwd)
+			excute("cd " + cwd + " && " + bower + " link " + name)
+		}
+
+		function bowerInstall(name) {
+			excute("cd " + cwd + " && cd components && cd " + name + " && " + bower + " install --config.cwd=" + cwd)
+		}
+
+		function bower(name) {
+			if(!fs.existsSync(componentsPath + "/" + name + "/bower.json")) {
+				return
+			}
+			
+			if(action === "link") {
+				bowerLink(name)
+			}
+			else if(action === "install") {
+				bowerInstall(name)
+			}
+		}
+
+		if(name === undefined) {
+			fs.readdirSync(componentsPath).forEach(function(component) {
+				bower(component)
+			})
+		}
+		else{
+			bower(name)
+		}
+
+	})
 
 // -----------------------------------
 
 if(fs.existsSync(__cwd() + "/bin/custom-cli.js")) {
 	require(__cwd() + "/bin/custom-cli.js")(program)
 }
+
+// -----------------------------------
+
+program
+	.parse(process.argv)

@@ -1,13 +1,13 @@
 {
     "name": "{{component-name}}",
+    "description": "",
     "version": "0.0.1",
     "main": [
-        "src/js/{{component-name}}.js",
+        "src/script/{{component-name}}.js",
         "src/style/{{component-name}}.scss"
     ],
     "moduleType": [
-        "es6",
-        "node"
+        "es6"
     ],
     "authors": [
         "{{author}}"
@@ -26,5 +26,6 @@
     "ignore": [
         "preview/",
         "test/"
-    ]
+    ],
+    "private": true
 }
