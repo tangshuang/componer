@@ -44,9 +44,13 @@ module.exports = function() {
 				fs.renameSync(componentPath + "/test/index.js", componentPath + "/test/" + name + ".js")
 			}
 			else {
-				fs.renameSync(componentPath + "/src/js/index.js", componentPath + "/src/js/" + name + ".js")
+				fs.renameSync(componentPath + "/src/script/index.js", componentPath + "/src/script/" + name + ".js")
 				fs.renameSync(componentPath + "/src/style/index.scss", componentPath + "/src/style/" + name + ".scss")
 				fs.renameSync(componentPath + "/test/specs/index.js", componentPath + "/test/specs/" + name + ".js")
+
+				if(type === "default") {
+					fs.renameSync(componentPath + "/src/template/index.hbs", componentPath + "/src/template/" + name + ".hbs")
+				}
 			}
 
 			logger.done(`Success: ${name} has been completely created.`)

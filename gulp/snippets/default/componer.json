@@ -6,8 +6,6 @@
         "style": "src/style/{{component-name}}.scss",
         "template": "src/template/{{component-name}}.hbs"
     },
-    "dependencies": {
-    },
 	"webpack": {
 		"externals": {},
 		"resolve": {

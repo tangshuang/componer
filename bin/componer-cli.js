@@ -11,8 +11,23 @@ var readline = require('readline')
 
 var cwd = process.cwd()
 var gulp = path.resolve(__dirname, "../node_modules/.bin/gulp")
+var bower = path.resolve(__dirname, "../node_modules/.bin/bower")
 var info = JSON.parse(fs.readFileSync(__dirname + "/../package.json"))
-var bowerInfo = JSON.parse(fs.readFileSync(__dirname + "/../.bowerrc"))
+
+function exit() {
+	process.exit(0)
+}
+
+function exists(file) {
+	return fs.existsSync(file)
+}
+
+/**
+ * @param string dir: the path of directory to check whether it is a componer work directory.
+ */
+function isComponer(dir) {
+	return exists(dir + "/package.json") && exists(dir + "/gulpfile.babel.js") && exists(dir + "/components") && true
+}
 
 /**
  * @param number num: the num of directory level to check
@@ -35,18 +50,11 @@ function __cwd(num) {
 	return flag ? current : cwd
 }
 
-/**
- * @param string dir: the path of directory to check whether it is a componer work directory.
- */
-function isComponer(dir) {
-	return fs.existsSync(dir + "/package.json") && fs.existsSync(dir + "/gulpfile.babel.js") && fs.existsSync(dir + "/components")
-}
-
-function ValidComponer() {
+function inComponer() {
 	cwd = __cwd()
-	if(!isComponer(cwd) || !fs.existsSync(cwd + "/gulpfile.babel.js")) {
+	if(!isComponer(cwd) || !exists(cwd + "/gulpfile.babel.js")) {
 		logger.error("You are not in a componer project directory.")
-		process.exit(0)
+		exit()
 	}
 }
 
@@ -54,19 +62,34 @@ function ValidComponer() {
  * @param string name: the name of a component that will be check
  * @param boolean exit: whether to exit process when the result is false.
  */
-function HasComponent(name, exit) {
+function hasComponent(name, stop) {
 	cwd = __cwd()
-	if(!fs.existsSync(cwd + "/components/" + dashlineName(name))) {
+	if(!exists(cwd + "/components/" + name)) {
 		
-		if(exit) {
+		if(stop) {
 			logger.error("Component " + name + " is not exists.")
-			process.exit(0)
+			exit()
 		}
 
 		return false
 	}
 
 	return true
+}
+
+function getComponentType(name) {
+	if(exists(cwd + "/components/" + name + "/package.json")) {
+		return "package"
+	}
+	else if(exists(cwd + "/components/" + name + "/bower.json")) {
+		return "bower"
+	}
+	else if(exists(cwd + "/components/" + name + "/componer.json")) {
+		return "componer"
+	}
+	else {
+		return false
+	}
 }
 
 /**
@@ -78,7 +101,7 @@ function excute(cmd, done, fail) {
 	
 	if(cmd.indexOf(gulp) > -1) {
 		var rcfile = cwd + "/bin/.componerrc"
-		if(!fs.existsSync(rcfile)) {
+		if(!exists(rcfile)) {
 			rcfile = __dirname + "/.componerrc"
 		}
 
@@ -98,7 +121,7 @@ function excute(cmd, done, fail) {
 	}
 	else {
 		typeof fail === "function" && fail(result.stderr)
-		process.exit(0)
+		exit()
 	}
 
 }
@@ -118,7 +141,7 @@ function prompt(question, callback) {
 	})
 }
 
-function dashlineName(name) {
+function __name(name) {
 	name = name.substr(0, 1).toLowerCase() + name.substr(1)
 	return name.replace(/([A-Z])/g, "-$1").toLowerCase()
 }
@@ -151,7 +174,7 @@ program
 
 		excute("cp -r " + path.resolve(__dirname, "..") + "/. " + cwd + "/")
 		excute("cd " + cwd + " && cd bin && rm componer-cli.js")
-		excute("cd " + cwd + " && mkdir " + (bowerInfo.directory || "bower_components") + " && mkdir components")
+		excute("cd " + cwd + " && mkdir bower_components && mkdir components")
 		
 		if(!options.install) {
 			logger.success("Now you may need to run `npm install` to install neccessary modules.")
@@ -172,7 +195,8 @@ program
 	.option("-t, --type [type]", "type of component")
 	.option("-a, --author [author]", "author of component")
 	.action(function(name, options) {
-		ValidComponer()
+		inComponer()
+		name = __name(name)
 
 		var type = options.type || "default"
 		var author = options.author
@@ -184,8 +208,9 @@ program
 	.command("build <name>")
 	.description("build a component")
 	.action(function(name) {
-		ValidComponer()
-		HasComponent(name, true)
+		inComponer()
+		name = __name(name)
+		hasComponent(name, true)
 
 		excute("cd " + cwd + " && " + gulp + " build --name=" + name)
 	})
@@ -194,8 +219,9 @@ program
 	.command("preview <name>")
 	.description("preview a component")
 	.action(function(name) {
-		ValidComponer()
-		HasComponent(name, true)
+		inComponer()
+		name = __name(name)
+		hasComponent(name, true)
 
 		excute("cd " + cwd + " && " + gulp + " preview --name=" + name)
 	})
@@ -206,8 +232,9 @@ program
 	.option("-b, --browser", "which browser to test with")
 	.option("-d, --debug", "whether to shot browser to debug")
 	.action(function(name, options) {
-		ValidComponer()
-		HasComponent(name, true)
+		inComponer()
+		name = __name(name)
+		hasComponent(name, true)
 
 		var sh = "cd " + cwd + " && " + gulp + " test --name=" + name
 
@@ -226,8 +253,9 @@ program
 	.command("watch <name>")
 	.description("watch a component to build it automaticly when it change")
 	.action(function(name) {
-		ValidComponer()
-		HasComponent(name, true)
+		inComponer()
+		name = __name(name)
+		hasComponent(name, true)
 
 		excute("cd " + cwd + " && " + gulp + " watch --name=" + name)
 	})
@@ -237,10 +265,11 @@ program
 	.alias("rm")
 	.description("remove a component from components directory")
 	.action(function(name) {
-		ValidComponer()
-		HasComponent(name, true)
+		inComponer()
+		name = __name(name)
+		hasComponent(name, true)
 
-		excute("cd " + cwd + " && bower unlink " + name)
+		excute("cd " + cwd + " && " + bower + " unlink " + name)
 		excute("cd " + cwd + " && cd components && rm -rf " + name, function() {
 			logger.success("Done! " + name + " has been deleted.")
 		})
@@ -251,7 +280,7 @@ program
 	.alias("ls")
 	.description("list all components")
 	.action(function() {
-		ValidComponer()
+		inComponer()
 
 		excute("cd " + cwd + " && " + gulp + " ls")
 	})
@@ -262,9 +291,10 @@ program
 	.command("pull <name> [params...]")
 	.description("clone/pull a component from https://github.com/componer")
 	.action(function(name, options, params) {
-		ValidComponer()
+		inComponer()
+		name = __name(name)
 
-		if(!HasComponent(name)) {
+		if(!hasComponent(name)) {
 			excute("cd " + cwd + " && cd components && git clone https://github.com/componer/" + name + ".git", function() {
 				logger.success("Done! Component has been added to components directory.")
 			})
@@ -287,8 +317,9 @@ program
 	.command("push <name> [params...]")
 	.description("push a component to https://github.com/componer")
 	.action(function(name, params) {
-		ValidComponer()
-		HasComponent(name, true)
+		inComponer()
+		name = __name(name)
+		hasComponent(name, true)
 
 		prompt("Commit message: ", function(message) {
 			var sh = "cd " + cwd + " && cd components && cd " + name + " && git add * && git commit -m \"" + message + "\" && git push"
@@ -297,7 +328,7 @@ program
 			}
 			excute(sh, function() {
 				logger.success("Done! Component has been push to https://github.com/componer/" + name)
-				process.exit(0)
+				exit()
 			})
 		})
 	})
@@ -305,51 +336,65 @@ program
 // -----------------------------------
 
 program
-	.command("bower <action> [name]")
-	.description("select action from [link, install]")
-	.action(function(action, name) {
-		ValidComponer()
-		HasComponent(name, true)
+	.command("bower [name]")
+	.description("install bower dependencies of [name] component")
+	.action(function(name) {
+		inComponer()
+		name = __name(name)
 
-		var bower = path.resolve(__dirname, "../node_modules/.bin/bower")
 		var componentsPath = cwd + "/components"
 
-		function bowerLink(name) {
-			excute("cd " + cwd + " && cd components && cd " + name + " && " + bower + " link --config.cwd=" + cwd)
-			excute("cd " + cwd + " && " + bower + " link " + name)
-		}
-
 		function bowerInstall(name) {
-			excute("cd " + cwd + " && cd components && cd " + name + " && " + bower + " install --config.cwd=" + cwd)
-		}
-
-		function bower(name) {
-			if(!fs.existsSync(componentsPath + "/" + name + "/bower.json")) {
-				return
-			}
-			
-			if(action === "link") {
-				bowerLink(name)
-			}
-			else if(action === "install") {
-				bowerInstall(name)
+			if(exists(componentsPath + "/" + name + "/bower.json")) {
+				excute("cd " + cwd + " && cd components && cd " + name + " && " + bower + " install --config.cwd=" + cwd)
 			}
 		}
 
 		if(name === undefined) {
 			fs.readdirSync(componentsPath).forEach(function(component) {
-				bower(component)
+				bowerInstall(component)
 			})
 		}
 		else{
-			bower(name)
+			bowerInstall(name)
+		}
+
+	})
+
+program
+	.command("link [name]")
+	.description("link local [name] component into bower_components directory")
+	.action(function(name) {
+		inComponer()
+		name = __name(name)
+
+		var bower = path.resolve(__dirname, "../node_modules/.bin/bower")
+		var componentsPath = cwd + "/components"
+
+		function bowerLink(name) {
+			if(!exists(componentsPath + "/" + name + "/bower.json")) {
+				logger.error(name + " is not a component with bower.json")
+			}
+			else {
+				excute("cd " + cwd + " && cd components && cd " + name + " && " + bower + " link")
+				excute("cd " + cwd + " && " + bower + " link " + name)
+			}
+		}
+
+		if(name === undefined) {
+			fs.readdirSync(componentsPath).forEach(function(component) {
+				bowerLink(component)
+			})
+		}
+		else{
+			bowerLink(name)
 		}
 
 	})
 
 // -----------------------------------
 
-if(fs.existsSync(__cwd() + "/bin/custom-cli.js")) {
+if(exists(__cwd() + "/bin/custom-cli.js")) {
 	require(__cwd() + "/bin/custom-cli.js")(program)
 }
 

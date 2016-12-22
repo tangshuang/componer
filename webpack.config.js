@@ -43,7 +43,7 @@ function webpack(settings) {
 			],
 		},
 		resolve: {
-			packageAlias: "components",
+			packageAlias: "bowerComponents",
 		},
 		devtool: "source-map",
 	}
