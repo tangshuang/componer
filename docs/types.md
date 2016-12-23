@@ -60,3 +60,13 @@ Dependencies code is not built into your component, but will be use when you cre
 What put in bower.json devDependencies will not be built when you built your application. These dependencies will be used when you run `componer test [name]`. For example, your component does not need to use jquery, but in your unit test script, you want to use jquery, you can put jquery in `devDependencies`, and use `import $ from "jquery"` in your test code.
 After you add your dependencies, run `comoner bower [name]` to install these dependencies.
 When you build your application, only `denpendencies` will be used, `devDependencies` will not.
+
+## Multiple types
+
+If there are multiple types files in one component work directory, for example, there are a bower.json and componer.json in one directory, what is the final type?
+
+bower.json > package.json > componer.json
+
+Componer firstly seek bower.json, then seek package.json, ant lastly seek componer.json.
+So the build result will follow ES6 specification, then node module (commonjs) specification, and at last UMD specification. 
+If you want to build a package, do NOT put a bower.json in it, if you want to build an application, do NOT put a bower.json or a package.json.

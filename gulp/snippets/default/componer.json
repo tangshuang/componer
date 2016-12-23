@@ -9,7 +9,6 @@
 	"webpack": {
 		"externals": {},
 		"resolve": {
-			"packageAlias": "bowerComponents",
 			"alias": {}
 		}
 	}

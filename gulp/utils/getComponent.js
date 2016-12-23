@@ -24,7 +24,7 @@ export function getComponent(name) {
 		info = JSON.parse(fs.readFileSync(`${path}/bower.json`))
 	}
 	else if(fs.existsSync(`${path}/componer.json`)) {
-		type = "default"
+		type = "componer"
 		info = JSON.parse(fs.readFileSync(`${path}/componer.json`))
 	}
 

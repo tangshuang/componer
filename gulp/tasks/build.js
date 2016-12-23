@@ -1,5 +1,5 @@
 import {gulp, fs, path, args, logger, config, exit} from "../loader"
-import {validComponent, hasComponent, dashlineName, camelName, getFileExt} from "../utils"
+import {validComponent, hasComponent, dashlineName, camelName, getFileExt, getComponent} from "../utils"
 
 import extend from "extend"
 import shell from "shelljs"
@@ -41,6 +41,10 @@ module.exports = function() {
 	// clean the dist dir
 	shell.exec("rm -rf " + distPath + "/*")
 
+	var info = getComponent(name)
+	var type = info.type
+
+
 	/**
 	 * if it is a package, just build it with babel
 	 */
@@ -54,12 +58,12 @@ module.exports = function() {
 	}
 
 	/**
-	 * if it is a bower or component
+	 * if it is a bower component
 	 * because bower.json and componer.json both use main option to point entry files, we can use some same codes
 	 * static files of component should be put under component root directory
 	 */
 
-	var type
+	var type 
 	var isComponent = fs.existsSync(componentPath + "/componer.json")
 	var isBower = fs.existsSync(componentPath + "/bower.json")
 

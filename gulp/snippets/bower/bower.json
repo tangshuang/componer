@@ -26,6 +26,5 @@
     "ignore": [
         "preview/",
         "test/"
-    ],
-    "private": true
+    ]
 }

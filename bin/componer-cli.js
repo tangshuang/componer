@@ -26,7 +26,7 @@ function exists(file) {
  * @param string dir: the path of directory to check whether it is a componer work directory.
  */
 function isComponer(dir) {
-	return exists(dir + "/package.json") && exists(dir + "/gulpfile.babel.js") && exists(dir + "/components") && true
+	return exists(dir + "/package.json") && exists(dir + "/gulpfile.babel.js") && exists(dir + "/components")
 }
 
 /**
