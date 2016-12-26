@@ -1,0 +1,31 @@
+{
+    "name": "my-bower",
+    "description": "",
+    "version": "0.0.1",
+    "main": [
+        "src/script/my-bower.js",
+        "src/style/my-bower.scss"
+    ],
+    "moduleType": [
+        "es6"
+    ],
+    "authors": [
+        "tangshuang"
+    ],
+    "homepage": "https://github.com/tangshuang/my-bower",
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/tangshuang/my-bower.git"
+    },
+    "keywords": [
+    ],
+    "dependencies": {
+    },
+    "devDependencies": {
+    },
+    "ignore": [
+        "preview/",
+        "test/"
+    ],
+    "private": true
+}

@@ -1,44 +1,54 @@
 #!/usr/bin/env node
 
-var program = require("commander")
 var fs = require("fs")
+var path = require("path")
+var program = require("commander")
 var shell = require("shelljs")
 var logger = require("process.logger")
-var path = require("path")
 var readline = require('readline')
+
+var config = require("../config")
+var workDir = config.dirs.work
 
 // ----------------------------------
 
-var cwd = process.cwd()
 var gulp = path.resolve(__dirname, "../node_modules/.bin/gulp")
 var bower = path.resolve(__dirname, "../node_modules/.bin/bower")
+var cwd = process.cwd()
 var info = JSON.parse(fs.readFileSync(__dirname + "/../package.json"))
 
-function exit() {
+// ----------------------------------
+
+function _exit() {
 	process.exit(0)
 }
 
-function exists(file) {
+function _exists(file) {
 	return fs.existsSync(file)
+}
+
+function _name(name) {
+	name = name.substr(0, 1).toLowerCase() + name.substr(1)
+	return name.replace(/([A-Z])/g, "-$1").toLowerCase()
 }
 
 /**
  * @param string dir: the path of directory to check whether it is a componer work directory.
  */
-function isComponer(dir) {
-	return exists(dir + "/package.json") && exists(dir + "/gulpfile.babel.js") && exists(dir + "/components")
+function _is(dir) {
+	return _exists(dir + "/package.json") && _exists(dir + "/gulpfile.babel.js") && _exists(dir + "/" + workDir)
 }
 
 /**
  * @param number num: the num of directory level to check
  */
-function __cwd(num) {
+function _cwd(num) {
 	var flag = false
 	var current = cwd
 	num = num || 5
 
 	for(var i = num;i --;) {
-		if(isComponer(current)) {
+		if(_is(current)) {
 			flag = true
 			break
 		}
@@ -50,11 +60,11 @@ function __cwd(num) {
 	return flag ? current : cwd
 }
 
-function inComponer() {
-	cwd = __cwd()
-	if(!isComponer(cwd) || !exists(cwd + "/gulpfile.babel.js")) {
+function _in() {
+	cwd = _cwd()
+	if(!_is(cwd) || !_exists(cwd + "/gulpfile.babel.js")) {
 		logger.error("You are not in a componer project directory.")
-		exit()
+		_exit()
 	}
 }
 
@@ -62,33 +72,27 @@ function inComponer() {
  * @param string name: the name of a component that will be check
  * @param boolean exit: whether to exit process when the result is false.
  */
-function hasComponent(name, stop) {
-	cwd = __cwd()
-	if(!exists(cwd + "/components/" + name)) {
-		
-		if(stop) {
-			logger.error("Component " + name + " is not exists.")
-			exit()
-		}
-
+function _has(name) {
+	cwd = _cwd()
+	if(!_exists(cwd + "/" + workDir + "/" + name)) {
 		return false
 	}
 
 	return true
 }
 
-function getComponentType(name) {
-	if(exists(cwd + "/components/" + name + "/package.json")) {
+function getType(name) {
+	if(exists(cwd + "/" + workDir + "/" + name + "/package.json")) {
 		return "package"
 	}
-	else if(exists(cwd + "/components/" + name + "/bower.json")) {
+	else if(exists(cwd + "/" + workDir + "/" + name + "/bower.json")) {
 		return "bower"
 	}
-	else if(exists(cwd + "/components/" + name + "/componer.json")) {
+	else if(exists(cwd + "/" + workDir + "/" + name + "/componer.json")) {
 		return "componer"
 	}
 	else {
-		return false
+		return "None"
 	}
 }
 
@@ -101,7 +105,7 @@ function excute(cmd, done, fail) {
 	
 	if(cmd.indexOf(gulp) > -1) {
 		var rcfile = cwd + "/bin/.componerrc"
-		if(!exists(rcfile)) {
+		if(!_exists(rcfile)) {
 			rcfile = __dirname + "/.componerrc"
 		}
 
@@ -114,14 +118,13 @@ function excute(cmd, done, fail) {
 		}
 	}
 	
-
 	var result = shell.exec(cmd)
 	if(result.code === 0) {
 		typeof done === "function" && done()
 	}
 	else {
 		typeof fail === "function" && fail(result.stderr)
-		exit()
+		_exit()
 	}
 
 }
@@ -141,12 +144,7 @@ function prompt(question, callback) {
 	})
 }
 
-function __name(name) {
-	name = name.substr(0, 1).toLowerCase() + name.substr(1)
-	return name.replace(/([A-Z])/g, "-$1").toLowerCase()
-}
-
-// -----------------------------------
+// ======================================================
 
 program
 	.version(info.version)
@@ -257,6 +255,13 @@ program
 		name = __name(name)
 		hasComponent(name, true)
 
+
+		
+		if(stop) {
+			logger.error(name + " is not exists in " + workDir + " directory.")
+			exit()
+		}
+
 		excute("cd " + cwd + " && " + gulp + " watch --name=" + name)
 	})
 
@@ -336,15 +341,18 @@ program
 // -----------------------------------
 
 program
-	.command("bower [name]")
-	.description("install bower dependencies of [name] component")
+	.command("install [name]")
+	.description("install bower/package dependencies of [name] component")
 	.action(function(name) {
 		inComponer()
 		name = __name(name)
 
 		var componentsPath = cwd + "/components"
 
-		function bowerInstall(name) {
+		function Install(name) {
+			if(exists(componentsPath + "/" + name + "/package.json")) {
+				excute("cd " + cwd + " && cd components && cd " + name + " && npm install --prefix " + cwd)
+			}
 			if(exists(componentsPath + "/" + name + "/bower.json")) {
 				excute("cd " + cwd + " && cd components && cd " + name + " && " + bower + " install --config.cwd=" + cwd)
 			}
@@ -352,11 +360,11 @@ program
 
 		if(name === undefined) {
 			fs.readdirSync(componentsPath).forEach(function(component) {
-				bowerInstall(component)
+				Install(component)
 			})
 		}
 		else{
-			bowerInstall(name)
+			Install(name)
 		}
 
 	})
@@ -367,6 +375,8 @@ program
 	.action(function(name) {
 		inComponer()
 		name = __name(name)
+
+
 
 		var bower = path.resolve(__dirname, "../node_modules/.bin/bower")
 		var componentsPath = cwd + "/components"

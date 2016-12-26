@@ -41,62 +41,28 @@ module.exports = function() {
 	// clean the dist dir
 	shell.exec("rm -rf " + distPath + "/*")
 
-	var info = getComponent(name)
-	var type = info.type
+	var type = getComponent(name).type
 
+	if(type === "bower" || type === "package" || type === "componer") {
+		var info = JSON.parse(fs.readFileSync(componentPath + "/" + type + ".json"))
+		var externals = {}
+		var dependencies = info.dependencies
 
-	/**
-	 * if it is a package, just build it with babel
-	 */
-	if(fs.existsSync(componentPath + "/package.json")) {
-
-		return gulp.src(srcPath + "/**/*")
-			.pipe(babel())
-			.pipe(gulp.dest(distPath))
-			.on("end", doneMsg)
-
-	}
-
-	/**
-	 * if it is a bower component
-	 * because bower.json and componer.json both use main option to point entry files, we can use some same codes
-	 * static files of component should be put under component root directory
-	 */
-
-	var type 
-	var isComponent = fs.existsSync(componentPath + "/componer.json")
-	var isBower = fs.existsSync(componentPath + "/bower.json")
-
-	if(isComponent) {
-		type = "componer"
-	}
-	else if(isBower) {
-		type = "bower"
-	}
-
-	if(isComponent || isBower) {
-
-		let info = JSON.parse(fs.readFileSync(`${componentPath}/${type}.json`))
-		let settings = info.webpack || {}
-
-		/**
-		 * find out externals
-		 */
-		let externals = {}
-		let dependencies = info.dependencies
-
-		dependencies = dependencies && Object.keys(dependencies)
-		if(dependencies.length > 0) {
+		dependencies = typeof dependencies === "object" && Object.keys(dependencies)
+		if(dependencies && dependencies.length > 0) {
 			dependencies.forEach(dependence => externals[dependence] = dependence)
 		}
+	}
 
-		settings.externals = typeof settings.externals === "object" ? extend(false, {}, settings.externals, externals) : externals
-
-		/**
-		 * find out which files to be build entry
-		 */
-		
+	/**
+	 * a componer
+	 */
+	if(type ==== "bower" || type === "package" || type === "componer") {
 		let entryFiles = info.main
+		let settings = info.webpack || {}
+
+		entryFiles = type === "package" ? [srcPath + "/" + name + ".js"] : entryFiles
+		settings.externals = typeof settings.externals === "object" ? extend(false, {}, settings.externals, externals) : externals
 
 		if(entryFiles && Array.isArray(entryFiles)) {
 			let entryJs
@@ -129,16 +95,18 @@ module.exports = function() {
 		logger.error("Can't find entry files. Only `.js` and `.scss` files allowed. Check your bower.json `main` option.")
 		exit()
 	}
-	
+
 	/**
 	 * can't find out the type of this component
 	 */
-	logger.error("I don't know what is the type of this component. \nPlease follow rules of Componer.")
-	exit()
+	else {
+		logger.error("I don't know what is the type of this component. \nPlease follow rules of Componer.")
+		exit()
+	}
 
 	// ===============================================================================
 
-	function script(entryFile = `${srcPath}/js/${name}.js"`, outDir = `${distPath}/js/`, options = {}) {
+	function script(entryFile, outDir, options = {}) {
 		
 		// build js with webpack
 		var settings1 = extend(true, {}, config.webpack(), options, {
@@ -173,7 +141,7 @@ module.exports = function() {
 
 	}
 
-	function style(entryFile = `${srcPath}/style/${name}.scss"`, outDir = `${distPath}/css/`, options = {}) {
+	function style(entryFile, outDir, options = {}) {
 		
 		// compile scss
 		var stream1 = gulp.src(entryFile)

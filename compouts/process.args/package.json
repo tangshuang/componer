@@ -1,0 +1,19 @@
+{
+  "name": "process.args",
+  "version": "0.0.1",
+  "description": "",
+  "main": "dist/process.args.js",
+  "scripts": {
+  },
+  "keywords": [
+  ],
+  "author": "tangshuang",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tangshuang/process.args.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tangshuang/process.args/issues"
+  },
+  "license": "ISC"
+}

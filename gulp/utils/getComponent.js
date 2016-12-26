@@ -15,13 +15,13 @@ export function getComponent(name) {
 		return false
 	}
 
-	if(fs.existsSync(`${path}/package.json`)) {
-		type = "package"
-		info = JSON.parse(fs.readFileSync(`${path}/package.json`))
-	}
-	else if(fs.existsSync(`${path}/bower.json`)) {
+	if(fs.existsSync(`${path}/bower.json`)) {
 		type = "bower"
 		info = JSON.parse(fs.readFileSync(`${path}/bower.json`))
+	}
+	else if(fs.existsSync(`${path}/package.json`)) {
+		type = "package"
+		info = JSON.parse(fs.readFileSync(`${path}/package.json`))
 	}
 	else if(fs.existsSync(`${path}/componer.json`)) {
 		type = "componer"
