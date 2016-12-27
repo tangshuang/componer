@@ -72,6 +72,11 @@ function has(name) {
 function check(name) {
 	cwd = current()
 
+	if(!exists(dir + "/componouts")) {
+		logger.error("Not find a componouts directory in your componer")
+		exit()
+	}
+
 	if(!isComponer(cwd)) {
 		logger.error("You are not in a componer directory.")
 		exit()

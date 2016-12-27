@@ -1,0 +1,19 @@
+{
+	"entry": {
+		"script": "src/{{component-name}}.js"
+	},
+	"output": {
+		"script": "dist/"
+	},
+	"minify": false,
+	"sourcemap": false,
+	"webpack": {
+		"output": {
+			"filename": "{{component-name}}.js"
+		},
+		"externals": {},
+		"resolve": {
+			"alias": {}
+		}
+	}
+}
