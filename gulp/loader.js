@@ -11,7 +11,6 @@ import * as utils from "./utils"
 
 const rootPath = path.resolve(__dirname, "..")
 const gulpDir = path.basename(__dirname)
-const componentsDir = "components"
 const snippetsDir = "snippets"
 const tasksDir = "tasks"
 
@@ -23,14 +22,13 @@ const config = {
 		gulp: gulpDir,
 		tasks: tasksDir,
 		snippets: snippetsDir,
-		components: componentsDir,
 	},
 	paths: {
 		root: rootPath,
 		gulp: path.join(rootPath, gulpDir),
 		tasks: path.join(rootPath, gulpDir, tasksDir),
 		snippets: path.join(rootPath, gulpDir, snippetsDir),
-		components: path.join(rootPath, componentsDir),
+		componouts: path.join(rootPath, "componouts"),
 	},
 	webpack,
 	karma,

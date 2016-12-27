@@ -57,9 +57,14 @@ module.exports = function() {
 	/**
 	 * a componer
 	 */
-	if(type ==== "bower" || type === "package" || type === "componer") {
+	if(type === "bower" || type === "package" || type === "componer") {
 		let entryFiles = info.main
 		let settings = info.webpack || {}
+
+		if(type === "package" && !fs.existsSync(srcPath + "/" + name + ".js")) {
+			logger.error("A package need a file named `" + name + ".js` in your compout src directory.")
+			exit()
+		}
 
 		entryFiles = type === "package" ? [srcPath + "/" + name + ".js"] : entryFiles
 		settings.externals = typeof settings.externals === "object" ? extend(false, {}, settings.externals, externals) : externals
