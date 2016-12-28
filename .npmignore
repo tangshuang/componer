@@ -1,6 +1,5 @@
 node_modules/
 bower_components/
-components/**/
-npm-debug.json
-reports/
+instance/
 docs/
+npm-debug.json
