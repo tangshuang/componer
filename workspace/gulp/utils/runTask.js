@@ -17,5 +17,9 @@ export function runTask(task, args) {
 		cmd += " --color"
 	}
 
+	if(process.argv.indexOf("--silent") > -1) {
+		cmd += " --silent"
+	}
+
 	shell.exec(cmd)
 }

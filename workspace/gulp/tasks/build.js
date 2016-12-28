@@ -16,7 +16,7 @@ import babel from "gulp-babel"
 
 import sourcemaps from "gulp-sourcemaps"
 
-gulp.task("build", function() {
+gulp.task("build", () => {
 	const arg = args.build
 	const name = dashlineName(arg.name)
 
@@ -123,7 +123,7 @@ gulp.task("build", function() {
 	}
 
 	function script(entryFile, outDir, options) {
-		var settings = config.webpack(options.webpack)
+		var settings = options.webpack
 		var isMinfiy = options.minify
 		var isSourceMap = options.sourcemap
 		var filename = settings.output.filename
@@ -136,7 +136,7 @@ gulp.task("build", function() {
 
 		// build js with webpack
 		var stream1 = gulp.src(entryFile)
-			.pipe(webpack(settings))
+			.pipe(webpack(config.webpack(settings)))
 			.pipe(gulp.dest(outDir))
 
 		if(!isMinfiy) {
@@ -157,7 +157,7 @@ gulp.task("build", function() {
 		})
 
 		var stream2 = gulp.src(entryFile)
-			.pipe(webpack(settings2))
+			.pipe(webpack(config.webpack(settings2)))
 			.pipe(gulp.dest(outDir))
 
 		return mergeStream(stream1, stream2)

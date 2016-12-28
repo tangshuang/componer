@@ -1,6 +1,7 @@
 import extend from "extend"
+import {WebpackSupportCmdInUmd} from "./gulp/utils"
 
-function webpack(settings) {
+function webpack(options) {
 
 	var defaults = {
 		output: {
@@ -47,11 +48,21 @@ function webpack(settings) {
 		},
 	}
 
-	if(typeof settings === "object") {
-		return extend(true, defaults, settings)
+	var settings
+
+	if(typeof options === "object") {
+		settings = extend(true, defaults, options)
+	}
+	else {
+		settings = defaults
 	}
 
-	return defaults
+	if(settings.output.libraryTarget === "umd") {
+		settings.plugins = settings.plugins || []
+		settings.plugins.push(new WebpackSupportCmdInUmd())
+	}
+
+	return settings
 
 }
 

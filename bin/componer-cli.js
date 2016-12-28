@@ -164,7 +164,7 @@ program
 		}
 
 		log("Begin to copy files...")
-		excute("cp -r " + path.resolve(__dirname, "../instance") + "/. " + cwd + "/")
+		excute("cp -r " + path.resolve(__dirname, "../workspace") + "/. " + cwd + "/")
 		excute("cd " + cwd + " && mkdir bower_components && mkdir componouts")
 		
 		log("Done! Now run `npm install` to install neccessary modules.", "done")

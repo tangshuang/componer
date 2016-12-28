@@ -1,7 +1,7 @@
 import {gulp, fs, config, log, logger} from "../loader"
 import {getComponouts, strPadRight} from "../utils"
 
-gulp.task("ls", function() {
+gulp.task("ls", () => {
 	var componoutsPath = config.paths.componouts
 	var componouts = getComponouts()
 
