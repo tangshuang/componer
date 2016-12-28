@@ -1,0 +1,27 @@
+{
+	"entry": {
+		"script": "src/script/{{component-name}}.js",
+		"style": "src/style/{{component-name}}.scss",
+		"index": "src/index.jade"
+	},
+	"output": {
+		"script": "dist/js/",
+		"style": "dist/css/"
+	},
+	"minify": true,
+	"sourcemap": true,
+	"webpack": {
+		"output": {
+			"filename": "{{component-name}}.js"
+		},
+		"externals": {},
+		"resolve": {
+			"alias": {}
+		}
+	},
+	"sass": {
+		"output": {
+			"filename": "{{component-name}}.css"
+		}
+	}
+}
