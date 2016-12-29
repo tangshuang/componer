@@ -1,5 +1,5 @@
 import {gulp, path, fs, args, log, config, exit, exists, read, readJSON, write} from "../loader"
-import {hasComponout, dashlineName, runTask, prettyHtml, getComponout, getBowerDepsFiles, getFileExt, setFileExt} from "../utils"
+import {paserTemplate, hasComponout, dashlineName, runTask, prettyHtml, getComponout, getBowerDepsFiles, getFileExt, setFileExt} from "../utils"
 
 import sass from "gulp-sass"
 import sourcemaps from "gulp-sourcemaps"
@@ -32,17 +32,16 @@ gulp.task("preview", () => {
 		})
 	}
 
-	// watch change
-	gulp.watch([srcPath + "/**/*"], event => {
-		log(`${event.path} was ${event.type}, building...`, "help")
-		runTask("build", {
-			name: name
-		})
-	})
-
 	/**
 	 * modify preive index.html
 	 */
+
+	// paser template
+	gulp.src(previewFile)
+		.pipe(paserTemplate({
+			componentName: name,
+		}))
+		.pipe(gulp.dest(path.dirname(previewFile)))
 
 	var content = read(previewFile)
 
@@ -111,22 +110,30 @@ gulp.task("preview", () => {
 
 	if(outputJs) {
 		let buildjshtml = `<script src="../${outputJs}/${componerInfo.webpack.output.filename}"></script>`
-		let buildjsreg = new RegExp('(<!--\s*?build:js\s*?-->)([\\s\\S]*?)(<!--\s*?endbuild\s*?-->)','im')
-		content = content.replace(buildjsreg, "$1$2" + buildjshtml + "$3")
+		let buildjsreg = new RegExp('(<!--\s*?build:js\s*?-->)([\\s\\S]*?)(<!--\s*?endbower\s*?-->)([\\s\\S]*?)(<!--\s*?endbuild\s*?-->)','im')
+		content = content.replace(buildjsreg, "$1$2$3" + buildjshtml + "$5")
 	}
 
 	if(outputCss) {
 		let buildcsshtml = `<link rel="stylesheet" href="../${outputCss}/${componerInfo.sass.output.filename}">`
-		let buildcssreg = new RegExp('(<!--\s*?build:css\s*?-->)([\\s\\S]*?)(<!--\s*?endbuild\s*?-->)','im')
-		content = content.replace(buildcssreg, "$1$2" + buildcsshtml + "$3")
+		let buildcssreg = new RegExp('(<!--\s*?build:css\s*?-->)([\\s\\S]*?)(<!--\s*?endbower\s*?-->)([\\s\\S]*?)(<!--\s*?endbuild\s*?-->)','im')
+		content = content.replace(buildcssreg, "$1$2$3" + buildcsshtml + "$5")
 	}
 
 
 	// pretty code
 	content = prettyHtml(content)
 
+	// update preview index.html
 	write(previewFile, content)
 
+	// watch change
+	gulp.watch([srcPath + "/**/*"], event => {
+		log(`${event.path} was ${event.type}, building...`, "help")
+		runTask("build", {
+			name: name
+		})
+	})
 
 	// open server
 	var $server = new TsServer()
