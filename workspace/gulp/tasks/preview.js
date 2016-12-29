@@ -1,5 +1,5 @@
 import {gulp, path, fs, args, log, config, exit, exists, read, readJSON, write} from "../loader"
-import {paserTemplate, hasComponout, dashlineName, runTask, prettyHtml, getComponout, getBowerDepsFiles, getFileExt, setFileExt} from "../utils"
+import {paserTemplate, hasComponout, dashlineName, runTask, prettyHtml, getComponout, getBowerDeps, getBowerMain, getFileExt, setFileExt} from "../utils"
 
 import sass from "gulp-sass"
 import sourcemaps from "gulp-sourcemaps"
@@ -49,11 +49,12 @@ gulp.task("preview", () => {
 	var type = getComponout(name).type
 	if(type === "bower") {
 		let bowerJson = path.join(componoutPath, "bower.json")
-		let depsFiles = getBowerDepsFiles(bowerJson)
+		let deps = getBowerDeps(bowerJson)
 
-		if(Array.isArray(depsFiles) && depsFiles.length > 0) {
+		if(Array.isArray(deps) && deps.length > 0) {
 
 			/**
+			 * find out dependencies files
 			 * compile scss to css in the same directory with scss files
 			 */
 			
@@ -66,14 +67,39 @@ gulp.task("preview", () => {
 			}
 
 			let bowerBase = path.join(config.paths.root, "bower_components")
-			depsFiles.map(file => {
-				if(getFileExt(file) === ".scss") {
-					let filePath = bowerBase + "/" + file
-					compileScss(filePath)
-					return setFileExt(file, ".css")
+			let depsFiles = []
+			deps.forEach(dep => {
+				let depMainFiles = getBowerMain(dep)
+				if(typeof depMainFiles === "string") {
+					depMainFiles = [depMainFiles]
 				}
-				else {
-					return file
+
+				let depMainScss
+				let depMainCss
+				let depMainJs
+				depMainFiles.forEach(file => {
+					let ext = getFileExt(file)
+					if(ext === ".scss") {
+						depMainScss = dep + "/" + file
+					}
+					else if(ext === ".css") {
+						depMainCss = dep + "/" + file
+					}
+					else if(ext === ".js") {
+						depMainJs = dep + "/" + file
+					}
+				})
+
+				if(depMainJs) {
+					depsFiles.push(depMainJs)
+				}
+				if(depMainCss) {
+					depsFiles.push(depMainCss)
+				}
+				else if(depMainScss) { // only compile scss when have no css
+					let depFilePath = bowerBase + "/" + depMainScss
+					compileScss(depFilePath)
+					depsFiles.push(setFileExt(depMainScss, ".css"))
 				}
 			})
 
@@ -127,14 +153,6 @@ gulp.task("preview", () => {
 	// update preview index.html
 	write(previewFile, content)
 
-	// watch change
-	gulp.watch([srcPath + "/**/*"], event => {
-		log(`${event.path} was ${event.type}, building...`, "help")
-		runTask("build", {
-			name: name
-		})
-	})
-
 	// open server
 	var $server = new TsServer()
 	var port = Math.floor(Math.random() * 1000) + 8000
@@ -156,6 +174,14 @@ gulp.task("preview", () => {
 				}
 			},
 		},
+	})
+
+	// watch change
+	gulp.watch([srcPath + "/**/*"], event => {
+		log(`${event.path} was ${event.type}, building...`, "help")
+		runTask("build", {
+			name: name
+		})
 	})
 
 })

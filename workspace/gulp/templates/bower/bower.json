@@ -3,11 +3,11 @@
     "description": "",
     "version": "0.0.1",
     "main": [
-        "src/script/{{component-name}}.js",
-        "src/style/{{component-name}}.scss"
+        "dist/js/{{component-name}}.js",
+        "dist/css/{{component-name}}.css"
     ],
     "moduleType": [
-        "es6"
+        "umd"
     ],
     "authors": [
         "{{author}}"
@@ -17,12 +17,9 @@
         "type": "git",
         "url": "git://github.com/{{author}}/{{component-name}}.git"
     },
-    "keywords": [
-    ],
-    "dependencies": {
-    },
-    "devDependencies": {
-    },
+    "keywords": [],
+    "dependencies": {},
+    "devDependencies": {},
     "ignore": [
         "preview/",
         "test/"

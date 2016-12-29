@@ -3,12 +3,13 @@
 		"script": "src/{{component-name}}.js"
 	},
 	"output": {
-		"script": "dist/"
+		"script": "dist"
 	},
 	"minify": false,
 	"sourcemap": false,
 	"webpack": {
 		"output": {
+			"libraryTarget": "commonjs2",
 			"filename": "{{component-name}}.js"
 		},
 		"externals": {},

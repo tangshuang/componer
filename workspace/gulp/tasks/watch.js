@@ -21,4 +21,5 @@ gulp.task("watch", () => {
 			name: name
 		})
 	})
+
 })
