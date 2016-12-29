@@ -14,6 +14,7 @@ gulp.task("watch", () => {
 	var srcPath = path.join(componoutPath, "src")
 
 	log("Watching, when code chnge, componer will build it automaticly...", "help")
+	
 	gulp.watch([srcPath + "/**/*"], event => {
 		log(`${event.path} was ${event.type}, building...`, "help")
 		runTask("build", {

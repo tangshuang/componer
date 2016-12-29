@@ -1,7 +1,52 @@
 import extend from "extend"
-import {WebpackSupportCmdInUmd} from "./gulp/utils"
+import webpack from "webpack"
+import RawSource from "webpack/lib/RawSource"
 
-function webpack(options) {
+
+/**
+ * define a plugin
+ */
+
+function WebpackSupportCmdInUmd() {}
+
+WebpackSupportCmdInUmd.prototype.apply = function(compiler) {
+
+  compiler.plugin("emit", (compilation, callback) => {
+
+    if(compilation.options.output.libraryTarget !== "umd") {
+      return
+    }
+
+    let outputfile = compilation.options.output.filename
+    let assets = compilation.assets
+    let keys = Object.keys(assets) 
+    
+    keys.forEach(key => {
+      if(outputfile !== key || outputfile.substr(outputfile.lastIndexOf('.')) !== ".js") {
+        return
+      }
+
+      let asset = assets[key]
+      let content = asset.source()
+
+      content = content.replace("typeof define === 'function' && define.amd", "typeof define === 'function' && define.amd && define.cmd")
+        .replace('"function"==typeof define&&define.amd', '"function"==typeof define&&define.amd&&define.cmd')
+      
+      assets[key] = new RawSource(content)
+    })
+
+    callback()
+
+  })
+
+}
+
+
+/**
+ * config function
+ */
+
+function webpackConfig(options) {
 
 	var defaults = {
 		output: {
@@ -45,6 +90,7 @@ function webpack(options) {
 		},
 		resolve: {
 			packageAlias: "bowerComponents",
+			modulesDirectories: ["node_modules", "bower_components"],
 		},
 	}
 
@@ -57,14 +103,24 @@ function webpack(options) {
 		settings = defaults
 	}
 
+
+	/**
+	 * insert default plugins
+	 */
+
+	settings.plugins = settings.plugins || []
+	// use bower.json main to be module entry
+	settings.plugins.unshift(new webpack.ResolverPlugin(
+        new webpack.ResolverPlugin.DirectoryDescriptionFilePlugin(".bower.json", ["main"])
+    ))
+	// support cmd in umd
 	if(settings.output.libraryTarget === "umd") {
-		settings.plugins = settings.plugins || []
-		settings.plugins.push(new WebpackSupportCmdInUmd())
+		settings.plugins.unshift(new WebpackSupportCmdInUmd())
 	}
 
 	return settings
 
 }
 
-export default webpack
-module.exports = webpack
+export default webpackConfig
+module.exports = webpackConfig

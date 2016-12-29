@@ -40,18 +40,26 @@ function exists(file) {
 	return fs.existsSync(file)
 }
 
-function read(file) {
+function read(file, charset = "utf8") {
 	if(!exists(file)) {
 		return false
 	}
-	return fs.readFileSync(file)
+	return fs.readFileSync(file, charset)
 }
 
-function readJSON(file) {
+function readJSON(file, charset = "utf8") {
 	if(!exists(file)) {
 		return false
 	}
-	return JSON.parse(read(file))
+	return JSON.parse(read(file, charset))
+}
+
+function write(file, content, charset = "utf8") {
+	return fs.writeFileSync(file, content, charset)
+}
+
+function writeJSON(file, json, charset = "utf8") {
+	return write(file, JSON.stringify(json, null, 4), charset)
 }
 
 function excute(cmd, done, fail) {
@@ -92,6 +100,8 @@ export {
     exists,
     read,
     readJSON,
+    write,
+    writeJSON,
     excute,
     clear,
     log,

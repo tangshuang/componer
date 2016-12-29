@@ -1,6 +1,16 @@
 import {fs, config, exists, readJSON} from "../loader"
 import {dashlineName} from "./index"
 
+export function hasComponout(name) {
+
+	if(!exists(config.paths.componouts + "/" + name)) {
+		return false
+	}
+
+	return true
+
+}
+
 export function getComponout(name) {
 
 	name = dashlineName(name)

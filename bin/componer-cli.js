@@ -293,24 +293,25 @@ program
 	.command("install [name]")
 	.description("install bower/package dependencies of [name] componout")
 	.action(function(name) {
-		name = dashline(name)
-		check()
 
 		function Install(name) {
 			if(exists(cwd + "/componouts/" + name + "/package.json")) {
 				excute("cd " + cwd + " && cd componouts && cd " + name + " && npm install --prefix " + cwd)
 			}
 			if(exists(cwd + "/componouts/" + name + "/bower.json")) {
-				excute("cd " + cwd + " && cd componouts && cd " + name + " && " + bower + " install --config.cwd=" + cwd)
+				excute("cd " + cwd + " && cd componouts && cd " + name + " && bower install --config.directory=" + cwd + "/bower_components")
 			}
 		}
 
 		if(name === undefined) {
+			check()
 			fs.readdirSync(cwd + "/componouts").forEach(function(item) {
 				Install(item)
 			})
 		}
-		else{
+		else {
+			name = dashline(name)
+			check(name)
 			Install(name)
 		}
 
@@ -320,8 +321,6 @@ program
 	.command("link [name]")
 	.description("link local [name] componout into bower_components/node_modules directory")
 	.action(function(name) {
-		name = dashline(name)
-		check()
 
 		function Link(name) {
 			if(exists(cwd + "/componouts/" + name + "/package.json")) {
@@ -329,17 +328,20 @@ program
 				excute("cd " + cwd + " && npm link " + name)
 			}
 			if(exists(cwd + "/componouts/" + name + "/bower.json")) {
-				excute("cd " + cwd + " && cd componouts && cd " + name + " && " + bower + " link")
-				excute("cd " + cwd + " && " + bower + " link " + name)
+				excute("cd " + cwd + " && cd componouts && cd " + name + " && bower link")
+				excute("cd " + cwd + " && bower link " + name)
 			}
 		}
 
 		if(name === undefined) {
+			check()
 			fs.readdirSync(cwd + "/componouts").forEach(function(item) {
 				Link(item)
 			})
 		}
-		else{
+		else {
+			name = dashline(name)
+			check(name)
 			Link(name)
 		}
 

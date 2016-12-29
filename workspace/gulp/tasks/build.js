@@ -1,5 +1,5 @@
 import {gulp, fs, path, args, log, config, exit, exists, extend, clear, readJSON} from "../loader"
-import {hasComponout, dashlineName, camelName, getFileExt, getComponout} from "../utils"
+import {hasComponout, dashlineName, camelName, getFileExt, getComponout, setFileExt} from "../utils"
 
 import shell from "shelljs"
 
@@ -13,7 +13,6 @@ import sass from "gulp-sass"
 import concat from "gulp-concat"
 import cssmin from "gulp-cssmin"
 import babel from "gulp-babel"
-
 import sourcemaps from "gulp-sourcemaps"
 
 gulp.task("build", () => {
@@ -118,10 +117,6 @@ gulp.task("build", () => {
 
 	// ===============================================================================
 
-	function renameFile(file, tail) {
-		return file.substr(0, file.lastIndexOf('.')) + tail
-	}
-
 	function script(entryFile, outDir, options) {
 		var settings = options.webpack
 		var isMinfiy = options.minify
@@ -146,8 +141,8 @@ gulp.task("build", () => {
 		// build js with webpack (minify)
 		var settings2 = extend(true, {}, settings, {
 			output: {
-				filename: renameFile(filename, ".min.js"),
-				sourceMapFilename: renameFile(filename, ".min.js.map"),
+				filename: setFileExt(filename, ".min.js"),
+				sourceMapFilename: setFileExt(filename, ".min.js.map"),
 			},
 			plugins: [
 				new optimize.UglifyJsPlugin({
@@ -191,7 +186,7 @@ gulp.task("build", () => {
 			return gulp.src(entryFile)
 				.pipe(sass())
 				.pipe(cssmin())
-				.pipe(rename(renameFile(filename, ".min.css")))
+				.pipe(rename(setFileExt(filename, ".min.css")))
 				.pipe(gulp.dest(outDir))
 		}
 
@@ -200,7 +195,7 @@ gulp.task("build", () => {
 				.pipe(sourcemaps.init())
 				.pipe(sass())
 				.pipe(cssmin())
-				.pipe(rename(renameFile(filename, ".min.css")))
+				.pipe(rename(setFileExt(filename, ".min.css")))
 				.pipe(sourcemaps.write("./"))
 				.pipe(gulp.dest(outDir))
 		}
