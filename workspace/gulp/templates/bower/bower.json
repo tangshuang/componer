@@ -3,11 +3,12 @@
     "description": "",
     "version": "0.0.1",
     "main": [
-        "dist/js/{{component-name}}.js",
-        "dist/css/{{component-name}}.css"
+        "src/script/{{component-name}}.js",
+        "src/style/{{component-name}}.scss"
     ],
     "moduleType": [
-        "umd"
+        "es6",
+        "sass"
     ],
     "authors": [
         "{{author}}"

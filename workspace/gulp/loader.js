@@ -62,7 +62,7 @@ function writeJSON(file, json, charset = "utf8") {
 	return write(file, JSON.stringify(json, null, 4), charset)
 }
 
-function excute(cmd, done, fail) {
+function execute(cmd, done, fail) {
 	var result = shell.exec(cmd)
 	if(result.code === 0) {
 		typeof done === "function" && done()
@@ -83,7 +83,7 @@ function log(content, level) {
 }
 
 function clear(dir) {
-	excute("cd " + dir + " && rm -rf * && rm -rf .??*")
+	execute("cd " + dir + " && rm -rf * && rm -rf .??*")
 }
 
 export {
@@ -102,7 +102,7 @@ export {
     readJSON,
     write,
     writeJSON,
-    excute,
+    execute,
     clear,
     log,
 }

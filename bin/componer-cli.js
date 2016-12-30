@@ -99,7 +99,7 @@ function check(name) {
  * @param function done: callback function when run successfully
  * @param function fail: callback function when error or fail
  */
-function excute(cmd, done, fail) {
+function execute(cmd, done, fail) {
 	if(cmd.indexOf("gulp") > -1 && exists(cwd + "/bin/.componerrc")) {
 		var config = readJSON(cwd + "/bin/.componerrc")
 		if(config.color) {
@@ -164,8 +164,8 @@ program
 		}
 
 		log("Begin to copy files...")
-		excute("cp -r " + path.resolve(__dirname, "../workspace") + "/. " + cwd + "/")
-		excute("cd " + cwd + " && mkdir bower_components && mkdir componouts")
+		execute("cp -r " + path.resolve(__dirname, "../workspace") + "/. " + cwd + "/")
+		execute("cd " + cwd + " && mkdir bower_components && mkdir componouts")
 		
 		log("Done! Now run `npm install` to install neccessary modules.", "done")
 	})
@@ -191,7 +191,7 @@ program
 			exit()
 		}
 
-		excute("cd " + cwd + " && gulp add --type=" + type + " --name=" + name + " --author=" + author)
+		execute("cd " + cwd + " && gulp add --type=" + type + " --name=" + name + " --author=" + author)
 	})
 
 program
@@ -200,7 +200,7 @@ program
 	.action(function(name) {
 		name = dashline(name)
 		check(name)
-		excute("cd " + cwd + " && gulp build --name=" + name)
+		execute("cd " + cwd + " && gulp build --name=" + name)
 	})
 
 program
@@ -209,7 +209,7 @@ program
 	.action(function(name) {
 		name = dashline(name)
 		check(name)
-		excute("cd " + cwd + " && gulp preview --name=" + name)
+		execute("cd " + cwd + " && gulp preview --name=" + name)
 	})
 
 program
@@ -218,7 +218,7 @@ program
 	.action(function(name, options) {
 		name = dashline(name)
 		check(name)
-		excute("cd " + cwd + " && gulp  test --name=" + name)
+		execute("cd " + cwd + " && gulp  test --name=" + name)
 	})
 
 program
@@ -227,7 +227,7 @@ program
 	.action(function(name) {
 		name = dashline(name)
 		check(name)
-		excute("cd " + cwd + " && gulp  watch --name=" + name)
+		execute("cd " + cwd + " && gulp  watch --name=" + name)
 	})
 
 program
@@ -236,7 +236,7 @@ program
 	.description("list all componouts")
 	.action(function() {
 		check()
-		excute("cd " + cwd + " && gulp ls")
+		execute("cd " + cwd + " && gulp ls")
 	})
 
 // ---------------------------------
@@ -249,7 +249,7 @@ program
 		check()
 
 		if(!has(name)) {
-			excute("cd " + cwd + " && cd componouts && git clone https://github.com/componer/" + name + ".git", function() {
+			execute("cd " + cwd + " && cd componouts && git clone https://github.com/componer/" + name + ".git", function() {
 				log("Done! Componout has been added to componouts directory.", "done")
 			}, function() {
 				log("You can enter componout directory and run `git clone`.", "help")
@@ -260,7 +260,7 @@ program
 			if(params.length > 0) {
 				sh += " " + params.join(" ")
 			}
-			excute(sh, function() {
+			execute(sh, function() {
 				log("Done! Componout has been the latest code.", "done")
 			})
 		}
@@ -279,7 +279,7 @@ program
 			if(params.length > 0) {
 				sh += " " + params.join(" ")
 			}
-			excute(sh, function() {
+			execute(sh, function() {
 				log("Done! Componout has been push to https://github.com/componer/" + name, "done")
 			}, function() {
 				log("You can enter componout/" + name + " directory to run `git push`.", "help")
@@ -296,10 +296,10 @@ program
 
 		function Install(name) {
 			if(exists(cwd + "/componouts/" + name + "/package.json")) {
-				excute("cd " + cwd + " && cd componouts && cd " + name + " && npm install --prefix " + cwd)
+				execute("cd " + cwd + " && cd componouts && cd " + name + " && npm install --prefix " + cwd)
 			}
 			if(exists(cwd + "/componouts/" + name + "/bower.json")) {
-				excute("cd " + cwd + " && cd componouts && cd " + name + " && bower install --config.directory=" + cwd + "/bower_components")
+				execute("cd " + cwd + " && cd componouts && cd " + name + " && bower install --config.directory=" + cwd + "/bower_components")
 			}
 		}
 
@@ -324,12 +324,12 @@ program
 
 		function Link(name) {
 			if(exists(cwd + "/componouts/" + name + "/package.json")) {
-				excute("cd " + cwd + " && cd componouts && cd " + name + " && npm link")
-				excute("cd " + cwd + " && npm link " + name)
+				execute("cd " + cwd + " && cd componouts && cd " + name + " && npm link")
+				execute("cd " + cwd + " && npm link " + name)
 			}
 			if(exists(cwd + "/componouts/" + name + "/bower.json")) {
-				excute("cd " + cwd + " && cd componouts && cd " + name + " && bower link")
-				excute("cd " + cwd + " && bower link " + name)
+				execute("cd " + cwd + " && cd componouts && cd " + name + " && bower link")
+				execute("cd " + cwd + " && bower link " + name)
 			}
 		}
 
@@ -360,13 +360,13 @@ program
 		prompt("Are you sure to remove " + name + " componout? yes/No  ", function(choice) {
 			if(choice.toLowerCase() === "yes") {
 				if(exists(cwd + "/bower_components/" + name)) {
-					excute("cd " + cwd + " && bower unlink " + name)
+					execute("cd " + cwd + " && bower unlink " + name)
 				}
 				if(exists(cwd + "/node_modules/" + name)) {
-					excute("cd " + cwd + " && npm unlink " + name)
+					execute("cd " + cwd + " && npm unlink " + name)
 				}
 
-				excute("cd " + cwd + " && cd componouts && rm -rf " + name, function() {
+				execute("cd " + cwd + " && cd componouts && rm -rf " + name, function() {
 					log("Done! " + name + " has been deleted.", "done")
 				})
 			}

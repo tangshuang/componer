@@ -17,11 +17,10 @@ gulp.task("preview", () => {
 	var componoutPath = path.join(config.paths.componouts, name)
 	var srcPath = path.join(componoutPath, "src")
 	var distPath = path.join(componoutPath, "dist")
-	var previewPath = path.join(componoutPath, "preview")
-	var previewFile = path.join(previewPath, "index.html")
+	var settings = readJSON(componoutPath + "/componer.json")
 
-	if(!exists(previewPath)) {
-		log(`${name} has no preveiw directory.`, "error")
+	if(!settings.output.preview) {
+		log(`preview option is incorrect in your componer.json.`, "error")
 		exit()
 	}
 
@@ -32,16 +31,11 @@ gulp.task("preview", () => {
 		})
 	}
 
-	/**
-	 * modify preive index.html
-	 */
+	var previewFile = path.join(componoutPath, settings.output.preview)
 
-	// paser template
-	gulp.src(previewFile)
-		.pipe(paserTemplate({
-			componentName: name,
-		}))
-		.pipe(gulp.dest(path.dirname(previewFile)))
+	/**
+	 * modify preview index.html
+	 */
 
 	var content = read(previewFile)
 
@@ -129,21 +123,20 @@ gulp.task("preview", () => {
 	 * inject build files inot index.html
 	 */
 
-	var componerInfo = readJSON(componoutPath + "/componer.json")
-	var outputDirs = componerInfo.output
+	var outputDirs = settings.output
 	var outputJs = outputDirs.script
 	var outputCss = outputDirs.style
 
 	if(outputJs) {
-		let buildjshtml = `<script src="../${outputJs}/${componerInfo.webpack.output.filename}"></script>`
-		let buildjsreg = new RegExp('(<!--\s*?build:js\s*?-->)([\\s\\S]*?)(<!--\s*?endbower\s*?-->)([\\s\\S]*?)(<!--\s*?endbuild\s*?-->)','im')
-		content = content.replace(buildjsreg, "$1$2$3" + buildjshtml + "$5")
+		let buildjshtml = `<script src="../${outputJs}/${settings.webpack.output.filename}"></script>`
+		let buildjsreg = new RegExp('(<!--\s*?build:js\s*?-->)([\\s\\S]*?)(<!--\s*?endbuild\s*?-->)','im')
+		content = content.replace(buildjsreg, "$1" + buildjshtml + "$3")
 	}
 
 	if(outputCss) {
-		let buildcsshtml = `<link rel="stylesheet" href="../${outputCss}/${componerInfo.sass.output.filename}">`
-		let buildcssreg = new RegExp('(<!--\s*?build:css\s*?-->)([\\s\\S]*?)(<!--\s*?endbower\s*?-->)([\\s\\S]*?)(<!--\s*?endbuild\s*?-->)','im')
-		content = content.replace(buildcssreg, "$1$2$3" + buildcsshtml + "$5")
+		let buildcsshtml = `<link rel="stylesheet" href="../${outputCss}/${settings.sass.output.filename}">`
+		let buildcssreg = new RegExp('(<!--\s*?build:css\s*?-->)([\\s\\S]*?)(<!--\s*?endbuild\s*?-->)','im')
+		content = content.replace(buildcssreg, "$1" + buildcsshtml + "$3")
 	}
 
 
@@ -159,7 +152,7 @@ gulp.task("preview", () => {
 	$server.setup({
 		port: port,
 		root: config.paths.root,
-		open: `componouts/${name}/preview/index.html`,
+		open: `componouts/${name}/${settings.output.preview}`,
 		livereload: {
 			port: port + Math.floor(Math.random() * 10),
 			directory: componoutPath,

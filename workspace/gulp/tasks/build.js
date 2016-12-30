@@ -1,5 +1,5 @@
-import {gulp, fs, path, args, log, config, exit, exists, extend, clear, readJSON} from "../loader"
-import {hasComponout, dashlineName, camelName, getFileExt, getComponout, setFileExt} from "../utils"
+import {gulp, fs, path, args, log, config, exit, exists, extend, clear, read, readJSON, write} from "../loader"
+import {hasComponout, dashlineName, camelName, getFileExt, getComponout, setFileExt, prettyHtml} from "../utils"
 
 import shell from "shelljs"
 
@@ -87,22 +87,47 @@ gulp.task("build", () => {
 
 	var entryJs = getPath(entryFiles.script, true)
 	var entryScss = getPath(entryFiles.style, true)
+	var entryIndex = getPath(entryFiles.index, true)
 
 	var outputJs = getPath(outputDirs.script)
 	var outputCss = getPath(outputDirs.style)
+	var outputIndex = getPath(outputDirs.index)
 
 	if(entryJs && !webpackSettings) {
-		log("Not found `webpack` option in componer.json.")
+		log("Not found `webpack` option in componer.json.", "error")
+		exit()
+	}
+
+	if(entryJs && !outputJs) {
+		log("No `output.script` in your componer.json.", "error")
 		exit()
 	}
 
 	if(entryScss && !settings.sass) {
-		log("Not found `sass` option in componer.json.")
+		log("Not found `sass` option in componer.json.", "error")
 		exit()
 	}
 
+	if(entryScss && !outputCss) {
+		log("No `output.style` in your componer.json.", "error")
+		exit()
+	}
+
+	if(entryIndex && !outputIndex) {
+		log("No `output.index` in your componer.json.", "error")
+		exit()
+	}
+	
+	if(entryIndex && outputIndex) {
+		html(entryIndex, outputIndex, settings)
+	}
+
+	// compile script and style
 	if(entryJs && entryScss) {
-		return mergeStream(script(entryJs, outputJs, settings), style(entryScss, outputCss, settings)).on("end", doneMsg)
+		return mergeStream([
+			script(entryJs, outputJs, settings),
+			style(entryScss, outputCss, settings),
+		]).on("end", doneMsg)
 	}
 	else if(entryJs && !entryScss) {
 		return script(entryJs, outputJs, settings).on("end", doneMsg)
@@ -110,39 +135,32 @@ gulp.task("build", () => {
 	else if(entryScss && !entryJs) {
 		return style(entryScss, outputCss, settings).on("end", doneMsg)
 	}
-	else {
-		log("Something is wrong. Check your componer.json.", "warn")
-		exit()
-	}
+	
+	log("Something is wrong. Check your componer.json.", "warn")
+	exit()
 
 	// ===============================================================================
 
 	function script(entryFile, outDir, options) {
 		var settings = options.webpack
-		var isMinfiy = options.minify
-		var isSourceMap = options.sourcemap
-		var filename = settings.output.filename
-		
-		settings.output.library = camelName(name)
-		if(isSourceMap) {
-			settings.devtool = "source-map"
-			settings.output.sourceMapFilename = filename + ".map"
-		}
 
 		// build js with webpack
 		var stream1 = gulp.src(entryFile)
 			.pipe(webpack(config.webpack(settings)))
 			.pipe(gulp.dest(outDir))
 
-		if(!isMinfiy) {
+		if(!settings._minify) {
 			return stream1
 		}
 
 		// build js with webpack (minify)
-		var settings2 = extend(true, {}, settings, {
+		var filename = settings.output.filename
+		var sourceMapFilename = settings.output.sourceMapFilename
+		var devtool = settings.devtool
+
+		extend(true, settings, {
 			output: {
 				filename: setFileExt(filename, ".min.js"),
-				sourceMapFilename: setFileExt(filename, ".min.js.map"),
 			},
 			plugins: [
 				new optimize.UglifyJsPlugin({
@@ -151,8 +169,12 @@ gulp.task("build", () => {
 			],
 		})
 
+		if(sourceMapFilename && devtool === "source-map") {
+			settings.output.sourceMapFilename = setFileExt(sourceMapFilename, ".min.js.map", [".map", ".js.map"])
+		}
+
 		var stream2 = gulp.src(entryFile)
-			.pipe(webpack(config.webpack(settings2)))
+			.pipe(webpack(config.webpack(settings)))
 			.pipe(gulp.dest(outDir))
 
 		return mergeStream(stream1, stream2)
@@ -162,8 +184,8 @@ gulp.task("build", () => {
 	function style(entryFile, outDir, options) {
 		var settings = options.sass
 		var filename = settings.output.filename
-		var isSourceMap = options.sourcemap
-		var isMinfiy = options.minify
+		var isSourceMap = settings.output.sourcemap
+		var isMinfiy = settings._minify
 
 		function NoSourceMapNoMinify() {
 			return gulp.src(entryFile)
@@ -220,6 +242,35 @@ gulp.task("build", () => {
 		}
 
 	}
+
+	function html(entryFile, outDir, options) {
+		return gulp.src(entryFile)
+			.pipe(gulp.dest(outDir))
+			.on("end", () => {
+				let outputHtml = outDir + "/" + path.basename(entryFile)
+				let content = read(outputHtml)
+				let outputJs = settings.output.script
+				let outputCss = settings.output.style
+
+				if(outputJs) {
+					let buildjshtml = `<script src="../${outputJs}/${settings.webpack.output.filename}"></script>`
+					let buildjsreg = new RegExp('(<!--\s*?build:js\s*?-->)([\\s\\S]*?)(<!--\s*?endbuild\s*?-->)','im')
+					content = content.replace(buildjsreg, "$1" + buildjshtml + "$3")
+				}
+
+				if(outputCss) {
+					let buildcsshtml = `<link rel="stylesheet" href="../${outputCss}/${settings.sass.output.filename}">`
+					let buildcssreg = new RegExp('(<!--\s*?build:css\s*?-->)([\\s\\S]*?)(<!--\s*?endbuild\s*?-->)','im')
+					content = content.replace(buildcssreg, "$1" + buildcsshtml + "$3")
+				}
+
+				// pretty code
+				content = prettyHtml(content)
+
+				// update preview index.html
+				write(outputHtml, content)
+			})
+	} 
 
 	function doneMsg() {
 		log(`${name} has been completely built.`, "done")

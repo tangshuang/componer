@@ -86,10 +86,10 @@ export function getBowerDeps(bowerJson, dev) {
 
 	}
 
-	dependencies = dependencies.concat(getDeps(bowerInfo, "dependencies"))
 	if(dev) {
 		dependencies = dependencies.concat(getDeps(bowerInfo, "devDependencies"))
 	}
+	dependencies = dependencies.concat(getDeps(bowerInfo, "dependencies"))
 	dependencies = _arrayUnique(dependencies)
 
 	return dependencies

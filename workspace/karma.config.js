@@ -8,8 +8,7 @@ function karma(settings) {
         singleRun: true,
         frameworks: ["jasmine"],
         browsers: ["PhantomJS"],
-        preprocessors: {
-        },
+        preprocessors: {},
         reporters: ["progress", "coverage", "html"],
         coverageReporter: {
             reporters: [],

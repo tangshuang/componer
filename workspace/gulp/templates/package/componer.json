@@ -1,13 +1,13 @@
 {
 	"entry": {
-		"script": "src/{{component-name}}.js"
+		"script": "src/{{component-name}}.js",
+		"test": "test"
 	},
 	"output": {
 		"script": "dist"
 	},
-	"minify": false,
-	"sourcemap": false,
 	"webpack": {
+		"_minify": false,
 		"output": {
 			"libraryTarget": "commonjs2",
 			"filename": "{{component-name}}.js"

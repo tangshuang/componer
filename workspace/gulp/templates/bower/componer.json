@@ -1,28 +1,38 @@
 {
 	"entry": {
 		"script": "src/script/{{component-name}}.js",
-		"style": "src/style/{{component-name}}.scss"
+		"style": "src/style/{{component-name}}.scss",
+		"preview": "preview/index.html",
+		"test": "test/specs"
 	},
 	"output": {
 		"script": "dist/js",
-		"style": "dist/css"
+		"style": "dist/css",
+		"reporters": "test/reporters"
 	},
-	"minify": true,
-	"sourcemap": true,
 	"webpack": {
+		"_minify": true,
 		"output": {
 			"libraryTarget": "umd",
 			"filename": "{{component-name}}.js",
-			"library": "{{componentName}}"
+			"library": "{{componentName}}",
+			"sourceMapFilename": "{{component-name}}.js.map"
 		},
 		"externals": {},
 		"resolve": {
 			"alias": {}
-		}
+		},
+		"devtool": "source-map"
 	},
 	"sass": {
+		"_minify": true,
 		"output": {
-			"filename": "{{component-name}}.css"
+			"filename": "{{component-name}}.css",
+			"sourcemap": true
 		}
+	},
+	"karma": {
+		"singleRun": true,
+		"browsers": ["PhantomJS"]
 	}
 }
