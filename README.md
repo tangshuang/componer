@@ -1,180 +1,68 @@
 # Componer
 
-A components development workflow framework dependented on gulp
+Componer is a workflow framework to help frontend developer to coding more easily.
+
+## Definition
+
+`componer` is this tool's name.
+After you initialize in a directory, the directory is called a componer directory.
+
+`componout` is a production created by componer.
+All componouts are lay in `componouts` directory, this directory is the main directory you work in.
+
+`componer.json` is the special file which tells componer entry files and compile information.
+You should pay attention to this file before you run `componer build`.
 
 ## Install and initialize
 
+Componer is based on `gulp` and `bower`, so you should install them globally first.
+
 ```
+npm install -g bower
+npm install -g gulp-cli
 npm install -g componer
+
 mkdir test-project
 cd test-project
-componer init -i
+componer init
 ```
 
 ## Usage
 
-Componer is a workflow framework, so you can use it to finish your work automaticly.
-
-#### Workflow
-
-**ls**
-
-List components in your `components` directory.
-
 ```
-componer ls
-```
+componer -v
+componer -h
+componer init
+componer add name [-t bower -a yourname]
+componer build name
+componer watch name
+componer preview name
+componer test name
+componer remove/rm name
+componer list/ls
 
-**add**
+componer pull name
+componer push name [origin master]
 
-Add a component, e.g. bower component, npm package, frontend component.
-
-```
-componer add component-name -t bower -a your-github-name
-```
-
-`-t` is `--type`, relates to directories in `gulp/snippets`.
-
-**build**
-
-Build a component source code from it's `src` directory to `dist` directory.
-
-```
-componer build component-name
+componer install [name]
+componer link [name]
 ```
 
-When build, Componer will compile your ES6 code to ES5 code and pack your code into a file by webpack. 
-At the some time, scss files will be compiled to css files, minified by cssmin, and be put in `dist` directory.
+After your `npm install -g componer`, you should create a empty directory, and enter it to run `componer init`. Then you will see different files be copied into this directory.
 
-**preview**
+When you run `componer init`, it will ask you two questions: your github name and the package name. The value you typed in will be found in `package.json`. So you can modify the file later.
+Your github name is important, because it will be used when you run `componer add`. If you do not give a `-a` parameter when you run `componer add` task, componer will use your github name to create the package github registry address.
 
-Preview a component if it has a `preview/index.html` file.
+When you run `componer add` task, you can pass `-t` and `-a` parameters. `-t` is short for `--type`, if you run `componer add my-test -t package`, my-test componout will be a node module package. Default types are directory names in `gulp/templates`.
 
-```
-componer preview component-name
-```
+When you run build task, componer will compile your ES6 code to ES5 code and combine your code into one file by webpack. 
+At the some time, scss files will be compiled to css files, minified by cssmin, and be put in `dist` directory too.
+Which file 
 
-When preview a component, it will firstly build it and then setup a local static webserver ([ts-server](https://github.com/tangshuang/ts-server), which is also written following Componer).
+However, before you run `componer build`, you should learn more about [componer.json]().
 
-**watch**
+When you are coding, you can run a `componer watch` task to build your code automaticly after you change your code and save the changes.
 
-When you are coding, you can run a watch task to build your code automaticly after you change your code and save the changes.
+When you preview a componout, it will firstly build it and then setup a local static webserver ([ts-server](https://github.com/tangshuang/ts-server), which is also written under componer).
 
-```
-componer watch component-name
-```
-
-**test**
-
-Before you publish your component, a unit test is needed. Run:
-
-```
-componer test component-name
-```
-
-`test/specs/index.js` will be the entry file, and reporters will be put in `test/reporters`.
-
-**remove**
-
-You may want to remove your code, run:
-
-```
-componer rm component-name
-```
-
-#### Component types
-
-I support these types: package, bower, default
-
-**How to add your custom type?**
-
-1/ create a directory in `gulp/snippets`
-
-2/ create files in this dir
-
-3/ when you run `add` task, add a `--type=typename`, typename is the directory name you have created
-
-#### Component Directory Structure
-
-```
-components/component-name
-	|
-	|--src
-	|  `--js
-	|  |  `--component-name.js
-	|  |  |--..
-	|  |--style
-	|  |--img
-	|  |--fonts
-	|--dist
-	|  `--js
-	|  |--css
-	|  |--img
-	|  |--fonts
-	|--test
-	|--preview
-	|--README.md
-	|--...
-```
-
-In fact, your coding workspace is in components direcotry.
-
-## Component Spec
-
-
-
-**componer.json**
-
-When you use componer to add a default component, you will get a componer.json under your new component directory. The structure of componer.json is :
-
-```
-{
-    "name": "component-name", // your component name
-    "entry": { 
-        // which is the entry file to be pack with by webpack
-        // if there is no js or style entry file, js or style will not be build, but you can follow webpack to require(css) in entry js file
-        "js": "src/js/component-name.js",
-        "style": "src/style/component-name.scss",
-        "copy": "src/fonts" // copy means copy this files to dist directory, relative path
-    },
-    "output": {
-        // which directory to put built files
-        "js": "dist/js/",
-        "style": "dist/css/"
-    },
-    "settings": { // settings will be merged with webpack configuration
-        "externals": {},
-        "resolve": {
-            "packageAlias": "bowerComponents",
-            "alias": {}
-        }
-    }
-}
-```
-
-componer.json is useful for webpack to build codes. It tells wepack which files to enter, and which directories to put built files. Settings will be mereged to pass to webpack.
-
-## Componer CLI
-
-Componer provide a cli command tool:
-
-```
-npm install -g componer
-componer --help
-```
-
-You can read all from help document.
-
-And event you can develop your custom cli command. You should know `commander` firstly, then code in `./bin/custom-cli.js`. Do it!
-
-## Development
-
-If you want to contribute to this project, follow rules:
-
-1/ just coding in `gulp` direcotry and gulp.babel.js
-
-2/ code style
-
-3/ use ES6
-
-4/ less dependencies
+When you test a componout, it use karma and jasmine as framework.
