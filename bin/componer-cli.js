@@ -31,6 +31,16 @@ function readJSON(file) {
 	return JSON.parse(read(file))
 }
 
+function write(file, content, charset) {
+	charset = charset || "utf8"
+	return fs.writeFileSync(file, content, charset)
+}
+
+function writeJSON(file, json, charset) {
+	charset = charset || "utf8"
+	return write(file, JSON.stringify(json, null, 4), charset)
+}
+
 function dashline(name) {
 	name = name.substr(0, 1).toLowerCase() + name.substr(1)
 	return name.replace(/([A-Z])/g, "-$1").toLowerCase()
@@ -130,9 +140,8 @@ function prompt(question, callback) {
 		output: process.stdout,
 	})
 	rl.question(question, function(answer) {
-		callback(answer)
 		rl.close()
-		exit()
+		callback(answer)
 	})
 }
 
@@ -158,16 +167,55 @@ program
 	.command("init")
 	.description("create a componer workflow frame instance")
 	.action(function(options) {
+
+		function modify() {
+			
+			prompt("What is your github user `name` in url? ", function(author) {
+				if(!author || author === "") {
+					log("You must input your github name to create github address.", "error")
+					exit()
+				}
+
+				var pkgInfo = readJSON(cwd + "/package.json")
+				pkgInfo.author = dashline(author)
+
+				prompt("What is your current project name? (" + path.basename(cwd) + ") ", function(project) {
+					if(!project || project === "") {
+						project = path.basename(cwd)
+					}
+					project = dashline(project)
+
+					pkgInfo.name = project
+
+					writeJSON(cwd + "/package.json", pkgInfo)
+
+					exit()
+				})
+			})
+
+		}
+
+		if(isComponer(cwd)) {
+			modify()
+			return
+		}
+
 		if(fs.readdirSync(cwd).length > 0) {
 			log("Current directory is not empty, you should begin in a new directory.", "error")
 			exit()
 		}
 
-		log("Begin to copy files...")
+		log("copying files...")
 		execute("cp -r " + path.resolve(__dirname, "../workspace") + "/. " + cwd + "/")
-		execute("cd " + cwd + " && mkdir bower_components && mkdir componouts")
 		
-		log("Done! Now run `npm install` to install neccessary modules.", "done")
+		log("Done! Do NOT forget to run `npm install`.", "done")
+
+		execute("cd " + cwd + " && mkdir bower_components && mkdir componouts", function() {}, function() {
+			log("You should run `componer init` again later.")
+		})
+
+		modify()
+
 	})
 
 program
@@ -284,6 +332,8 @@ program
 			}, function() {
 				log("You can enter componout/" + name + " directory to run `git push`.", "help")
 			})
+
+			exit()
 		})
 	})
 
@@ -369,6 +419,8 @@ program
 				execute("cd " + cwd + " && cd componouts && rm -rf " + name, function() {
 					log("Done! " + name + " has been deleted.", "done")
 				})
+
+				exit()
 			}
 		})
 		
