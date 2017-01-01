@@ -8,6 +8,9 @@ var program = require("commander")
 var shell = require("shelljs")
 var logger = require("process.logger")
 
+var gulp = "./node_modules/.bin/gulp"
+var bower = "./node_modules/.bin/bower"
+
 // ----------------------------------
 
 var info = readJSON(__dirname + "/../package.json")
@@ -110,7 +113,7 @@ function check(name) {
  * @param function fail: callback function when error or fail
  */
 function execute(cmd, done, fail) {
-	if(cmd.indexOf("gulp") > -1 && exists(cwd + "/bin/.componerrc")) {
+	if(cmd.indexOf(gulp) > -1 && exists(cwd + "/bin/.componerrc")) {
 		var config = readJSON(cwd + "/bin/.componerrc")
 		if(config.color) {
 			cmd += " --color"
@@ -239,7 +242,7 @@ program
 			exit()
 		}
 
-		execute("cd " + cwd + " && gulp add --type=" + type + " --name=" + name + " --author=" + author)
+		execute("cd " + cwd + " && " + gulp + " add --type=" + type + " --name=" + name + " --author=" + author)
 	})
 
 program
@@ -248,7 +251,7 @@ program
 	.action(function(name) {
 		name = dashline(name)
 		check(name)
-		execute("cd " + cwd + " && gulp build --name=" + name)
+		execute("cd " + cwd + " && " + gulp + " build --name=" + name)
 	})
 
 program
@@ -257,7 +260,7 @@ program
 	.action(function(name) {
 		name = dashline(name)
 		check(name)
-		execute("cd " + cwd + " && gulp preview --name=" + name)
+		execute("cd " + cwd + " && " + gulp + " preview --name=" + name)
 	})
 
 program
@@ -266,7 +269,7 @@ program
 	.action(function(name, options) {
 		name = dashline(name)
 		check(name)
-		execute("cd " + cwd + " && gulp  test --name=" + name)
+		execute("cd " + cwd + " && " + gulp + " test --name=" + name)
 	})
 
 program
@@ -275,7 +278,7 @@ program
 	.action(function(name) {
 		name = dashline(name)
 		check(name)
-		execute("cd " + cwd + " && gulp  watch --name=" + name)
+		execute("cd " + cwd + " && " + gulp + " watch --name=" + name)
 	})
 
 program
@@ -284,7 +287,7 @@ program
 	.description("list all componouts")
 	.action(function() {
 		check()
-		execute("cd " + cwd + " && gulp ls")
+		execute("cd " + cwd + " && " + gulp + " ls")
 	})
 
 // ---------------------------------
@@ -349,7 +352,7 @@ program
 				execute("cd " + cwd + " && cd componouts && cd " + name + " && npm install --prefix " + cwd)
 			}
 			if(exists(cwd + "/componouts/" + name + "/bower.json")) {
-				execute("cd " + cwd + " && cd componouts && cd " + name + " && bower install --config.directory=" + cwd + "/bower_components")
+				execute("cd " + cwd + " && cd componouts && cd " + name + " && " + bower + " install --config.directory=" + cwd + "/bower_components")
 			}
 		}
 
@@ -378,8 +381,8 @@ program
 				execute("cd " + cwd + " && npm link " + name)
 			}
 			if(exists(cwd + "/componouts/" + name + "/bower.json")) {
-				execute("cd " + cwd + " && cd componouts && cd " + name + " && bower link")
-				execute("cd " + cwd + " && bower link " + name)
+				execute("cd " + cwd + " && cd componouts && cd " + name + " && " + bower + " link")
+				execute("cd " + cwd + " && " + bower + " link " + name)
 			}
 		}
 
@@ -410,7 +413,7 @@ program
 		prompt("Are you sure to remove " + name + " componout? yes/No  ", function(choice) {
 			if(choice.toLowerCase() === "yes") {
 				if(exists(cwd + "/bower_components/" + name)) {
-					execute("cd " + cwd + " && bower unlink " + name)
+					execute("cd " + cwd + " && " + bower + " unlink " + name)
 				}
 				if(exists(cwd + "/node_modules/" + name)) {
 					execute("cd " + cwd + " && npm unlink " + name)
