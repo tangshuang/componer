@@ -1,5 +1,5 @@
 import {gulp, fs, path, args, log, config, exit, exists, extend, clear, read, readJSON, write} from "../loader"
-import {hasComponout, dashlineName, camelName, getFileExt, getComponout, setFileExt, prettyHtml} from "../utils"
+import {hasComponout, dashlineName, camelName, getFileExt, setFileExt, prettyHtml} from "../utils"
 
 import shell from "shelljs"
 
@@ -18,6 +18,7 @@ import sourcemaps from "gulp-sourcemaps"
 gulp.task("build", () => {
 	const arg = args.build
 	const name = dashlineName(arg.name)
+	const dev = args.dev
 
 	if(!hasComponout(name)) {
 		log(`${name} not exists.`, "error")
@@ -42,8 +43,6 @@ gulp.task("build", () => {
 		exit()
 	}
 
-	var type = getComponout(name).type
-	var pkgfile = type === "bower" || type === "package" ? componoutPath + "/" + type + ".json" : false
 	var settings = readJSON(componoutPath + "/componer.json")
 
 	var entryFiles = settings.entry
@@ -60,7 +59,10 @@ gulp.task("build", () => {
 		exit()
 	}
 
-	if(pkgfile) {
+	function exPkgs(pkgfile) {
+		if(!exists(pkgfile)) {
+			return
+		}
 		let info = readJSON(pkgfile)
 		let externals = {}
 		let dependencies = info.dependencies
@@ -70,7 +72,22 @@ gulp.task("build", () => {
 			dependencies.forEach(dependence => externals[dependence] = dependence)
 		}
 
+		// if now environment is development
+		//if(dev) {
+		//	let devDeps = info.devDependencies
+		//	devDeps = typeof devDeps === "object" && Object.keys(devDeps)
+		//	if(devDeps && devDeps.length > 0) {
+		//		devDeps.forEach(dep => externals[dep] = dep)
+		//	}
+		//}
+
 		webpackSettings.externals = typeof webpackSettings.externals === "object" ? extend(false, {}, webpackSettings.externals, externals) : externals
+	}
+	if(type === "bower") {
+		exPkgs(componoutPath + "/bower.json")
+	}
+	else if(type === "package") {
+		exPkgs(componoutPath + "/package.json")
 	}
 
 	function getPath(file, warn) {
