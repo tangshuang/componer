@@ -6,6 +6,6 @@
  * Notice: this custom command can be only used by this componer instance, it can not be used outside.
  */
 
-module.exports = function(program) {
+module.exports = function(commander) {
 
 }

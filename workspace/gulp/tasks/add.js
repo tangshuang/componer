@@ -16,7 +16,7 @@ gulp.task("add", () => {
 	var templatesPath = path.join(config.paths.templates, type)
 
 	if(exists(componoutPath)) {
-		log(`Error: ${name} exists, delete "componouts/${name}" before you add.`, "error")
+		log(`Error: ${name} exists, delete "${config.dirs.componouts}/${name}" before you add.`, "error")
 		exit()
 	}
 	else {

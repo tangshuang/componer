@@ -1,19 +1,8 @@
 import {gulp, fs, path, args, log, config, exit, exists, extend, clear, read, readJSON, write} from "../loader"
-import {hasComponout, dashlineName, camelName, getFileExt, setFileExt, prettyHtml} from "../utils"
+import {hasComponout, dashlineName, camelName, getFileExt, setFileExt, prettyHtml, buildScript, buildStyle} from "../utils"
 
-import shell from "shelljs"
+import mergeStream from "merge-stream"
 
-import mergeStream from "pipe-concat"
-import PipeQueue from "pipe-queue"
-
-import {optimize} from "webpack"
-import webpack from "webpack-stream"
-import rename from "gulp-rename"
-import sass from "gulp-sass"
-import concat from "gulp-concat"
-import cssmin from "gulp-cssmin"
-import babel from "gulp-babel"
-import sourcemaps from "gulp-sourcemaps"
 
 gulp.task("build", () => {
 	const arg = args.build
@@ -71,15 +60,6 @@ gulp.task("build", () => {
 		if(dependencies && dependencies.length > 0) {
 			dependencies.forEach(dependence => externals[dependence] = dependence)
 		}
-
-		// if now environment is development
-		//if(dev) {
-		//	let devDeps = info.devDependencies
-		//	devDeps = typeof devDeps === "object" && Object.keys(devDeps)
-		//	if(devDeps && devDeps.length > 0) {
-		//		devDeps.forEach(dep => externals[dep] = dep)
-		//	}
-		//}
 
 		webpackSettings.externals = typeof webpackSettings.externals === "object" ? extend(false, {}, webpackSettings.externals, externals) : externals
 	}
@@ -142,123 +122,21 @@ gulp.task("build", () => {
 	// compile script and style
 	if(entryJs && entryScss) {
 		return mergeStream([
-			script(entryJs, outputJs, settings),
-			style(entryScss, outputCss, settings),
+			buildScript(entryJs, outputJs, settings),
+			buildStyle(entryScss, outputCss, settings),
 		]).on("end", doneMsg)
 	}
 	else if(entryJs && !entryScss) {
-		return script(entryJs, outputJs, settings).on("end", doneMsg)
+		return buildScript(entryJs, outputJs, settings).on("end", doneMsg)
 	}
 	else if(entryScss && !entryJs) {
-		return style(entryScss, outputCss, settings).on("end", doneMsg)
+		return buildStyle(entryScss, outputCss, settings).on("end", doneMsg)
 	}
 	
 	log("Something is wrong. Check your componer.json.", "warn")
 	exit()
 
 	// ===============================================================================
-
-	function script(entryFile, outDir, options) {
-		var settings = options.webpack
-
-		// build js with webpack
-		var stream1 = gulp.src(entryFile)
-			.pipe(webpack(config.webpack(settings)))
-			.pipe(gulp.dest(outDir))
-
-		if(!settings._minify) {
-			return stream1
-		}
-
-		// build js with webpack (minify)
-		var filename = settings.output.filename
-		var sourceMapFilename = settings.output.sourceMapFilename
-		var devtool = settings.devtool
-
-		extend(true, settings, {
-			output: {
-				filename: setFileExt(filename, ".min.js"),
-			},
-			plugins: [
-				new optimize.UglifyJsPlugin({
-					minimize: true,
-				}),
-			],
-		})
-
-		if(sourceMapFilename && devtool === "source-map") {
-			settings.output.sourceMapFilename = setFileExt(sourceMapFilename, ".min.js.map", [".map", ".js.map"])
-		}
-
-		var stream2 = gulp.src(entryFile)
-			.pipe(webpack(config.webpack(settings)))
-			.pipe(gulp.dest(outDir))
-
-		return mergeStream(stream1, stream2)
-
-	}
-
-	function style(entryFile, outDir, options) {
-		var settings = options.sass
-		var filename = settings.output.filename
-		var isSourceMap = settings.output.sourcemap
-		var isMinfiy = settings._minify
-
-		function NoSourceMapNoMinify() {
-			return gulp.src(entryFile)
-				.pipe(sass())
-				.pipe(rename(filename))
-				.pipe(gulp.dest(outDir))
-		}
-
-		function SourceMapNoMinify() {
-			return gulp.src(entryFile)
-				.pipe(sourcemaps.init())
-				.pipe(sass())
-				.pipe(rename(filename))
-				.pipe(sourcemaps.write("./"))
-				.pipe(gulp.dest(outDir))
-			
-		}
-
-		function NoSourceMapMinify() {
-			return gulp.src(entryFile)
-				.pipe(sass())
-				.pipe(cssmin())
-				.pipe(rename(setFileExt(filename, ".min.css")))
-				.pipe(gulp.dest(outDir))
-		}
-
-		function SourceMapMinify() {
-			return gulp.src(entryFile)
-				.pipe(sourcemaps.init())
-				.pipe(sass())
-				.pipe(cssmin())
-				.pipe(rename(setFileExt(filename, ".min.css")))
-				.pipe(sourcemaps.write("./"))
-				.pipe(gulp.dest(outDir))
-		}
-
-		if(isSourceMap) {
-			let stream1 = SourceMapNoMinify()
-			if(!isMinfiy) {
-				return stream1
-			}
-
-			let stream2 = SourceMapMinify()
-			return mergeStream(stream1, stream2)
-		}
-		else {
-			let stream1 = NoSourceMapNoMinify()
-			if(!isMinfiy) {
-				return stream1
-			}
-
-			let stream2 = NoSourceMapMinify()
-			return mergeStream(stream1, stream2)
-		}
-
-	}
 
 	function html(entryFile, outDir, options) {
 		return gulp.src(entryFile)

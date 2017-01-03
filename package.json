@@ -6,7 +6,10 @@
   "bin": {
     "componer": "bin/componer-cli.js"
   },
-  "scripts": {},
+  "scripts": {
+    "build": "babel bin/componer-cli.es6 --out-file bin/componer-cli.js",
+    "prepublish": "npm run build"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/tangshuang/componer.git"
@@ -27,5 +30,10 @@
     "gulp-cli": "^1.2.2",
     "process.logger": "^1.1.2",
     "shelljs": "^0.7.5"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.18.0",
+    "babel-core": "^6.21.0",
+    "babel-preset-latest": "^6.16.0"
   }
 }
