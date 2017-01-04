@@ -27,20 +27,13 @@ var _process2 = _interopRequireDefault(_process);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var gulp = "./node_modules/.bin/gulp";
-var bower = "./node_modules/.bin/bower";
+var gulp = _path2.default.resolve(__dirname, "../node_modules/.bin/gulp");
+var bower = _path2.default.resolve(__dirname, "../node_modules/.bin/bower");
 
 // ----------------------------------
 
-if (!exists(cwd + "/config.js")) {
-	log("Not found " + cwd + "/config.js", "error");
-	exit();
-}
-
-var config = require(cwd + "/config");
-var info = readJSON(__dirname + "/../package.json");
 var cwd = process.cwd();
-var componouts = config.dirs.componouts;
+var info = readJSON(__dirname + "/../package.json");
 
 // ----------------------------------
 
@@ -81,14 +74,7 @@ function dashline(name) {
  * @param string dir: the path of directory to check whether it is a componer work directory.
  */
 function isComponer(dir) {
-	var flag = 0;
-	config.paths.forEach(function (file) {
-		if (!exists(file)) {
-			flag++;
-		}
-	});
-
-	return !flag && exists(dir + "/package.json") && exists(dir + "/gulpfile.babel.js");
+	return exists(dir + "/package.json") && exists(dir + "/gulpfile.babel.js") && exists(dir + "/componouts");
 }
 
 /**
@@ -107,7 +93,7 @@ function current() {
 		}
 	}
 
-	return flag ? current : cwd;
+	return flag && current;
 }
 
 /**
@@ -115,8 +101,7 @@ function current() {
  * @param boolean exit: whether to exit process when the result is false.
  */
 function has(name) {
-	cwd = current();
-	if (!exists(cwd + "/" + componouts + "/" + name)) {
+	if (!exists(cwd + "/componouts/" + name)) {
 		return false;
 	}
 	return true;
@@ -125,13 +110,8 @@ function has(name) {
 function check(name) {
 	cwd = current();
 
-	if (!exists(cwd + "/" + componouts)) {
-		log("Not find a " + componouts + " directory there.", "error");
-		exit();
-	}
-
-	if (!isComponer(cwd)) {
-		log("Your componer directory has broken.", "error");
+	if (!cwd) {
+		log("You are not in a componer directory, or files are missing.", "error");
 		exit();
 	}
 
@@ -205,11 +185,12 @@ _commander2.default.command("init").description("create a componer workflow fram
 			}
 
 			var pkgInfo = readJSON(cwd + "/package.json");
-			pkgInfo.author = dashline(author);
+			pkgInfo.author = author;
+			dirname = _path2.default.basename(cwd);
 
-			prompt("What is your current project name? (" + _path2.default.basename(cwd) + ") ", function (project) {
+			prompt("What is your current project name? (" + dirname + ") ", function (project) {
 				if (!project || project === "") {
-					project = _path2.default.basename(cwd);
+					project = dirname;
 				}
 				project = dashline(project);
 
@@ -234,24 +215,22 @@ _commander2.default.command("init").description("create a componer workflow fram
 
 	log("copying files...");
 	execute("cp -r " + _path2.default.resolve(__dirname, "../workspace") + "/. " + cwd + "/");
-
-	log("Done! Do NOT forget to run `npm install`.", "done");
-
-	execute("cd " + cwd + " && mkdir bower_components && mkdir " + componouts, function () {}, function () {
-		log("You should run `componer init` again later.");
+	execute("cd " + cwd + " && mkdir bower_components && mkdir componouts", function () {}, function () {
+		log("You should create `bower_components` and `componouts` directories by yourself.", "warn");
 	});
+	log("Done! Do NOT forget to run `npm install`.", "done");
 
 	modify();
 });
 
-_commander2.default.command("add <name>").description("create a componout").option("-t, --type [type]", "type of componout: bower, package or componer").option("-a, --author [author]", "author of componout").action(function (name, options) {
+_commander2.default.command("add <name>").description("create a componout").option("-t, --template [template]", "template of componout").option("-a, --author [author]", "author of componout").option("-g, --git", "run `git init` after ready").action(function (name, options) {
 	name = dashline(name);
 	check();
 
-	var type = options.type || "default";
+	var template = options.template || "default";
 	var author = options.author || readJSON(cwd + "/package.json").author;
 
-	if (!exists(cwd + "/gulp/templates/" + type)) {
+	if (!exists(cwd + "/gulp/templates/" + template)) {
 		log("This type of componout is not available.", "warn");
 		exit();
 	}
@@ -260,7 +239,13 @@ _commander2.default.command("add <name>").description("create a componout").opti
 		exit();
 	}
 
-	execute("cd " + cwd + " && " + gulp + " add --type=" + type + " --name=" + name + " --author=" + author);
+	execute("cd " + cwd + " && " + gulp + " add --name=" + name + " --template=" + template + " --author=" + author, function () {
+		// git init
+		if (options.git) {
+			var url = "https://github.com/" + author + "/" + name + ".git";
+			execute("cd " + cwd + " && cd componouts && cd " + name + " && git init && git remote add origin " + url);
+		}
+	});
 });
 
 _commander2.default.command("build <name>").description("build a componout").action(function (name) {
@@ -284,7 +269,7 @@ _commander2.default.command("test <name>").description("test a componout").actio
 _commander2.default.command("watch <name>").description("watch a componout to build it automaticly when code change").action(function (name) {
 	name = dashline(name);
 	check(name);
-	execute("cd " + cwd + " && " + gulp + " watch --name=" + name);
+	execute("cd " + cwd + " && " + gulp + " watch --name=" + gulp);
 });
 
 _commander2.default.command("list").alias("ls").description("list all componouts").action(function () {
@@ -299,13 +284,13 @@ _commander2.default.command("pull <name> [params...]").description("clone/pull a
 	check();
 
 	if (!has(name)) {
-		execute("cd " + cwd + " && cd " + componouts + " && git clone https://github.com/componer/" + name + ".git", function () {
+		execute("cd " + cwd + " && cd componouts && git clone https://github.com/componer/" + name + ".git", function () {
 			log("Done! Componout has been added to componouts directory.", "done");
 		}, function () {
 			log("You can enter componout directory and run `git clone`.", "help");
 		});
 	} else {
-		var sh = "cd " + cwd + " && cd " + componouts + " && cd " + name + " && git pull\"";
+		var sh = "cd " + cwd + " && cd componouts && cd " + name + " && git pull\"";
 		if (params.length > 0) {
 			sh += " " + params.join(" ");
 		}
@@ -320,14 +305,14 @@ _commander2.default.command("push <name> [params...]").description("push a compo
 	check(name);
 
 	prompt("Commit message: ", function (message) {
-		var sh = "cd " + cwd + " && cd " + componouts + " && cd " + name + " && git add ./. && git commit -m \"" + message + "\" && git push";
+		var sh = "cd " + cwd + " && cd componouts && cd " + name + " && git add ./. && git commit -m \"" + message + "\" && git push";
 		if (params.length > 0) {
 			sh += " " + params.join(" ");
 		}
 		execute(sh, function () {
 			log("Done! Componout has been push to https://github.com/componer/" + name, "done");
 		}, function () {
-			log("You can enter " + componouts + "/" + name + " directory to run `git push`.", "help");
+			log("You can cd to componouts/" + name + " directory to run `git push`.", "help");
 		});
 
 		exit();
@@ -336,20 +321,20 @@ _commander2.default.command("push <name> [params...]").description("push a compo
 
 // -----------------------------------
 
-_commander2.default.command("install [name]").description("install bower/package dependencies of [name] componout").action(function (name) {
+_commander2.default.command("install [name]").description("install bower.json and package.json [dev]dependencies of [name] componout").action(function (name) {
 
 	function Install(name) {
-		if (exists(cwd + "/" + componouts + "/" + name + "/package.json")) {
-			execute("cd " + cwd + " && cd " + componouts + " && cd " + name + " && npm install --prefix " + cwd);
+		if (exists(cwd + "/componouts/" + name + "/package.json")) {
+			execute("cd " + cwd + " && cd componouts && cd " + name + " && npm install --prefix " + cwd);
 		}
-		if (exists(cwd + "/" + componouts + "/" + name + "/bower.json\"")) {
-			execute("cd " + cwd + " && cd " + componouts + " && cd " + name + " && " + bower + " install --config.directory=" + cwd + "/bower_components");
+		if (exists(cwd + "/componouts/" + name + "/bower.json\"")) {
+			execute("cd " + cwd + " && cd componouts && cd " + name + " && " + bower + " install --config.directory=" + cwd + "/bower_components");
 		}
 	}
 
 	if (name === undefined) {
 		check();
-		_fs2.default.readdirSync(cwd + "/" + componouts).forEach(function (item) {
+		_fs2.default.readdirSync(cwd + "/componouts").forEach(function (item) {
 			Install(item);
 		});
 	} else {
@@ -359,22 +344,21 @@ _commander2.default.command("install [name]").description("install bower/package
 	}
 });
 
-_commander2.default.command("link [name]").description("link local [name] componout into bower_components/node_modules directory").action(function (name) {
+_commander2.default.command("link [name]").description("link local [name] componout into bower_components and node_modules directory").action(function (name) {
 
 	function Link(name) {
-		if (exists(cwd + "/" + componouts + "/" + name + "/package.json")) {
-			execute("cd " + cwd + " && cd " + componouts + " && cd " + name + " && npm link");
+		if (exists(cwd + "/componouts/" + name + "/package.json")) {
+			execute("cd " + cwd + " && cd componouts && cd " + name + " && npm link");
 			execute("cd " + cwd + " && npm link " + name);
-		}
-		if (exists(cwd + "/" + componouts + "/" + name + "/bower.json")) {
-			execute("cd " + cwd + " && cd " + componouts + " && cd " + name + " && " + bower + " link");
+		} else if (exists(cwd + "/componouts/" + name + "/bower.json")) {
+			execute("cd " + cwd + " && cd componouts && cd " + name + " && " + bower + " link");
 			execute("cd " + cwd + " && " + bower + " link " + name);
 		}
 	}
 
 	if (name === undefined) {
 		check();
-		_fs2.default.readdirSync(cwd + "/" + componouts).forEach(function (item) {
+		_fs2.default.readdirSync(cwd + "/componouts").forEach(function (item) {
 			Link(item);
 		});
 	} else {
@@ -399,7 +383,7 @@ _commander2.default.command("remove <name>").alias("rm").description("remove a c
 				execute("cd " + cwd + " && npm unlink " + name);
 			}
 
-			execute("cd " + cwd + " && cd " + componouts + " && rm -rf " + name, function () {
+			execute("cd " + cwd + " && cd componouts && rm -rf " + name, function () {
 				log("Done! " + name + " has been deleted.", "done");
 			});
 

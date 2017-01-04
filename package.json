@@ -8,6 +8,7 @@
   },
   "scripts": {
     "build": "babel bin/componer-cli.es6 --out-file bin/componer-cli.js",
+    "watch": "babel bin/componer-cli.es6 --watch --out-file bin/componer-cli.js",
     "prepublish": "npm run build"
   },
   "repository": {

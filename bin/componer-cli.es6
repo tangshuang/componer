@@ -8,20 +8,13 @@ import commander from "commander"
 import shell from "shelljs"
 import logger from "process.logger"
 
-var gulp = "./node_modules/.bin/gulp"
-var bower = "./node_modules/.bin/bower"
+var gulp = path.resolve(__dirname, "../node_modules/.bin/gulp")
+var bower = path.resolve(__dirname, "../node_modules/.bin/bower")
 
 // ----------------------------------
 
-if(!exists(cwd + "/config.js")) {
-	log(`Not found ${cwd}/config.js`, "error")
-	exit()
-}
-
-var config = require(`${cwd}/config`)
-var info = readJSON(__dirname + "/../package.json")
 var cwd = process.cwd()
-var componouts = config.dirs.componouts
+var info = readJSON(__dirname + "/../package.json")
 
 // ----------------------------------
 
@@ -58,14 +51,7 @@ function dashline(name) {
  * @param string dir: the path of directory to check whether it is a componer work directory.
  */
 function isComponer(dir) {
-	var flag = 0
-	config.paths.forEach(file => {
-		if(!exists(file)) {
-			flag ++
-		}
-	})
-
-	return !flag && exists(dir + "/package.json") && exists(dir + "/gulpfile.babel.js")
+	return exists(`${dir}/package.json`) && exists(`${dir}/gulpfile.babel.js`) && exists(`${dir}/componouts`)
 }
 
 /**
@@ -85,7 +71,7 @@ function current() {
 		}
 	}
 	
-	return flag ? current : cwd
+	return flag && current
 }
 
 /**
@@ -93,8 +79,7 @@ function current() {
  * @param boolean exit: whether to exit process when the result is false.
  */
 function has(name) {
-	cwd = current()
-	if(!exists(`${cwd}/${componouts}/${name}`)) {
+	if(!exists(`${cwd}/componouts/${name}`)) {
 		return false
 	}
 	return true
@@ -103,18 +88,14 @@ function has(name) {
 function check(name) {
 	cwd = current()
 
-	if(!exists(`${cwd}/${componouts}`)) {
-		log(`Not find a ${componouts} directory there.`, "error")
+	if(!cwd) {
+		log("You are not in a componer directory, or files are missing.", "error")
 		exit()
 	}
 
-	if(!isComponer(cwd)) {
-		log("Your componer directory has broken.", "error")
-		exit()
-	}
 
 	if(name && !has(name)) {
-		log("You don't have a componout named " + name + " now.", "error")
+		log(`You don't have a componout named ${name} now.`, "error")
 		exit()
 	}
 }
@@ -192,11 +173,12 @@ commander
 				}
 
 				var pkgInfo = readJSON(cwd + "/package.json")
-				pkgInfo.author = dashline(author)
+				pkgInfo.author = author
+				dirname = path.basename(cwd)
 
-				prompt("What is your current project name? (" + path.basename(cwd) + ") ", function(project) {
+				prompt("What is your current project name? (" + dirname + ") ", function(project) {
 					if(!project || project === "") {
-						project = path.basename(cwd)
+						project = dirname
 					}
 					project = dashline(project)
 
@@ -222,12 +204,10 @@ commander
 
 		log("copying files...")
 		execute("cp -r " + path.resolve(__dirname, "../workspace") + "/. " + cwd + "/")
-		
-		log("Done! Do NOT forget to run `npm install`.", "done")
-
-		execute(`cd ${cwd} && mkdir bower_components && mkdir ${componouts}`, function() {}, function() {
-			log("You should run `componer init` again later.")
+		execute(`cd ${cwd} && mkdir bower_components && mkdir componouts`, function() {}, function() {
+			log("You should create `bower_components` and `componouts` directories by yourself.", "warn")
 		})
+		log("Done! Do NOT forget to run `npm install`.", "done")
 
 		modify()
 
@@ -236,16 +216,17 @@ commander
 commander
 	.command("add <name>")
 	.description("create a componout")
-	.option("-t, --type [type]", "type of componout: bower, package or componer")
+	.option("-t, --template [template]", "template of componout")
 	.option("-a, --author [author]", "author of componout")
+	.option("-g, --git", "run `git init` after ready")
 	.action(function(name, options) {
 		name = dashline(name)
 		check()
 
-		var type = options.type || "default"
+		var template = options.template || "default"
 		var author = options.author || readJSON(cwd + "/package.json").author
 
-		if(!exists(cwd + "/gulp/templates/" + type)) {
+		if(!exists(`${cwd}/gulp/templates/${template}`)) {
 			log("This type of componout is not available.", "warn")
 			exit()
 		}
@@ -254,7 +235,13 @@ commander
 			exit()
 		}
 
-		execute("cd " + cwd + " && " + gulp + " add --type=" + type + " --name=" + name + " --author=" + author)
+		execute(`cd ${cwd} && ${gulp} add --name=${name} --template=${template} --author=${author}`, function() {
+			// git init
+			if(options.git) {
+				var url = `https://github.com/${author}/${name}.git`
+				execute(`cd ${cwd} && cd componouts && cd ${name} && git init && git remote add origin ${url}`)
+			}
+		})
 	})
 
 commander
@@ -263,7 +250,7 @@ commander
 	.action(function(name) {
 		name = dashline(name)
 		check(name)
-		execute("cd " + cwd + " && " + gulp + " build --name=" + name)
+		execute(`cd ${cwd} && ${gulp} build --name=${name}`)
 	})
 
 commander
@@ -272,7 +259,7 @@ commander
 	.action(function(name) {
 		name = dashline(name)
 		check(name)
-		execute("cd " + cwd + " && " + gulp + " preview --name=" + name)
+		execute(`cd ${cwd} && ${gulp} preview --name=${name}`)
 	})
 
 commander
@@ -281,7 +268,7 @@ commander
 	.action(function(name, options) {
 		name = dashline(name)
 		check(name)
-		execute("cd " + cwd + " && " + gulp + " test --name=" + name)
+		execute(`cd ${cwd} && ${gulp} test --name=${name}`)
 	})
 
 commander
@@ -290,7 +277,7 @@ commander
 	.action(function(name) {
 		name = dashline(name)
 		check(name)
-		execute("cd " + cwd + " && " + gulp + " watch --name=" + name)
+		execute(`cd ${cwd} && ${gulp} watch --name=${gulp}`)
 	})
 
 commander
@@ -299,7 +286,7 @@ commander
 	.description("list all componouts")
 	.action(function() {
 		check()
-		execute("cd " + cwd + " && " + gulp + " ls")
+		execute(`cd ${cwd} && ${gulp} ls`)
 	})
 
 // ---------------------------------
@@ -312,14 +299,14 @@ commander
 		check()
 
 		if(!has(name)) {
-			execute(`cd ${cwd} && cd ${componouts} && git clone https://github.com/componer/${name}.git`, function() {
+			execute(`cd ${cwd} && cd componouts && git clone https://github.com/componer/${name}.git`, function() {
 				log("Done! Componout has been added to componouts directory.", "done")
 			}, function() {
 				log("You can enter componout directory and run `git clone`.", "help")
 			})
 		}
 		else {
-			var sh = `cd ${cwd} && cd ${componouts} && cd ${name} && git pull"`
+			var sh = `cd ${cwd} && cd componouts && cd ${name} && git pull"`
 			if(params.length > 0) {
 				sh += " " + params.join(" ")
 			}
@@ -338,14 +325,14 @@ commander
 		check(name)
 
 		prompt("Commit message: ", function(message) {
-			var sh = `cd ${cwd} && cd ${componouts} && cd ${name} && git add ./. && git commit -m "${message}" && git push`
+			var sh = `cd ${cwd} && cd componouts && cd ${name} && git add ./. && git commit -m "${message}" && git push`
 			if(params.length > 0) {
 				sh += " " + params.join(" ")
 			}
 			execute(sh, function() {
 				log("Done! Componout has been push to https://github.com/componer/" + name, "done")
 			}, function() {
-				log("You can enter " + componouts + "/" + name + " directory to run `git push`.", "help")
+				log("You can cd to componouts/" + name + " directory to run `git push`.", "help")
 			})
 
 			exit()
@@ -356,21 +343,21 @@ commander
 
 commander
 	.command("install [name]")
-	.description("install bower/package dependencies of [name] componout")
+	.description("install bower.json and package.json [dev]dependencies of [name] componout")
 	.action(function(name) {
 
 		function Install(name) {
-			if(exists(`${cwd}/${componouts}/${name}/package.json`)) {
-				execute(`cd ${cwd} && cd ${componouts} && cd ${name} && npm install --prefix ${cwd}`)
+			if(exists(`${cwd}/componouts/${name}/package.json`)) {
+				execute(`cd ${cwd} && cd componouts && cd ${name} && npm install --prefix ${cwd}`)
 			}
-			if(exists(`${cwd}/${componouts}/${name}/bower.json"`)) {
-				execute(`cd ${cwd} && cd ${componouts} && cd ${name} && ${bower} install --config.directory=${cwd}/bower_components`)
+			if(exists(`${cwd}/componouts/${name}/bower.json"`)) {
+				execute(`cd ${cwd} && cd componouts && cd ${name} && ${bower} install --config.directory=${cwd}/bower_components`)
 			}
 		}
 
 		if(name === undefined) {
 			check()
-			fs.readdirSync(cwd + "/" + componouts).forEach(function(item) {
+			fs.readdirSync(cwd + "/componouts").forEach(function(item) {
 				Install(item)
 			})
 		}
@@ -384,23 +371,23 @@ commander
 
 commander
 	.command("link [name]")
-	.description("link local [name] componout into bower_components/node_modules directory")
+	.description("link local [name] componout into bower_components and node_modules directory")
 	.action(function(name) {
 
 		function Link(name) {
-			if(exists(`${cwd}/${componouts}/${name}/package.json`)) {
-				execute(`cd ${cwd} && cd ${componouts} && cd ${name} && npm link`)
+			if(exists(`${cwd}/componouts/${name}/package.json`)) {
+				execute(`cd ${cwd} && cd componouts && cd ${name} && npm link`)
 				execute(`cd ${cwd} && npm link ${name}`)
 			}
-			if(exists(`${cwd}/${componouts}/${name}/bower.json`)) {
-				execute(`cd ${cwd} && cd ${componouts} && cd ${name} && ${bower} link`)
+			else if(exists(`${cwd}/componouts/${name}/bower.json`)) {
+				execute(`cd ${cwd} && cd componouts && cd ${name} && ${bower} link`)
 				execute(`cd ${cwd} && ${bower} link ${name}`)
 			}
 		}
 
 		if(name === undefined) {
 			check()
-			fs.readdirSync(cwd + "/" + componouts).forEach(function(item) {
+			fs.readdirSync(cwd + "/componouts").forEach(function(item) {
 				Link(item)
 			})
 		}
@@ -424,14 +411,14 @@ commander
 
 		prompt("Are you sure to remove " + name + " componout? yes/No  ", function(choice) {
 			if(choice.toLowerCase() === "yes") {
-				if(exists(cwd + "/bower_components/" + name)) {
-					execute("cd " + cwd + " && " + bower + " unlink " + name)
+				if(exists(`${cwd}/bower_components/${name}`)) {
+					execute(`cd ${cwd} && ${bower} unlink ${name}`)
 				}
-				if(exists(cwd + "/node_modules/" + name)) {
-					execute("cd " + cwd + " && npm unlink " + name)
+				if(exists(`${cwd}/node_modules/${name}`)) {
+					execute(`cd ${cwd} && npm unlink ${name}`)
 				}
 
-				execute(`cd ${cwd} && cd ${componouts} && rm -rf ${name}`, function() {
+				execute(`cd ${cwd} && cd componouts && rm -rf ${name}`, function() {
 					log("Done! " + name + " has been deleted.", "done")
 				})
 

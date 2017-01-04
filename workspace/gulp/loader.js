@@ -6,7 +6,35 @@ import processArgs from "process.args"
 import shell from "shelljs"
 import extend from "extend"
 
-import config from "../config"
+import webpack from "../webpack.config"
+import karma from "../karma.config"
+
+const rootPath = path.resolve(__dirname, "..")
+const gulpDir = "gulp"
+const tasks = "tasks"
+const snippets = "snippets"
+const templates = "templates"
+const componouts = "componouts"
+
+const config = {
+	dirs: {
+		gulp: gulpDir,
+		tasks,
+		templates,
+		snippets,
+		componouts,
+	},
+	paths: {
+		root: rootPath,
+		gulp: path.join(rootPath, gulpDir),
+		tasks: path.join(rootPath, gulpDir, tasks),
+		templates: path.join(rootPath, gulpDir, templates),
+		snippets: path.join(rootPath, gulpDir, snippets),
+		componouts: path.join(rootPath, componouts),
+	},
+	webpack,
+	karma,
+}
 
 const args = processArgs()
 
