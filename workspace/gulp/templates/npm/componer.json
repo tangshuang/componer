@@ -1,6 +1,6 @@
 {
 	"entry": {
-		"script": "src/{{component-name}}.js",
+		"script": "src/{{componout-name}}.js",
 		"test": "test"
 	},
 	"output": {
@@ -10,7 +10,7 @@
 		"_minify": false,
 		"output": {
 			"libraryTarget": "commonjs2",
-			"filename": "{{component-name}}.js"
+			"filename": "{{componout-name}}.js"
 		},
 		"externals": {},
 		"resolve": {

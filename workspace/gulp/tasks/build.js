@@ -1,7 +1,7 @@
 import {gulp, fs, path, args, log, config, exit, exists, extend, clear, read, readJSON, write} from "../loader"
-import {hasComponout, dashlineName, camelName, getFileExt, setFileExt, prettyHtml, buildScript, buildStyle} from "../utils"
+import {hasComponout, dashlineName, camelName, getFileExt, setFileExt, buildScript, buildStyle, InjectJsToHtml, InjectCssToHtml} from "../utils"
 
-import mergeStream from "merge-stream"
+import concat from "pipe-concat"
 
 
 gulp.task("build", () => {
@@ -36,7 +36,6 @@ gulp.task("build", () => {
 
 	var entryFiles = settings.entry
 	var outputDirs = settings.output
-	var webpackSettings = settings.webpack
 
 	if(!entryFiles) {
 		log("Not found `entry` option in componer.json.")
@@ -46,28 +45,6 @@ gulp.task("build", () => {
 	if(!outputDirs) {
 		log("Not found `output` option in componer.json.")
 		exit()
-	}
-
-	function exPkgs(pkgfile) {
-		if(!exists(pkgfile)) {
-			return
-		}
-		let info = readJSON(pkgfile)
-		let externals = {}
-		let dependencies = info.dependencies
-
-		dependencies = typeof dependencies === "object" && Object.keys(dependencies)
-		if(dependencies && dependencies.length > 0) {
-			dependencies.forEach(dependence => externals[dependence] = dependence)
-		}
-
-		webpackSettings.externals = typeof webpackSettings.externals === "object" ? extend(false, {}, webpackSettings.externals, externals) : externals
-	}
-	if(type === "bower") {
-		exPkgs(componoutPath + "/bower.json")
-	}
-	else if(type === "package") {
-		exPkgs(componoutPath + "/package.json")
 	}
 
 	function getPath(file, warn) {
@@ -90,18 +67,8 @@ gulp.task("build", () => {
 	var outputCss = getPath(outputDirs.style)
 	var outputIndex = getPath(outputDirs.index)
 
-	if(entryJs && !webpackSettings) {
-		log("Not found `webpack` option in componer.json.", "error")
-		exit()
-	}
-
 	if(entryJs && !outputJs) {
 		log("No `output.script` in your componer.json.", "error")
-		exit()
-	}
-
-	if(entryScss && !settings.sass) {
-		log("Not found `sass` option in componer.json.", "error")
 		exit()
 	}
 
@@ -114,61 +81,40 @@ gulp.task("build", () => {
 		log("No `output.index` in your componer.json.", "error")
 		exit()
 	}
-	
-	if(entryIndex && outputIndex) {
-		html(entryIndex, outputIndex, settings)
+
+	if(entryJs && !settings.webpack) {
+		log("Not found `webpack` option in componer.json.", "error")
+		exit()
 	}
 
-	// compile script and style
-	if(entryJs && entryScss) {
-		return mergeStream([
-			buildScript(entryJs, outputJs, settings),
-			buildStyle(entryScss, outputCss, settings),
-		]).on("end", doneMsg)
+	if(entryScss && !settings.sass) {
+		log("Not found `sass` option in componer.json.", "error")
+		exit()
 	}
-	else if(entryJs && !entryScss) {
-		return buildScript(entryJs, outputJs, settings).on("end", doneMsg)
+	
+	var streams = []
+
+	if(entryIndex) {
+		let stream = gulp.src(entryIndex)
+			.pipe(InjectJsToHtml("buildjs", path.relative(outputIndex, outputJs) + `/${settings.webpack.output.filename}`))
+			.pipe(InjectCssToHtml("buildcss", path.relative(outputIndex, outputCss) + `/${settings.sass.output.filename}`))
+			.pipe(gulp.dest(outputIndex))
+		streams.push(stream)
 	}
-	else if(entryScss && !entryJs) {
-		return buildStyle(entryScss, outputCss, settings).on("end", doneMsg)
+
+	if(entryJs) {
+		streams.push(buildScript(entryJs, outputJs, settings.webpack))
+	}
+
+	if(entryScss) {
+		streams.push(buildStyle(entryScss, outputCss, settings.sass))
+	}
+
+	if(streams.length > 0) {
+		return concat(streams).on("end", () => log(`${name} has been completely built.`, "done"))
 	}
 	
 	log("Something is wrong. Check your componer.json.", "warn")
 	exit()
-
-	// ===============================================================================
-
-	function html(entryFile, outDir, options) {
-		return gulp.src(entryFile)
-			.pipe(gulp.dest(outDir))
-			.on("end", () => {
-				let outputHtml = outDir + "/" + path.basename(entryFile)
-				let content = read(outputHtml)
-				let outputJs = settings.output.script
-				let outputCss = settings.output.style
-
-				if(outputJs) {
-					let buildjshtml = `<script src="../${outputJs}/${settings.webpack.output.filename}"></script>`
-					let buildjsreg = new RegExp('(<!--\s*?build:js\s*?-->)([\\s\\S]*?)(<!--\s*?endbuild\s*?-->)','im')
-					content = content.replace(buildjsreg, "$1" + buildjshtml + "$3")
-				}
-
-				if(outputCss) {
-					let buildcsshtml = `<link rel="stylesheet" href="../${outputCss}/${settings.sass.output.filename}">`
-					let buildcssreg = new RegExp('(<!--\s*?build:css\s*?-->)([\\s\\S]*?)(<!--\s*?endbuild\s*?-->)','im')
-					content = content.replace(buildcssreg, "$1" + buildcsshtml + "$3")
-				}
-
-				// pretty code
-				content = prettyHtml(content)
-
-				// update preview index.html
-				write(outputHtml, content)
-			})
-	} 
-
-	function doneMsg() {
-		log(`${name} has been completely built.`, "done")
-	}
 
 })

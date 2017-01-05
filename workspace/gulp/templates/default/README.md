@@ -1,4 +1,4 @@
-# {{Component Name}}
+# {{Componout Name}}
 
 
 ## Install

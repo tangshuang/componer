@@ -1,10 +1,10 @@
 {
-    "name": "{{component-name}}",
+    "name": "{{componout-name}}",
     "description": "",
     "version": "0.0.1",
     "main": [
-        "src/script/{{component-name}}.js",
-        "src/style/{{component-name}}.scss"
+        "src/script/{{componout-name}}.js",
+        "src/style/{{componout-name}}.scss"
     ],
     "moduleType": [
         "es6",
@@ -13,10 +13,10 @@
     "authors": [
         "{{author}}"
     ],
-    "homepage": "https://github.com/{{author}}/{{component-name}}",
+    "homepage": "https://github.com/{{author}}/{{componout-name}}",
     "repository": {
         "type": "git",
-        "url": "git://github.com/{{author}}/{{component-name}}.git"
+        "url": "git://github.com/{{author}}/{{componout-name}}.git"
     },
     "keywords": [],
     "dependencies": {},

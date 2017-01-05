@@ -1,6 +1,6 @@
-import {{ComponentName}} from "../src/{{component-name}}.js"
+import {{ComponoutName}} from "../src/{{component-name}}.js"
 
-var {{componentName}} = new {{ComponentName}}()
+var {{componoutName}} = new {{ComponoutName}}()
 
 // delete the following code
-console.log({{componentName}})
+console.log({{componoutName}})

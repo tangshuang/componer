@@ -1,20 +1,7 @@
-import through from "through2"
-import logger from "process.logger"
-import {capitalName, camelName, dashlineName, separateName} from "./index"
+import {capitalName, camelName, dashlineName, separateName, modifyStreamContent} from "./index"
 
-export function paserTemplate(pairs) {
-	return through.obj(function(file, endcoding, callback) {
-		if(file.isNull()) {
-			this.push(file)
-			return callback()
-		}
-
-		if(file.isStream()) {
-			logger.error("gulp error: streaming not supported")
-			return callback()
-		}
-
-		var content = file.contents.toString()
+export function PaserTemplate(pairs) {
+	return modifyStreamContent(content => {
 		if(pairs && typeof pairs === "object") {
 			for(let key in pairs) {
 				let value = pairs[key]
@@ -32,9 +19,6 @@ export function paserTemplate(pairs) {
 					.replace(regSeparateCapitalName, separateName(value, true))
 			}
 		}
-
-		file.contents = new Buffer(content)
-		this.push(file)
-		callback()
+		return content
 	})
 }

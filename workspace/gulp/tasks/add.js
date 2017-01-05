@@ -1,5 +1,5 @@
 import {gulp, fs, path, args, log, config, exit, exists} from "../loader"
-import {paserTemplate, dashlineName} from "../utils"
+import {PaserTemplate, dashlineName} from "../utils"
 
 gulp.task("add", () => {
 	const arg = args.add
@@ -24,17 +24,17 @@ gulp.task("add", () => {
 	}
 
 	return gulp.src([templatesPath + "/**/*", templatesPath + "/.*"])
-		.pipe(paserTemplate({
-			componentName: name,
+		.pipe(PaserTemplate({
+			componoutName: name,
 			author: author,
 		}))
 		.pipe(gulp.dest(componoutPath))
 		.on("end", () => {
 			exists(componoutPath + "/src/index.js") && fs.renameSync(componoutPath + "/src/index.js", componoutPath + "/src/" + name + ".js")
-			exists(componoutPath + "/test/index.js") &&fs.renameSync(componoutPath + "/test/index.js", componoutPath + "/test/" + name + ".js")
-			exists(componoutPath + "/src/script/index.js") &&fs.renameSync(componoutPath + "/src/script/index.js", componoutPath + "/src/script/" + name + ".js")
-			exists(componoutPath + "/src/style/index.scss") &&fs.renameSync(componoutPath + "/src/style/index.scss", componoutPath + "/src/style/" + name + ".scss")
-			exists(componoutPath + "/test/specs/index.js") &&fs.renameSync(componoutPath + "/test/specs/index.js", componoutPath + "/test/specs/" + name + ".js")
+			exists(componoutPath + "/test/index.js") && fs.renameSync(componoutPath + "/test/index.js", componoutPath + "/test/" + name + ".js")
+			exists(componoutPath + "/src/script/index.js") && fs.renameSync(componoutPath + "/src/script/index.js", componoutPath + "/src/script/" + name + ".js")
+			exists(componoutPath + "/src/style/index.scss") && fs.renameSync(componoutPath + "/src/style/index.scss", componoutPath + "/src/style/" + name + ".scss")
+			exists(componoutPath + "/test/specs/index.js") && fs.renameSync(componoutPath + "/test/specs/index.js", componoutPath + "/test/specs/" + name + ".js")
 
 			log(`${name} has been completely created.`, "done")
 		})

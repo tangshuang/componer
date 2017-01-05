@@ -1,8 +1,8 @@
 {
-  "name": "{{component-name}}",
+  "name": "{{componout-name}}",
   "version": "0.0.1",
   "description": "",
-  "main": "dist/{{component-name}}.js",
+  "main": "dist/{{componout-name}}.js",
   "scripts": {
   },
   "keywords": [
@@ -10,10 +10,10 @@
   "author": "{{author}}",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/{{author}}/{{component-name}}.git"
+    "url": "git+https://github.com/{{author}}/{{componout-name}}.git"
   },
   "bugs": {
-    "url": "https://github.com/{{author}}/{{component-name}}/issues"
+    "url": "https://github.com/{{author}}/{{componout-name}}/issues"
   },
   "license": "ISC"
 }

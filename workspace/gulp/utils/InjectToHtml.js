@@ -1,0 +1,33 @@
+import {prettyHtml, getFileExt, modifyStreamContent} from "./index"
+
+export function InjectToHtml(label, html) {
+	return modifyStreamContent(content => {
+		var reg = new RegExp("(<!--\s*?" + label + ":\s*?-->)([\\s\\S]*?)(<!--\s*?:" + label + "\s*?-->)", "im")
+		content = content.replace(reg, "$1" + html + "$3")
+		content = prettyHtml(content)
+
+		return content
+	})
+}
+
+export function InjectJsToHtml(files, label) {
+	var html = ""
+	if(Array.isArray(files)) {
+		html = files.map(file => `<script src="${file}"></script>`).join("")
+	}
+	else {
+		html = `<script src="${files}"></script>`
+	}
+	return InjectToHtml(label, html)
+}
+
+export function InjectCssToHtml(files, label) {
+	var html = ""
+	if(Array.isArray(files)) {
+		html = files.map(file => `<link rel="stylesheet" href="${file}">`).join("")
+	}
+	else {
+		html = `<link rel="stylesheet" href="${file}">`
+	}
+	return InjectToHtml(label, html)
+}

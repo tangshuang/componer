@@ -1,9 +1,9 @@
-# {{Component Name}}
+# {{Componout Name}}
 
 ## Install
 
 ```
-$ npm install {{component-name}} --save
+$ npm install {{componout-name}} --save
 ```
 
 ## Usage
