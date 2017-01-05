@@ -1,24 +1,22 @@
 {
 	"entry": {
-		"script": "src/script/{{component-name}}.js",
-		"style": "src/style/{{component-name}}.scss",
-		"index": "src/index.html",
-		"preview": "dist/index.html",
+		"script": "src/script/{{componout-name}}.js",
+		"style": "src/style/{{componout-name}}.scss",
+		"preview": "preview/index.html",
 		"test": "test/specs"
 	},
 	"output": {
 		"script": "dist/js",
 		"style": "dist/css",
-		"index": "dist",
 		"reporters": "test/reporters"
 	},
 	"webpack": {
 		"_minify": true,
 		"output": {
 			"libraryTarget": "umd",
-			"filename": "{{component-name}}.js",
-			"library": "{{componentName}}",
-			"sourceMapFilename": "{{component-name}}.js.map"
+			"filename": "{{componout-name}}.js",
+			"library": "{{componoutName}}",
+			"sourceMapFilename": "{{componout-name}}.js.map"
 		},
 		"externals": {},
 		"resolve": {
@@ -29,7 +27,7 @@
 	"sass": {
 		"_minify": true,
 		"output": {
-			"filename": "{{component-name}}.css",
+			"filename": "{{componout-name}}.css",
 			"sourcemap": true
 		}
 	},

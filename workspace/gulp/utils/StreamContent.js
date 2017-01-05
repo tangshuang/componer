@@ -1,7 +1,7 @@
 import through from "through2"
 import {log} from "../loader"
 
-function modifyBufferContent(modify) {
+export function modifyStreamContent(modify) {
 	return through.obj(function(file, endcoding, callback) {
 		if(file.isNull()) {
 			this.push(file)

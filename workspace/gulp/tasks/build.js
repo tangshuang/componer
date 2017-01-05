@@ -77,10 +77,10 @@ gulp.task("build", () => {
 		exit()
 	}
 
-	if(entryIndex && !outputIndex) {
-		log("No `output.index` in your componer.json.", "error")
-		exit()
-	}
+	// if(entryIndex && !outputIndex) {
+	// 	log("No `output.index` in your componer.json.", "error")
+	// 	exit()
+	// }
 
 	if(entryJs && !settings.webpack) {
 		log("Not found `webpack` option in componer.json.", "error")
@@ -94,13 +94,13 @@ gulp.task("build", () => {
 	
 	var streams = []
 
-	if(entryIndex) {
-		let stream = gulp.src(entryIndex)
-			.pipe(InjectJsToHtml("buildjs", path.relative(outputIndex, outputJs) + `/${settings.webpack.output.filename}`))
-			.pipe(InjectCssToHtml("buildcss", path.relative(outputIndex, outputCss) + `/${settings.sass.output.filename}`))
-			.pipe(gulp.dest(outputIndex))
-		streams.push(stream)
-	}
+	// if(entryIndex) {
+	// 	let stream = gulp.src(entryIndex)
+	// 		.pipe(InjectJsToHtml("buildjs", path.relative(outputIndex, outputJs) + `/${settings.webpack.output.filename}`))
+	// 		.pipe(InjectCssToHtml("buildcss", path.relative(outputIndex, outputCss) + `/${settings.sass.output.filename}`))
+	// 		.pipe(gulp.dest(outputIndex))
+	// 	streams.push(stream)
+	// }
 
 	if(entryJs) {
 		streams.push(buildScript(entryJs, outputJs, settings.webpack))

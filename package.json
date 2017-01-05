@@ -1,16 +1,12 @@
 {
   "name": "componer",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "description": "A components work flow builder tool",
   "main": "index.js",
   "bin": {
-    "componer": "bin/componer-cli.js"
+    "componer": "bin/index.js"
   },
-  "scripts": {
-    "build": "babel bin/componer-cli.es6 --out-file bin/componer-cli.js",
-    "watch": "babel bin/componer-cli.es6 --watch --out-file bin/componer-cli.js",
-    "prepublish": "npm run build"
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/tangshuang/componer.git"
@@ -26,15 +22,14 @@
   },
   "homepage": "https://github.com/tangshuang/componer#readme",
   "dependencies": {
+    "babel-core": "^6.21.0",
+    "babel-preset-latest": "^6.16.0",
+    "babel-register": "^6.18.0",
     "bower": "^1.8.0",
     "commander": "^2.9.0",
     "gulp-cli": "^1.2.2",
     "process.logger": "^1.1.2",
     "shelljs": "^0.7.5"
   },
-  "devDependencies": {
-    "babel-cli": "^6.18.0",
-    "babel-core": "^6.21.0",
-    "babel-preset-latest": "^6.16.0"
-  }
+  "devDependencies": {}
 }

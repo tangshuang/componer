@@ -1,5 +1,5 @@
 import {gulp, path, fs, args, log, config, exit, exists, read, readJSON, write} from "../loader"
-import {paserTemplate, hasComponout, dashlineName, runTask, prettyHtml, getComponout, getBowerDeps, getBowerMain, getFileExt, setFileExt} from "../utils"
+import {paserTemplate, hasComponout, dashlineName, runTask, prettyHtml, getBowerDeps, getBowerMain, getFileExt, setFileExt} from "../utils"
 
 import sass from "gulp-sass"
 import sourcemaps from "gulp-sourcemaps"
@@ -40,9 +40,8 @@ gulp.task("preview", () => {
 	var content = read(previewFile)
 
 	// build dependencies
-	var type = getComponout(name).type
-	if(type === "bower") {
-		let bowerJson = path.join(componoutPath, "bower.json")
+	var bowerJson = componoutPath + "/bower.json"
+	if(exists(bowerJson)) {
 		let deps = getBowerDeps(bowerJson)
 
 		if(Array.isArray(deps) && deps.length > 0) {
