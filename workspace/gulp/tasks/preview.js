@@ -1,5 +1,5 @@
 import {gulp, path, fs, args, log, config, exit, exists, read, readJSON, write} from "../loader"
-import {paserTemplate, hasComponout, dashlineName, runTask, prettyHtml, getBowerDeps, getBowerMain, getFileExt, setFileExt} from "../utils"
+import {paserTemplate, hasComponout, dashlineName, runTask, prettyHtml, getBowerDeps, getBowerMain, getFileExt, setFileExt, buildStyle, buildScript} from "../utils"
 
 import sass from "gulp-sass"
 import sourcemaps from "gulp-sourcemaps"
@@ -50,14 +50,6 @@ gulp.task("preview", () => {
 			 * find out dependencies files
 			 * compile scss to css in the same directory with scss files
 			 */
-			
-			let compileScss = function(scssPath) {
-				gulp.src(scssPath)
-					.pipe(sourcemaps.init())
-					.pipe(sass())
-					.pipe(sourcemaps.write("./"))
-					.pipe(gulp.dest(path.dirname(scssPath)))
-			}
 
 			let bowerBase = path.join(config.paths.root, "bower_components")
 			let depsFiles = []
@@ -89,10 +81,16 @@ gulp.task("preview", () => {
 				if(depMainCss) {
 					depsFiles.push(depMainCss)
 				}
-				else if(depMainScss) { // only compile scss when have no css
+				else if(depMainScss) {
 					let depFilePath = bowerBase + "/" + depMainScss
-					compileScss(depFilePath)
-					depsFiles.push(setFileExt(depMainScss, ".css"))
+					let depCss = setFileExt(depMainScss, ".css")
+					!exists(bowerBase + "/" + depCss) && buildStyle(depFilePath, path.dirname(depFilePath), {
+						output:  {
+							filename: path.basename(depCss),
+							sourcemap: true,
+						},
+					})
+					depsFiles.push(depCss)
 				}
 			})
 
@@ -100,20 +98,21 @@ gulp.task("preview", () => {
 			 * inject dependencies files into index.html
 			 */
 
-			let depcsshtml = ""
-			let depjshtml = ""
+			let cssfiles = []
+			let jsfiles = []
 			depsFiles.forEach(function(file){
 				if(getFileExt(file) === ".css") {
-					depcsshtml += `<link rel="stylesheet" href="/bower_components/${file}">`
+					cssfiles.push(`/bower_components/${file}`)
 				}
 				else if(getFileExt(file) === ".js") {
-					depjshtml += `<script src="/bower_components/${file}"></script>`
+					jsfiles.push(`/bower_components/${file}`)
 				}
 			})
 
-			let depcssreg = new RegExp('(<!--\s*?bower:css\s*?-->)([\\s\\S]*?)(<!--\s*?endbower\s*?-->)','im')
-			let depjsreg = new RegExp('(<!--\s*?bower:js\s*?-->)([\\s\\S]*?)(<!--\s*?endbower\s*?-->)','im')
-			content = content.replace(depcssreg, '$1' + depcsshtml + '$3').replace(depjsreg,'$1' + depjshtml + '$3')
+			gulp.src(entryIndex)
+				.pipe(InjectJsToHtml("bowerjs", jsfiles))
+				.pipe(InjectCssToHtml("bowercss", cssfiles))
+				.pipe(gulp.dest(previewDir))
 			
 		}
 	}
@@ -125,25 +124,12 @@ gulp.task("preview", () => {
 	var outputDirs = settings.output
 	var outputJs = outputDirs.script
 	var outputCss = outputDirs.style
+	var previewDir = path.dirname(previewFile)
 
-	if(outputJs) {
-		let buildjshtml = `<script src="../${outputJs}/${settings.webpack.output.filename}"></script>`
-		let buildjsreg = new RegExp('(<!--\s*?build:js\s*?-->)([\\s\\S]*?)(<!--\s*?endbuild\s*?-->)','im')
-		content = content.replace(buildjsreg, "$1" + buildjshtml + "$3")
-	}
-
-	if(outputCss) {
-		let buildcsshtml = `<link rel="stylesheet" href="../${outputCss}/${settings.sass.output.filename}">`
-		let buildcssreg = new RegExp('(<!--\s*?build:css\s*?-->)([\\s\\S]*?)(<!--\s*?endbuild\s*?-->)','im')
-		content = content.replace(buildcssreg, "$1" + buildcsshtml + "$3")
-	}
-
-
-	// pretty code
-	content = prettyHtml(content)
-
-	// update preview index.html
-	write(previewFile, content)
+	gulp.src(entryIndex)
+		.pipe(InjectJsToHtml("buildjs", path.relative(previewDir, outputJs) + `/${settings.webpack.output.filename}`))
+		.pipe(InjectCssToHtml("buildcss", path.relative(previewDir, outputCss) + `/${settings.sass.output.filename}`))
+		.pipe(gulp.dest(previewDir))
 
 	// open server
 	var $server = new TsServer()

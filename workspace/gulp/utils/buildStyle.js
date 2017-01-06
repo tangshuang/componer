@@ -1,3 +1,4 @@
+import path from "path"
 import gulp from "gulp"
 import sass from "gulp-sass"
 import concat from "gulp-concat"
@@ -8,11 +9,13 @@ import mergeStream from "merge-stream"
 
 import {setFileExt} from "./index"
 
-export function buildStyle(entryFile, outDir, settings) {
+export function buildStyle(entryFile, outDir, settings = {}) {
 
-	var filename = settings.output.filename
-	var isSourceMap = settings.output.sourcemap
+	var filename = settings.output && settings.output.filename
+	var isSourceMap = settings.output && settings.output.sourcemap
 	var isMinfiy = settings._minify
+
+	filename = filename || setFileExt(path.basename(entryFile), ".css")
 
 	function NoSourceMapNoMinify() {
 		return gulp.src(entryFile)

@@ -10,7 +10,7 @@ export function InjectToHtml(label, html) {
 	})
 }
 
-export function InjectJsToHtml(files, label) {
+export function InjectJsToHtml(label, files) {
 	var html = ""
 	if(Array.isArray(files)) {
 		html = files.map(file => `<script src="${file}"></script>`).join("")
@@ -21,7 +21,7 @@ export function InjectJsToHtml(files, label) {
 	return InjectToHtml(label, html)
 }
 
-export function InjectCssToHtml(files, label) {
+export function InjectCssToHtml(label, files) {
 	var html = ""
 	if(Array.isArray(files)) {
 		html = files.map(file => `<link rel="stylesheet" href="${file}">`).join("")

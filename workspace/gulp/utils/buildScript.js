@@ -6,7 +6,9 @@ import {config} from "../loader"
 import {setFileExt} from "./index"
 import {optimize} from "webpack"
 
-export function buildScript(entryFile, outDir, settings) {
+export function buildScript(entryFile, outDir, settings = {}) {
+	settings.output = settings.output || {}
+	settings.output.filename = settings.output.filename || path.basename(entryFile)
 
 	// build js with webpack
 	var stream1 = gulp.src(entryFile)

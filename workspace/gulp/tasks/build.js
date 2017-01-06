@@ -67,6 +67,8 @@ gulp.task("build", () => {
 	var outputCss = getPath(outputDirs.style)
 	var outputIndex = getPath(outputDirs.index)
 
+	var webpackSettings = settings.webpack
+
 	if(entryJs && !outputJs) {
 		log("No `output.script` in your componer.json.", "error")
 		exit()
@@ -77,11 +79,6 @@ gulp.task("build", () => {
 		exit()
 	}
 
-	// if(entryIndex && !outputIndex) {
-	// 	log("No `output.index` in your componer.json.", "error")
-	// 	exit()
-	// }
-
 	if(entryJs && !settings.webpack) {
 		log("Not found `webpack` option in componer.json.", "error")
 		exit()
@@ -91,19 +88,34 @@ gulp.task("build", () => {
 		log("Not found `sass` option in componer.json.", "error")
 		exit()
 	}
+
+	function exterPkgs(pkgfile) {
+		if(!exists(pkgfile)) {
+			return
+		}
+		var info = readJSON(pkgfile)
+		var externals = {}
+		var dependencies = info.dependencies
+
+		dependencies = typeof dependencies === "object" && Object.keys(dependencies)
+		if(dependencies && dependencies.length > 0) {
+			dependencies.forEach(dependence => externals[dependence] = dependence)
+		}
+
+		webpackSettings.externals = typeof webpackSettings.externals === "object" ? extend(false, {}, webpackSettings.externals, externals) : externals
+	}
+
+	if(exists(componoutPath + "/bower.json")) {
+		exterPkgs(componoutPath + "/bower.json")
+	}
+	else if(exists(componoutPath + "/package.json")) {
+		exterPkgs(componoutPath + "/package.json")
+	}
 	
 	var streams = []
 
-	// if(entryIndex) {
-	// 	let stream = gulp.src(entryIndex)
-	// 		.pipe(InjectJsToHtml("buildjs", path.relative(outputIndex, outputJs) + `/${settings.webpack.output.filename}`))
-	// 		.pipe(InjectCssToHtml("buildcss", path.relative(outputIndex, outputCss) + `/${settings.sass.output.filename}`))
-	// 		.pipe(gulp.dest(outputIndex))
-	// 	streams.push(stream)
-	// }
-
 	if(entryJs) {
-		streams.push(buildScript(entryJs, outputJs, settings.webpack))
+		streams.push(buildScript(entryJs, outputJs, webpackSettings))
 	}
 
 	if(entryScss) {

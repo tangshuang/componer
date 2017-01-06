@@ -3,12 +3,11 @@
     "description": "",
     "version": "0.0.1",
     "main": [
-        "src/script/{{componout-name}}.js",
+        "dist/js/{{componout-name}}.js",
         "src/style/{{componout-name}}.scss"
     ],
     "moduleType": [
-        "es6",
-        "sass"
+        "umd"
     ],
     "authors": [
         "{{author}}"
