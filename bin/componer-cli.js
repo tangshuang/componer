@@ -352,11 +352,11 @@ commander
 	.action(name => {
 
 		function Install(name) {
-			if(exists(`${cwd}/componouts/${name}/package.json`)) {
-				execute(`cd ${cwd} && cd componouts && cd ${name} && npm install --prefix ${cwd}`)
-			}
 			if(exists(`${cwd}/componouts/${name}/bower.json"`)) {
 				execute(`cd ${cwd} && cd componouts && cd ${name} && ${bower} install --config.directory=${cwd}/bower_components`)
+			}
+			if(exists(`${cwd}/componouts/${name}/package.json`)) {
+				execute(`cd ${cwd} && cd componouts && cd ${name} && npm install --prefix ${cwd}`)
 			}
 		}
 
@@ -378,13 +378,13 @@ commander
 	.action(name => {
 
 		function Link(name) {
-			if(exists(`${cwd}/componouts/${name}/package.json`)) {
-				execute(`cd ${cwd} && cd componouts && cd ${name} && npm link`)
-				execute(`cd ${cwd} && npm link ${name}`)
-			}
-			else if(exists(`${cwd}/componouts/${name}/bower.json`)) {
+			if(exists(`${cwd}/componouts/${name}/bower.json`)) {
 				execute(`cd ${cwd} && cd componouts && cd ${name} && ${bower} link`)
 				execute(`cd ${cwd} && ${bower} link ${name}`)
+			}
+			else if(exists(`${cwd}/componouts/${name}/package.json`)) {
+				execute(`cd ${cwd} && cd componouts && cd ${name} && npm link`)
+				execute(`cd ${cwd} && npm link ${name}`)
 			}
 		}
 

@@ -3,7 +3,7 @@
     "description": "",
     "version": "0.0.1",
     "main": [
-        "dist/js/{{componout-name}}.js",
+        "src/script/{{componout-name}}.js",
         "src/style/{{componout-name}}.scss"
     ],
     "moduleType": [

@@ -70,3 +70,11 @@ bower.json > package.json > componer.json
 Componer firstly seek bower.json, then seek package.json, ant lastly seek componer.json.
 So the build result will follow ES6 specification, then node module (commonjs) specification, and at last UMD specification. 
 If you want to build a package, do NOT put a bower.json in it, if you want to build an application, do NOT put a bower.json or a package.json.
+
+每一个componout里面都要有一个componer.json用于build的时候的配置。
+
+如果这个componout里面包含一个bower.json，那么就认为这是一个bower component。bower component里面可能也会包含package.json，但并不影响它被认定为bower component。不过如果有一个package.json的话，在执行`componer install`的时候，package.json里面的依赖也会被安装到本地。在build的时候，bower.json里所有的依赖都不会被打包进最终的js文件里，但是package.json里的dependencies字段里的依赖会被打包进来，因为如果把这个bower包给别人用的话，别人无法从bower中使用这些npm包，所以必须把这些包打包进build出来的js里面去（当然，这也会导致一个问题，就是如果两个bower包用来同一个npm包的话，就会导致代码重复率高）。
+
+如果这个componout中包含了package.json，但并不存在bower.json，则被认为是一个npm包。npm包在build的时候，不会把任何依赖打包至最终的js文件中。
+
+也就是说，如果你打算创建一个bower包，就可以通过package.json把npm包打包进bower包里面。除此之外，都不会把依赖打包进你正在创建的compount。
