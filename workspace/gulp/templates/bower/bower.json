@@ -7,7 +7,7 @@
         "src/style/{{componout-name}}.scss"
     ],
     "moduleType": [
-        "umd"
+        "es6"
     ],
     "authors": [
         "{{author}}"
@@ -21,6 +21,8 @@
     "dependencies": {},
     "devDependencies": {},
     "ignore": [
+        "node_modules",
+        "bower_components",
         "preview/",
         "test/"
     ]

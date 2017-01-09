@@ -1,6 +1,10 @@
+/**
+ * webpack plugin
+ */
+
 import RawSource from "webpack/lib/RawSource"
 
-function WebpackSupportCmdInUmd() {}
+export function WebpackSupportCmdInUmd() {}
 
 WebpackSupportCmdInUmd.prototype.apply = function(compiler) {
 

@@ -1,5 +1,5 @@
 import {gulp, fs, path, args, log, config, exit, exists, extend, clear, read, readJSON, write} from "../loader"
-import {hasComponout, dashlineName, camelName, getFileExt, setFileExt, buildScript, buildStyle, InjectJsToHtml, InjectCssToHtml} from "../utils"
+import {hasComponout, dashlineName, camelName, getFileExt, setFileExt, buildScript, buildStyle} from "../utils"
 
 import concat from "pipe-concat"
 

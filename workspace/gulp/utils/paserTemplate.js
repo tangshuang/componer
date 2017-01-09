@@ -1,3 +1,7 @@
+/**
+ * pipe plugin
+ */
+ 
 import {capitalName, camelName, dashlineName, separateName, modifyStreamContent} from "./index"
 
 export function PaserTemplate(pairs) {

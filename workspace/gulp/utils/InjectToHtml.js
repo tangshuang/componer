@@ -1,3 +1,7 @@
+/**
+ * pipe plugin
+ */
+
 import {prettyHtml, getFileExt, modifyStreamContent} from "./index"
 
 export function InjectToHtml(label, html) {
@@ -15,7 +19,7 @@ export function InjectJsToHtml(label, files) {
 	if(Array.isArray(files)) {
 		html = files.map(file => `<script src="${file}"></script>`).join("")
 	}
-	else {
+	else if(typeof files === "string") {
 		html = `<script src="${files}"></script>`
 	}
 	return InjectToHtml(label, html)
@@ -26,8 +30,8 @@ export function InjectCssToHtml(label, files) {
 	if(Array.isArray(files)) {
 		html = files.map(file => `<link rel="stylesheet" href="${file}">`).join("")
 	}
-	else {
-		html = `<link rel="stylesheet" href="${file}">`
+	else if(typeof files === "string") {
+		html = `<link rel="stylesheet" href="${files}">`
 	}
 	return InjectToHtml(label, html)
 }

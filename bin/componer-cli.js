@@ -311,7 +311,7 @@ commander
 			})
 		}
 		else {
-			var sh = `cd ${cwd} && cd componouts && cd ${name} && git pull"`
+			var sh = `cd ${cwd} && cd componouts && cd ${name} && git pull`
 			if(params.length > 0) {
 				sh += " " + params.join(" ")
 			}
@@ -352,7 +352,7 @@ commander
 	.action(name => {
 
 		function Install(name) {
-			if(exists(`${cwd}/componouts/${name}/bower.json"`)) {
+			if(exists(`${cwd}/componouts/${name}/bower.json`)) {
 				execute(`cd ${cwd} && cd componouts && cd ${name} && ${bower} install --config.directory=${cwd}/bower_components`)
 			}
 			if(exists(`${cwd}/componouts/${name}/package.json`)) {

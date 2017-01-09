@@ -1,6 +1,7 @@
 import gulp from "gulp"
 import webpack from "webpack-stream"
-import mergeStream from "merge-stream"
+import mergeStream from "pipe-concat"
+import extend from "extend"
 
 import {config} from "../loader"
 import {setFileExt} from "./index"

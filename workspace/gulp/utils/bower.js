@@ -32,7 +32,9 @@ export function getBowerMain(bower) {
 		return false
 	}
 	
-	var bowerFiles = Array.isArray(main) ? main.map(file => bower + "/" + file) : [bower + "/" + main]
+	var rootPath = config.paths.root
+	var bowerPath = path.join(rootPath, "bower_components", bower)
+	var bowerFiles = Array.isArray(main) ? main.map(file => bowerPath + "/" + file) : [bowerPath + "/" + main]
  
 	return bowerFiles
 

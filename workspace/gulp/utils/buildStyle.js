@@ -4,8 +4,9 @@ import sass from "gulp-sass"
 import concat from "gulp-concat"
 import cssmin from "gulp-cssmin"
 import rename from "gulp-rename"
+import sourcemaps from "gulp-sourcemaps"
 
-import mergeStream from "merge-stream"
+import mergeStream from "pipe-concat"
 
 import {setFileExt} from "./index"
 
@@ -15,7 +16,9 @@ export function buildStyle(entryFile, outDir, settings = {}) {
 	var isSourceMap = settings.output && settings.output.sourcemap
 	var isMinfiy = settings._minify
 
-	filename = filename || setFileExt(path.basename(entryFile), ".css")
+	if(!filename) {
+		filename = typeof entryFile === "string" ? setFileExt(path.basename(entryFile), ".css") : "styles.css"
+	}
 
 	function NoSourceMapNoMinify() {
 		return gulp.src(entryFile)

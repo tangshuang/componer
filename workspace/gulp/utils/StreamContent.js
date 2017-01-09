@@ -1,3 +1,7 @@
+/**
+ * pipe plugin
+ */
+ 
 import through from "through2"
 import {log} from "../loader"
 
