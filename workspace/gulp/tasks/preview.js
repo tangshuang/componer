@@ -17,99 +17,72 @@ gulp.task("preview", () => {
 	var srcPath = path.join(componoutPath, "src")
 	var distPath = path.join(componoutPath, "dist")
 	var settings = readJSON(componoutPath + "/componer.json")
-	var previewFile = settings.entry.preview
+	var previewDir = settings.entry.preview
 
-	if(!previewFile) {
+	if(!previewDir) {
 		log(`entry.preview option is incorrect in your componer.json.`, "error")
 		exit()
 	}
 
-	var previewPath = path.join(componoutPath, previewFile)
-	var previewDir = path.dirname(previewPath)
-
-	if(!exists(previewPath)) {
-		log(`preview entry file not found.`, "error")
+	if(!exists(previewDir)) {
+		log(`preview directory not found.`, "error")
 		exit()
 	}
 
-	/**
-	 * modify preview index.html
-	 */
-
-	if(!exists(previewPath + "~")) {
-		execute(`cp ${previewPath} ${previewPath}~`)
-	}
-
-	var streams = []
-
-	// build files
-	runTask("build", {
-		name: name
-	})
-
-	var outputDirs = settings.output
-	var outputJs = outputDirs.script
-	var outputCss = outputDirs.style
+	var previewHtml = path.join(componoutPath, previewDir, "index.html")
+	var previewJs = path.join(componoutPath, previewDir, "index.js")
+	var previewScss = path.join(componoutPath, previewDir, "index.scss")
 	
-	var stream = gulp.src(previewPath)
-		.pipe(InjectJsToHtml("buildjs", relativeUrl(`${settings.webpack.output.filename}`, previewDir, componoutPath + "/" + outputJs)))
-		.pipe(InjectCssToHtml("buildcss", relativeUrl(`${settings.sass.output.filename}`, previewDir, componoutPath + "/" + outputCss)))
+	(function build() {
+		var scripts = []
+		var styles = []
+		var streams = []
 
-	// dependencies
-	var bowerJson = componoutPath + "/bower.json"
-	if(exists(bowerJson)) {
-		let depsFiles = getBowerDepsFiles(bowerJson, true)
-
-		if(Array.isArray(depsFiles) && depsFiles.length > 0) {
-
-			let depsScripts = []
-			let depsStyles = []
-
-			depsFiles.forEach(depFile => {
-				let ext = getFileExt(depFile)
-				if(ext === ".scss" || ext === ".css") {
-					depsStyles.push(depFile)
-				}
-				else if(ext === ".js") {
-					depsScripts.push(depFile)
-				}
-			})
-
-			if(depsStyles.length > 0) {
-				let stream1 = buildStyle(depsStyles, previewDir, {
-					output: {
-						filename: name + ".css",
-						sourcemap: true,
-					},
+		if(exists(componoutPath + "/bower.json")) {
+			let files = getBowerDepsFiles(componoutPath + "/bower.json", true)
+			if(files.length > 0) {
+				files.forEach(file => {
+					let ext = getFileExt(file)
+					if(ext === ".scss" || ext === ".css") {
+						styles.push(file)
+					}
+					else if(ext === ".js") {
+						scripts.push(file)
+					}
 				})
-				streams.push(stream1)
-				stream.pipe(InjectCssToHtml("bowercss", name + ".css"))
 			}
-
-			if(depsScripts.length > 0) {
-				let stream2 = buildScript(depsScripts, previewDir, {
-					output: {
-						filename: name + ".js",
-						sourceMapFilename: name + ".js.map",
-					},
-				})
-				streams.push(stream2)
-				stream.pipe(InjectJsToHtml("bowerjs", name + ".js"))
-			}
-			
 		}
 
-	}
+		scripts.push(previewJs)
+		styles.push(previewScss)
 
-	stream.pipe(gulp.dest(previewDir))
-	streams.push(stream)
+		if(styles.length > 0) {
+			let stream1 = buildStyle(styles, previewDir, {
+				output: {
+					filename: "style.css",
+					sourcemap: true,
+				},
+			})
+			streams.push(stream1)
+		}
+
+		if(scripts.length > 0) {
+			let stream2 = buildScript(scripts, previewDir, {
+				output: {
+					filename: "bundle.js",
+					sourceMapFilename: "bundle.js.map",
+				},
+			})
+			streams.push(stream2)
+		}
+	})()
+
+	
 
 	// watch change
 	gulp.watch([srcPath + "/**/*"], event => {
 		log(`${event.path} was ${event.type}, building...`, "help")
-		runTask("build", {
-			name: name
-		})
+		build()
 	})
 
 	return pipeConcat(streams)
@@ -120,20 +93,10 @@ gulp.task("preview", () => {
 			$server.setup({
 				port: port,
 				root: config.paths.root,
-				open: `componouts/${name}/${previewFile}`,
+				open: `componouts/${name}/${previewDir}/index.html`,
 				livereload: {
 					port: port + Math.floor(Math.random() * 10),
-					directory: componoutPath,
-					filter: function (file) {
-						var filepos = file.replace(componoutPath, "")
-						var sep = path.sep
-						if(filepos.indexOf(sep + "dist") === 0 || filepos.indexOf(sep + "preview") === 0) {
-							return true
-						}
-						else { 
-							return false
-						}
-					},
+					directory: previewDir,
 				},
 			})
 		})

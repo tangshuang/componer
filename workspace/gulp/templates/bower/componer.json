@@ -2,7 +2,7 @@
 	"entry": {
 		"script": "src/script/{{componout-name}}.js",
 		"style": "src/style/{{componout-name}}.scss",
-		"preview": "preview/index.html",
+		"preview": "preview",
 		"test": "test/specs"
 	},
 	"output": {
