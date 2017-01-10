@@ -47,6 +47,7 @@ export default function webpack(options) {
 		resolve: {
 			modulesDirectories: ["node_modules", "bower_components"],
 		},
+		devtool: "source-map",
 	}
 
 	// -------------------------------------------------------------------
