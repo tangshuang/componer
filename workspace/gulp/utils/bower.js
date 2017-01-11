@@ -1,5 +1,10 @@
 import {config, path, exists, readJSON} from "../loader"
+import {getFileExt} from "./index"
 
+/**
+ * get bower component bower.json file path
+ * @param string bower: bower name, the directory name of this component
+ */
 export function getBowerJson(bower) {
 	var rootPath = config.paths.root
 	var bowerPath = path.join(rootPath, "bower_components", bower)
@@ -17,6 +22,11 @@ export function getBowerJson(bower) {
 	return jsonfile
 }
 
+/**
+ * get bower component main files in bower.json
+ * @param string bower: bower name, the directory name of this component
+ * @return array: files array, with absolute path
+ */
 export function getBowerMain(bower) {
 	
 	var bowerJson = getBowerJson(bower)
@@ -44,6 +54,12 @@ function _arrayUnique(arr) {
 	return arr.filter((value, index, self) => self.indexOf(value) === index)
 }
 
+/**
+ * get dependencies bower components names
+ * @param string bowerJson: bower.json file path which to read dependencies
+ * @param boolean dev: whether to contains `devDependencies`
+ * @return array: bower components names array
+ */
 export function getBowerDeps(bowerJson, dev) {
 	
 	if(!exists(bowerJson)) {
@@ -98,19 +114,80 @@ export function getBowerDeps(bowerJson, dev) {
 
 }
 
+/**
+ * get dependencies bower components files
+ * @param string bowerJson: bower.json file path which to read dependencies
+ * @param boolean dev: whether to contains `devDependencies`
+ * @return array: bower components files array, with absolute path
+ * Notice: because some components authors do not follow the rules of bower.json main option, these files may contains repetitive code, for example, some components has both source .js and built .min.js, which is the same code in fact. Use getBowerDepsAlias instead.
+ */
 export function getBowerDepsFiles(bowerJson, dev) {
-	
 	var dependencies = getBowerDeps(bowerJson, dev)
-	
-	if(!dependencies) {
-		return false
-	}
-
 	var files = []
-	dependencies.forEach(bower => files = files.concat(getBowerMain(bower)))
 
+	dependencies.forEach(bower => files = files.concat(getBowerMain(bower)))
 	files = _arrayUnique(files)
 
 	return files
+}
 
+/**
+ * get dependencies bower components files divided
+ * @param string bowerJson: bower.json file path which to read dependencies
+ * @param boolean dev: whether to contains `devDependencies`
+ * @return object: {
+	object scripts: .js files alias key value pairs,
+	object styles: .css or .scsss alias key value pairs,
+ }
+ */
+export function getBowerDepsAlias(bowerJson, dev) {
+	var dependencies = getBowerDeps(bowerJson, dev)
+	var files = {
+		scripts: {},
+		styles: {}
+	}
+
+	dependencies.forEach(bower => {
+		let mainfiles = getBowerMain(bower)
+		mainfiles.forEach(file => {
+			let ext = getFileExt(file)
+			if(ext === ".js" && !main.script) {
+				files.scripts[bower] = file
+			}
+			else if(ext === ".scss" && !main.style) {
+				files.styles[bower] = file
+			}
+			else if(ext === ".css" && !main.style) {
+				files.styles[bower] = file
+			}
+		})
+	})
+
+	return files
+}
+
+/**
+ * get dependencies bower components .js files
+ * @param string bowerJson: bower.json file path which to read dependencies
+ * @param boolean dev: whether to contains `devDependencies`
+ * @return array: .js files list, with absolute path
+ */
+export function getBowerDepsScripts(bowerJson, dev) {
+	var files = getBowerDepsAlias(bowerJson, dev).scripts
+	var deps = Object.keys(files)
+	var scripts = deps.map(bower => files[bower])
+	return scripts
+}
+
+/**
+ * get dependencies bower components style files
+ * @param string bowerJson: bower.json file path which to read dependencies
+ * @param boolean dev: whether to contains `devDependencies`
+ * @return array: style files list, with absolute path
+ */
+export function getBowerDepsStyles(bowerJson, dev) {
+	var files = getBowerDepsAlias(bowerJson, dev).styles
+	var deps = Object.keys(files)
+	var styles = deps.map(bower => files[bower])
+	return styles
 }
