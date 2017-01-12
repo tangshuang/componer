@@ -1,8 +1,9 @@
-import {gulp, path, fs, args, log, config, exit, exists, read, readJSON, write, execute, clear} from "../loader"
-import {paserTemplate, hasComponout, dashlineName, runTask, getBowerDeps, getBowerMain, getFileExt, setFileExt, buildStyle, buildScript, InjectJsToHtml, InjectCssToHtml} from "../utils"
+import {gulp, path, args, log, config, exit, exists, readJSON} from "../loader"
+import {hasComponout, dashlineName, camelName, setFileExt, buildScript, InjectJsToHtml, WebpackSupportCrypto} from "../utils"
 
 import TsServer from "ts-server"
-import pipeConcat from "pipe-concat"
+import WebpackDevServer from "webpack-dev-server"
+import webpack from "webpack"
 
 gulp.task("preview", () => {
 	const arg = args.preview
@@ -28,53 +29,62 @@ gulp.task("preview", () => {
 		exit()
 	}
 
-	if(!exists(previewEntry)) {
+	var previewFile = path.join(componoutPath, previewEntry)
+
+	if(!exists(previewFile)) {
 		log(`preview file not found.`, "error")
 		exit()
 	}
 
-	var previewDir = path.dirname(previewEntry)
-	var previewBundle = setFileExt(path.basename(previewEntry), ".bundle.js")
-	var previewHtml = path.join(previewPath, "index.html")
-	var streams = []
+	var previewDir = path.dirname(previewFile)
+	var previewHtml = path.join(previewDir, "index.html")
+	var previewBundle = name + ".bundle.js"
 
-	function build() {
-		streams.push(buildScript(previewEntry, previewDir, {
-			output: {
-				filename: previewBundle,
-				sourceMapFilename: setFileExt(previewBundle, ".js.map"),
-			},
-		}))
-	}
-	build()
-
-	streams.push(gulp.src(previewHtml)
-		.pipe(InjectJsToHtml("buildjs", previewBundle))
-		.pipe(gulp.dest(previewDir)))
-	
-	return pipeConcat(streams)
+	var host = "127.0.0.1"
+	var port = Math.floor(Math.random() * 1000) + 9000
+	var previewBundleUrl = `http://${host}:${port}/${previewBundle}`
+	return gulp.src(previewHtml)
+		.pipe(InjectJsToHtml("buildjs", previewBundleUrl))
+		.pipe(gulp.dest(previewDir))
 		.on("end", () => {
-			// watch change
-			gulp.watch([srcPath + "/**/*", previewPath + "/index.*"], event => {
-				log(`${event.path} was ${event.type}`, "help")
-				streams = []
-				build()
-			})
 
-			// open static server
-			var $server = new TsServer()
-			var port = Math.floor(Math.random() * 1000) + 9000
-			$server.setup({
-				port: port,
-				root: previewPath,
+			// setup webpack dev server
+			var settings = config.webpack({
+				entry: [
+					// "webpack-dev-server/client?http://" + host + ":" + port + "/",
+					// "webpack/hot/dev-server",
+					previewFile
+				],
+				output: {
+					path: previewDir,
+					filename: previewBundle,
+					library: camelName(name),
+					sourceMapFilename: previewBundle + ".map",
+				},
+				plugins: [
+					// new WebpackSupportCrypto(),
+					// new webpack.HotModuleReplacementPlugin(),
+				]
+			})
+			var compiler = webpack(settings)
+			new WebpackDevServer(compiler, {
+				// hot: true,
+			}).listen(port, host)
+			// TODO: use webpack hot module to reload code later
+
+			// setup static server
+			new TsServer().setup({
+				host: host,
+				port: port + 5,
+				root: previewDir,
 				open: "index.html",
 				livereload: {
-					port: port + Math.floor(Math.random() * 10),
-					directory: tmp,
+					enable: true, // if webpack hot module works, change this to be false
+					port: port + 10,
+					directory: previewDir,
 				},
 			})
 			
 		})
-
 		
 })

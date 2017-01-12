@@ -13,6 +13,7 @@
     "babel-preset-latest": "^6.16.0",
     "babel-register": "^6.18.0",
     "bower-webpack-plugin": "^0.1.9",
+    "crypto-browserify": "^3.11.0",
     "css-loader": "^0.26.0",
     "extend": "^3.0.0",
     "file-loader": "^0.9.0",
@@ -50,6 +51,7 @@
     "ts-server": "0.0.2",
     "url-loader": "^0.5.7",
     "webpack": "^1.14.0",
+    "webpack-dev-server": "^1.16.2",
     "webpack-stream": "^3.2.0"
   }
 }

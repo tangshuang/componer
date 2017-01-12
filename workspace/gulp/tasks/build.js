@@ -1,8 +1,7 @@
-import {gulp, fs, path, args, log, config, exit, exists, extend, clear, read, readJSON, write} from "../loader"
-import {hasComponout, dashlineName, camelName, getFileExt, setFileExt, buildScript, buildStyle} from "../utils"
+import {gulp, fs, path, args, log, config, exit, exists, extend, clear, readJSON} from "../loader"
+import {hasComponout, dashlineName, buildScript, buildStyle} from "../utils"
 
 import concat from "pipe-concat"
-
 
 gulp.task("build", () => {
 	const arg = args.build
@@ -17,20 +16,6 @@ gulp.task("build", () => {
 	var componoutPath = path.join(config.paths.componouts, name)
 	var srcPath = path.join(componoutPath, "src")
 	var distPath = path.join(componoutPath, "dist")
-
-	if(!exists(componoutPath + "/componer.json")) {
-		log("componer.json not exists.", "error")
-		exit()
-	}
-
-	// mkdir
-	if(!exists(distPath)) {
-		fs.mkdir(distPath)
-	}
-	// clean the dist dir
-	else {
-		clear(distPath)
-	}
 
 	if(!exists(componoutPath + "/componer.json")) {
 		log("componer.json not exists.", "error")
@@ -66,11 +51,8 @@ gulp.task("build", () => {
 
 	var entryJs = getPath(entryFiles.script, true)
 	var entryScss = getPath(entryFiles.style, true)
-	var entryIndex = getPath(entryFiles.index, true)
-
 	var outputJs = getPath(outputDirs.script)
 	var outputCss = getPath(outputDirs.style)
-	var outputIndex = getPath(outputDirs.index)
 
 	var webpackSettings = settings.webpack
 
@@ -78,17 +60,15 @@ gulp.task("build", () => {
 		log("No `output.script` in your componer.json.", "error")
 		exit()
 	}
+	if(entryJs && !webpackSettings) {
+		log("Not found `webpack` option in componer.json.", "error")
+		exit()
+	}
 
 	if(entryScss && !outputCss) {
 		log("No `output.style` in your componer.json.", "error")
 		exit()
 	}
-
-	if(entryJs && !settings.webpack) {
-		log("Not found `webpack` option in componer.json.", "error")
-		exit()
-	}
-
 	if(entryScss && !settings.sass) {
 		log("Not found `sass` option in componer.json.", "error")
 		exit()
@@ -114,13 +94,23 @@ gulp.task("build", () => {
 	}
 
 	// different types of componouts
-	if(exists(componoutPath + "/bower.json")) { // bower component ignore dependencies in bower.json
+	if(exists(componoutPath + "/bower.json")) {
 		exterPkgs(componoutPath + "/bower.json")
 	}
 	else if(exists(componoutPath + "/package.json")) {
 		exterPkgs(componoutPath + "/package.json")
 	}
 	
+	if(!exists(distPath)) {
+		// mkdir
+		fs.mkdir(distPath)
+	}
+	else {
+		// clean the dist dir
+		clear(distPath)
+	}
+
+	// build
 	var streams = []
 
 	if(entryJs) {
@@ -135,6 +125,7 @@ gulp.task("build", () => {
 		return concat(streams).on("end", () => log(`${name} has been completely built.`, "done"))
 	}
 	
+	// build fail
 	log("Something is wrong. Check your componer.json.", "warn")
 	exit()
 

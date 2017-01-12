@@ -15,8 +15,9 @@ if(argvs.length <= 2) {
 
 // ----------------------------------
 
-var gulp = path.resolve(__dirname, "../node_modules/.bin/gulp")
-var bower = path.resolve(__dirname, "../node_modules/.bin/bower")
+// global `gulp-cli` and `bower` dependented
+var gulp = "gulp"
+var bower = "bower"
 var cwd = process.cwd()
 var info = readJSON(__dirname + "/../package.json")
 

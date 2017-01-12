@@ -32,6 +32,7 @@ gulp.task("add", () => {
 		.on("end", () => {
 			exists(componoutPath + "/src/index.js") && fs.renameSync(componoutPath + "/src/index.js", componoutPath + "/src/" + name + ".js")
 			exists(componoutPath + "/test/index.js") && fs.renameSync(componoutPath + "/test/index.js", componoutPath + "/test/" + name + ".js")
+			
 			exists(componoutPath + "/src/script/index.js") && fs.renameSync(componoutPath + "/src/script/index.js", componoutPath + "/src/script/" + name + ".js")
 			exists(componoutPath + "/src/style/index.scss") && fs.renameSync(componoutPath + "/src/style/index.scss", componoutPath + "/src/style/" + name + ".scss")
 			exists(componoutPath + "/preview/index.js") && fs.renameSync(componoutPath + "/preview/index.js", componoutPath + "/preview/" + name + ".js")

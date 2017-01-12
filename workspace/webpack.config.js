@@ -1,5 +1,6 @@
 import extend from "extend"
-import {WebpackSupportCmdInUmd, getBowersAllAlias} from "./gulp/utils"
+import {WebpackSupportCmdInUmd} from "./gulp/utils"
+import BowerWebpackPlugin from "bower-webpack-plugin"
 
 export default function webpack(options) {
 
@@ -44,9 +45,7 @@ export default function webpack(options) {
 			],
 		},
 		resolve: {
-			alias: getBowersAllAlias(),
 			packageAlias: "packageAlias",
-			modulesDirectories: ["node_modules"],
 		},
 		devtool: "source-map",
 	}
@@ -62,16 +61,13 @@ export default function webpack(options) {
 		settings = defaults
 	}
 
-	/**
-	 * insert default plugins
-	 */
-
-	settings.plugins = settings.plugins || []
-
 	// support cmd in umd
 	if(settings.output.libraryTarget === "umd") {
+		settings.plugins = settings.plugins || []
 		settings.plugins.unshift(new WebpackSupportCmdInUmd())
 	}
+
+	settings.plugins.unshift(new BowerWebpackPlugin())
 
 	return settings
 	
