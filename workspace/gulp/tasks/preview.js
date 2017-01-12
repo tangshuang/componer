@@ -40,6 +40,11 @@ gulp.task("preview", () => {
 	var previewHtml = path.join(previewDir, "index.html")
 	var previewBundle = name + ".bundle.js"
 
+	if(!exists(previewHtml)) {
+		log("You should put a index.html in your preview directory.", "error")
+		exit()
+	}
+
 	var host = "127.0.0.1"
 	var port = Math.floor(Math.random() * 1000) + 9000
 	var previewBundleUrl = `http://${host}:${port}/${previewBundle}`

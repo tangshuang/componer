@@ -47,7 +47,7 @@ export default function webpack(options) {
 		resolve: {
 			packageAlias: "packageAlias",
 		},
-		devtool: "source-map",
+		// devtool: "source-map",
 	}
 
 	// -------------------------------------------------------------------

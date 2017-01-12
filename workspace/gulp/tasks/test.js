@@ -1,8 +1,7 @@
 import {gulp, path, fs, args, log, config, exit, exists, extend, readJSON} from "../loader"
-import {getComponout, hasComponout, dashlineName, getBowerMain, getFileExt, getBowerDepsFiles} from "../utils"
+import {hasComponout, dashlineName} from "../utils"
 
 import {server as karma} from "gulp-karma-runner"
-import shell from "shelljs"
 import open from "open"
 import jasmine from "gulp-jasmine-node"
 
@@ -28,7 +27,7 @@ gulp.task("test", () => {
 	var testDir = settings.entry.test
 
 	if(!testDir) {
-		log(`entry.test option is incorrect in your componer.json.`, "error")
+		log(`entry.test option is not correct in your componer.json.`, "error")
 		exit()
 	}
 
@@ -39,70 +38,85 @@ gulp.task("test", () => {
 	}
 
 
-
-	
-
 	/**
-	 * if it is a package
+	 * if it is a package, run test with jasmine-node
 	 */
-	if(type === "package") {
-		return gulp.src(testDir + "/*.js").pipe(jasmine({
-						timeout: 10000,
-						includeStackTrace: true,
-						color: process.argv.indexOf("--color")
-					}))
+	if(exists(componoutPath + "/package.json")) {
+		return gulp.src(testPath + "/*.js").pipe(jasmine({
+			timeout: 10000,
+			includeStackTrace: true,
+			color: process.argv.indexOf("--color")
+		}))
 	}
 
-	var reportersDir = componoutPath + "/" + settings.output.reporters
-	if(!exists(testDir)) {
-		log("Not found `output.reporters` option in componer.json.")
+
+	/**
+	 * if it is normal package can be run in browser
+	 */
+
+	var reportersDir = settings.output.reporters
+	if(!reportersDir) {
+		log("Not found `output.reporters` option in componer.json.", "error")
 		exit()
 	}
 
-	var testFiles = []
-
-	/**
-	 * if it is a bower
-	 */
-	var pkgfile = type === "bower" ? componoutPath + "/" + type + ".json" : false
-	if(pkgfile) {
-		let depsFiles = getBowerDepsFiles(pkgfile, true)
-		depsFiles.forEach(file => testFiles.push(config.paths.root + "/bower_components/" + file))
+	var reportersPath = path.join(componoutPath, reportersDir)
+	if(!exists(reportersPath)) {
+		fs.mkdir(reportersPath)
 	}
 
-	testFiles.push(testDir + "/*.js")
-
 	var preprocessors = {}
-	testFiles.forEach(file => {
-		if(getFileExt(file) === ".js") {
-			preprocessors[file] = ["webpack"]
-		}
-		else if(getFileExt(file) === ".scss") {
-			preprocessors[file] = ["scss"]
-		}
-	})
+	preprocessors[testPath + "/**/*.js"] = ["webpack", "sourcemap", "coverage"]
+	preprocessors[testPath + "/**/*.scss"] = ["scss"]
+	preprocessors[srcPath + "/**/*.js"] = ["coverage"]
 
-	var karmaSettings = extend(true, {}, settings.karma, {
+	var karmaSettings = {
 			preprocessors: preprocessors,
-			coverageReporter: {
-				reporters: [
-					{
+			reporters: ["progress", "coverage", "html"],
+            coverageReporter: {
+                reporters: [
+                	{
 						type: "html",
-						dir: reportersDir,
+						dir: reportersPath,
 					},
-				],
-			},
-			htmlReporter: {
-				outputDir: reportersDir,
+					{
+			            type: "text",
+			        },
+                ],
+            },
+            htmlReporter: {
+                outputDir: reportersPath,
 				reportName: name,
-			},
-		})
+                urlFriendlyName: true,
+            },
+		}
 
-	return gulp.src(testFiles)
+	// if singleRun=true, reporters should be put
+    if(karmaSettings.singleRun) {
+        extend(true, karmaSettings, {
+            webpack: {
+                module: {
+                    preLoaders: [
+                        {
+                            test: /\.js$/, 
+                            loader: "isparta",
+                            exclude: /node_modules|bower_components/,
+                        },
+                    ],
+                },
+            },
+        })
+    }
+
+    extend(true, karmaSettings, settings.karma)
+
+	return gulp.src(testPath + "/*.js")
 		.pipe(karma(config.karma(karmaSettings)))
 		.on("end", () => {
 			log("Reporters ware created in " + reportersDir, "help")
-			open(reportersDir + "/" + name + "/index.html")
+			if(karmaSettings.singleRun) {
+				open(reportersPath + "/" + name + "/index.html")
+			}
 		})
 
 })

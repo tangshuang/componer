@@ -4,30 +4,13 @@ import webpack from "./webpack.config"
 export default function karma(options) {
 
     var defaults = {
-        port: 9000 + parseInt(Math.random() * 1000),
         singleRun: true,
+        port: 9000 + parseInt(Math.random() * 1000),
         frameworks: ["jasmine"],
-        browsers: ["PhantomJS"],
+        browsers: [],
         preprocessors: {},
-        reporters: ["progress", "coverage", "html"],
-        coverageReporter: {
-            reporters: [],
-        },
-        htmlReporter: {
-            outputDir: "",
-            reportName: "",
-            urlFriendlyName: true,
-        },
         webpack: webpack({
-            module: {
-                preLoaders: [
-                    {
-                        test: /\.js$/, 
-                        loader: "isparta",
-                        exclude: /node_modules|bower_components/,
-                    },
-                ],
-            },
+            devtool: "inline-source-map",
         }),
         scssPreprocessor: {
             options: {
@@ -35,23 +18,22 @@ export default function karma(options) {
                 includePaths: [],
             },
         },
+        reporters: [],
+        coverageReporter: {},
+        htmlReporter: {},
         plugins: [],
     }
 
     // -------------------------------------------------------------------
 
-    var settings
+    var settings = {}
 
-    if(options && typeof settings === "object") {
-        settings = extend(true, defaults, settings)
+    if(options && typeof options === "object") {
+        extend(settings, defaults, options)
     }
     else {
         settings = defaults
     }
-
-    settings.coverageReporter.reporters.push({
-        type: "text",
-    })
 
     settings.plugins = settings.plugins.concat([
         require("karma-jasmine"),
@@ -62,6 +44,7 @@ export default function karma(options) {
         require("karma-webpack"),
         require("karma-scss-preprocessor"),
         require("karma-html-reporter"),
+        require("karma-sourcemap-loader"),
     ])
 
     settings.scssPreprocessor.options.includePaths.push("bower_components")
