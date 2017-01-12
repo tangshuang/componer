@@ -24,20 +24,23 @@ gulp.task("test", () => {
 		exit()
 	}
 
-	var type = getComponout(name).type
 	var settings = readJSON(componoutPath + "/componer.json")
+	var testDir = settings.entry.test
 
-	var entryFiles = settings.entry
-	if(!entryFiles) {
-		log("Not found `entry` option in componer.json.")
+	if(!testDir) {
+		log(`entry.test option is incorrect in your componer.json.`, "error")
 		exit()
 	}
 
-	var testDir = componoutPath + "/" + entryFiles.test
-	if(!exists(testDir)) {
-		log("Not found `entry.test` option in componer.json.")
+	var testPath = path.join(componoutPath, testDir)
+	if(!exists(testPath)) {
+		log(`test directory not found.`, "error")
 		exit()
 	}
+
+
+
+	
 
 	/**
 	 * if it is a package

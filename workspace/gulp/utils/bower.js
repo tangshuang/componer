@@ -1,4 +1,4 @@
-import {config, path, exists, readJSON} from "../loader"
+import {config, path, exists, fs, readJSON} from "../loader"
 import {getFileExt} from "./index"
 
 /**
@@ -154,7 +154,7 @@ export function getBowerDepsAlias(bowerJson, dev) {
 			if(ext === ".js" && !main.script) {
 				files.scripts[bower] = file
 			}
-			else if(ext === ".scss" && !main.style) {
+			else if(ext === ".scss") {
 				files.styles[bower] = file
 			}
 			else if(ext === ".css" && !main.style) {
@@ -190,4 +190,23 @@ export function getBowerDepsStyles(bowerJson, dev) {
 	var deps = Object.keys(files)
 	var styles = deps.map(bower => files[bower])
 	return styles
+}
+
+export function getBowersAllAlias() {
+	var rootPath = config.paths.root
+	var bowerPath = path.join(rootPath, "bower_components")
+	var bowers = fs.readdirSync(bowerPath)
+	var alias = {}
+
+	bowers.forEach(bower => {
+		let mainfiles = getBowerMain(bower)
+		mainfiles.forEach(file => {
+			let ext = getFileExt(file)
+			if(ext === ".js" && !alias[bower]) {
+				alias[bower] = file
+			}
+		})
+	})
+
+	return alias
 }

@@ -1,6 +1,5 @@
 import extend from "extend"
-import {ResolverPlugin} from "webpack"
-import {WebpackSupportCmdInUmd} from "./gulp/utils"
+import {WebpackSupportCmdInUmd, getBowersAllAlias} from "./gulp/utils"
 
 export default function webpack(options) {
 
@@ -45,7 +44,9 @@ export default function webpack(options) {
 			],
 		},
 		resolve: {
-			modulesDirectories: ["node_modules", "bower_components"],
+			alias: getBowersAllAlias(),
+			packageAlias: "packageAlias",
+			modulesDirectories: ["node_modules"],
 		},
 		devtool: "source-map",
 	}
@@ -61,7 +62,6 @@ export default function webpack(options) {
 		settings = defaults
 	}
 
-
 	/**
 	 * insert default plugins
 	 */
@@ -73,11 +73,6 @@ export default function webpack(options) {
 		settings.plugins.unshift(new WebpackSupportCmdInUmd())
 	}
 
-	// use bower.json main to be module entry
-	settings.plugins.unshift(new ResolverPlugin(
-        new ResolverPlugin.DirectoryDescriptionFilePlugin(".bower.json", ["main"])
-    ))
-
 	return settings
-
+	
 }

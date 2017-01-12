@@ -12,6 +12,7 @@
     "babel-loader": "^6.2.8",
     "babel-preset-latest": "^6.16.0",
     "babel-register": "^6.18.0",
+    "bower-webpack-plugin": "^0.1.9",
     "css-loader": "^0.26.0",
     "extend": "^3.0.0",
     "file-loader": "^0.9.0",

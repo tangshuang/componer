@@ -18,6 +18,11 @@ gulp.task("build", () => {
 	var srcPath = path.join(componoutPath, "src")
 	var distPath = path.join(componoutPath, "dist")
 
+	if(!exists(componoutPath + "/componer.json")) {
+		log("componer.json not exists.", "error")
+		exit()
+	}
+
 	// mkdir
 	if(!exists(distPath)) {
 		fs.mkdir(distPath)
@@ -93,6 +98,7 @@ gulp.task("build", () => {
 		if(!exists(pkgfile)) {
 			return
 		}
+
 		var info = readJSON(pkgfile)
 		var externals = {}
 		var dependencies = info.dependencies
@@ -102,10 +108,13 @@ gulp.task("build", () => {
 			dependencies.forEach(dependence => externals[dependence] = dependence)
 		}
 
-		webpackSettings.externals = typeof webpackSettings.externals === "object" ? extend(false, {}, webpackSettings.externals, externals) : externals
+		extend(true, webpackSettings, {
+			externals: externals,
+		})
 	}
 
-	if(exists(componoutPath + "/bower.json")) {
+	// different types of componouts
+	if(exists(componoutPath + "/bower.json")) { // bower component ignore dependencies in bower.json
 		exterPkgs(componoutPath + "/bower.json")
 	}
 	else if(exists(componoutPath + "/package.json")) {

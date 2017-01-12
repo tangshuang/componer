@@ -34,6 +34,7 @@ gulp.task("add", () => {
 			exists(componoutPath + "/test/index.js") && fs.renameSync(componoutPath + "/test/index.js", componoutPath + "/test/" + name + ".js")
 			exists(componoutPath + "/src/script/index.js") && fs.renameSync(componoutPath + "/src/script/index.js", componoutPath + "/src/script/" + name + ".js")
 			exists(componoutPath + "/src/style/index.scss") && fs.renameSync(componoutPath + "/src/style/index.scss", componoutPath + "/src/style/" + name + ".scss")
+			exists(componoutPath + "/preview/index.js") && fs.renameSync(componoutPath + "/preview/index.js", componoutPath + "/preview/" + name + ".js")
 			exists(componoutPath + "/test/specs/index.js") && fs.renameSync(componoutPath + "/test/specs/index.js", componoutPath + "/test/specs/" + name + ".js")
 
 			log(`${name} has been completely created.`, "done")

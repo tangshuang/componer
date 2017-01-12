@@ -7,6 +7,7 @@ import shell from "shelljs"
 import logger from "process.logger"
 
 var argvs = process.argv
+
 if(argvs.length <= 2) {
 	execute("componer -h")
 	exit()
