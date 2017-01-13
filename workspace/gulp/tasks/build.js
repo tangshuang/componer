@@ -1,13 +1,21 @@
 import {gulp, fs, path, args, log, config, exit, exists, extend, clear, readJSON} from "../loader"
-import {hasComponout, dashlineName, buildScript, buildStyle} from "../utils"
+import {hasComponout, dashlineName, buildScript, buildStyle, runTask} from "../utils"
 
 import concat from "pipe-concat"
 
 gulp.task("build", () => {
 	var arg = args.build
-	var name = dashlineName(arg.name)
-	var dev = args.dev
 
+	if(arg.name === undefined) {
+		fs.readdirSync(componoutsPath).forEach(item => {
+			runTask("build", {
+				name: item,
+			})
+		})
+		return
+	}
+
+	var name = dashlineName(arg.name)
 	if(!hasComponout(name)) {
 		log(`${name} not exists.`, "error")
 		exit()

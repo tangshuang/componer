@@ -1,14 +1,26 @@
 import {gulp, path, fs, args, log, config, exit, exists, extend, readJSON} from "../loader"
-import {hasComponout, dashlineName} from "../utils"
+import {hasComponout, dashlineName, runTask} from "../utils"
 
 import {server as karma} from "gulp-karma-runner"
 import jasmine from "gulp-jasmine-node"
 
 gulp.task("test", () => {
 	var arg = args.test
-	var name = dashlineName(arg.name)
 	var debug = arg.debug
+	var browser = arg.browser
+	var componoutsPath = config.paths.componouts
 
+	if(arg.name === undefined) {
+		fs.readdirSync(componoutsPath).forEach(item => {
+			runTask("test", {
+				name: item,
+				browser: "PhantomJS"				
+			})
+		})
+		return
+	}
+
+	var name = dashlineName(arg.name)
 	if(!hasComponout(name)) {
 		log(`${name} not exists.`, "error")
 		exit()
@@ -44,7 +56,7 @@ gulp.task("test", () => {
 	if(exists(componoutPath + "/package.json")) {
 		return gulp.src(testPath + "/*.js").pipe(jasmine({
 			timeout: 10000,
-			includeStackTrace: true,
+			includeStackTrace: false,
 			color: process.argv.indexOf("--color")
 		}))
 	}
@@ -88,6 +100,9 @@ gulp.task("test", () => {
 
 	if(debug) {
 		karmaSettings.singleRun = false
+	}
+	if(browser) {
+		karmaSettings.browsers = [browser]
 	}
 
 	return gulp.src(testPath + "/*.js")

@@ -3,7 +3,6 @@ import {hasComponout} from "../utils"
 
 gulp.task("install", () => {
 	var arg = args.preview
-	var name = dashlineName(arg.name)
 	var componoutsPath = config.paths.componouts
 	var rootPath = config.paths.root
 
@@ -15,7 +14,7 @@ gulp.task("install", () => {
 		return names
 	}
 
-	if(name === undefined) {
+	if(arg.name === undefined) {
 		let bowerComponents = []
 		let npmPackages = []
 		fs.readdirSync(componoutsPath).forEach(item => {
@@ -45,6 +44,8 @@ gulp.task("install", () => {
 		}
 	}
 	else {
+		let name = dashlineName(arg.name)
+
 		if(!hasComponout(name)) {
 			log(`${name} not exists.`, "error")
 			exit()
@@ -61,7 +62,6 @@ gulp.task("install", () => {
 
 gulp.task("link", () => {
 	var arg = args.preview
-	var name = dashlineName(arg.name)
 	var componoutsPath = config.paths.componouts
 	var rootPath = config.paths.root
 
@@ -76,10 +76,11 @@ gulp.task("link", () => {
 		}
 	}
 
-	if(name === undefined) {
+	if(arg.name === undefined) {
 		fs.readdirSync(componoutsPath).forEach(item => Link(item))
 	}
 	else {
+		let name = dashlineName(arg.name)
 		if(!hasComponout(name)) {
 			log(`${name} not exists.`, "error")
 			exit()
@@ -87,3 +88,11 @@ gulp.task("link", () => {
 		Link(name)
 	}
 })
+
+/**
+ * usage: componer install [name]
+ * when name is missing, all componouts' dependencies will be installed
+ *
+ * usage: componer link [name]
+ * the same as upon
+ */

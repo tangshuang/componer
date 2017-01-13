@@ -9,7 +9,7 @@ export default function karma(options) {
         frameworks: ["jasmine"],
         browsers: ["PhantomJS"],
         preprocessors: {},
-        reporters: ["progress", "verbose", "coverage", "html"],
+        reporters: ["verbose", "coverage", "html"],
         coverageReporter: {
             reporters: [],
         },

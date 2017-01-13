@@ -108,7 +108,7 @@ function check(name) {
  * @param function fail: callback function when error or fail
  */
 function execute(cmd, done, fail) {
-	if(cmd.indexOf(gulp) > -1 && exists(`${cwd}/.componerrc`)) {
+	if(cmd.indexOf("gulp") > -1 && exists(`${cwd}/.componerrc`)) {
 		var config = readJSON(`${cwd}/.componerrc`)
 		if(config.color) {
 			cmd += " --color"
@@ -247,12 +247,19 @@ commander
 	})
 
 commander
-	.command("build <name>")
+	.command("build [name]")
 	.description("(gulp) build a componout")
 	.action(name => {
-		name = dashline(name)
-		check(name)
-		execute(`cd ${cwd} && gulp build --name=${name}`)
+		if(name === undefined) {
+			check()
+			execute(`cd ${cwd} && gulp build`)
+		}
+		else {
+			name = dashline(name)
+			check(name)
+			execute(`cd ${cwd} && gulp build --name=${name}`)
+		}
+		
 	})
 
 commander
@@ -265,26 +272,49 @@ commander
 	})
 
 commander
-	.command("test <name>")
+	.command("test [name]")
 	.description("(gulp) test a componout")
 	.option("-D, --debug", "whether to use browser to debug code")
+	.option("-b, --browser", "which browser to use select one from [PhantomJS|Chrome|Firefox]")
 	.action((name, options) => {
-		name = dashline(name)
-		check(name)
-		var cmd = `cd ${cwd} && gulp test --name=${name}`
+		var cmd = `cd ${cwd} && gulp test`
+
+		if(options.browser) {
+			cmd += ` --browser=${browser}`
+		}
 		if(options.debug) {
 			cmd += " --debug"
 		}
+		
+		if(name === undefined) {
+			check()
+			if(options.debug) {
+				log("`debug` option is not allowed when testing all componouts", "error")
+				exit()
+			}
+		}
+		else {
+			name = dashline(name)
+			check(name)
+			cmd += ` --name=${name}`
+		}
+
 		execute(cmd)
 	})
 
 commander
-	.command("watch <name>")
+	.command("watch [name]")
 	.description("(gulp) watch a componout to build it automaticly when code change")
 	.action(name => {
-		name = dashline(name)
-		check(name)
-		execute(`cd ${cwd} && gulp watch --name=gulp`)
+		if(name === undefined) {
+			check()
+			execute(`cd ${cwd} && gulp watch`)
+		}
+		else {
+			name = dashline(name)
+			check(name)
+			execute(`cd ${cwd} && gulp watch ${name}`)
+		}
 	})
 
 commander
@@ -363,7 +393,6 @@ commander
 			check(name)
 			execute(`cd ${cwd} && gulp install ${name}`)
 		}
-
 	})
 
 commander
@@ -379,7 +408,6 @@ commander
 			check(name)
 			execute(`cd ${cwd} && gulp link ${name}`)
 		}
-
 	})
 
 // -----------------------------------

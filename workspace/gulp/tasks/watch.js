@@ -1,25 +1,39 @@
-import {gulp, path, args, log, config} from "../loader"
+import {gulp, path, fs, args, log, config} from "../loader"
 import {hasComponout, dashlineName, runTask} from "../utils"
 
 gulp.task("watch", () => {
 	var arg = args.watch
-	var name = dashlineName(arg.name)
+	var entryfiles = []
+	var componoutsPath = config.paths.componouts
 	
-	if(!hasComponout(name)) {
-		log(`${name} not exists.`, "error")
-		exit()
+	if(arg.name === undefined) {
+		fs.readdirSync(componoutsPath).forEach(item => {
+			let srcPath = path.join(componoutsPath, item, "src")
+			entryfiles.push(srcPath + "/**/*")
+		})
+	}
+	else {
+		var name = dashlineName(arg.name)
+		if(!hasComponout(name)) {
+			log(`${name} not exists.`, "error")
+			exit()
+		}
+		
+		var srcPath = path.join(componoutsPath, name, "src")
+		entryfiles.push(srcPath + "/**/*")
 	}
 	
-	var componoutPath = path.join(config.paths.componouts, name)
-	var srcPath = path.join(componoutPath, "src")
+	log("Watching, when code changed, componer will build it automaticly...", "help")
 
-	log("Watching, when code chnge, componer will build it automaticly...", "help")
-	
-	gulp.watch([srcPath + "/**/*"], event => {
+	gulp.watch(entryfiles, event => {
 		log(`${event.path} was ${event.type}, building...`, "help")
 		runTask("build", {
 			name: name
 		})
 	})
-
 })
+
+/**
+ * usage: componer watch [name]
+ * when name is not passed, all componouts src directory will be watched.
+ */

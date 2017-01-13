@@ -1,5 +1,5 @@
 {
-  "name": "componer-instance",
+  "name": "componer-project",
   "version": "0.0.1",
   "description": "A components work flow tool dependented on gulp",
   "main": "index.js",
