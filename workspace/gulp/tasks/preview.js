@@ -6,8 +6,8 @@ import WebpackDevServer from "webpack-dev-server"
 import webpack from "webpack"
 
 gulp.task("preview", () => {
-	const arg = args.preview
-	const name = dashlineName(arg.name)
+	var arg = args.preview
+	var name = dashlineName(arg.name)
 
 	if(!hasComponout(name)) {
 		log(`${name} not exists.`, "error")

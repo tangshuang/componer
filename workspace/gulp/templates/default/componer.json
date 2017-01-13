@@ -21,8 +21,7 @@
 		"externals": {},
 		"resolve": {
 			"alias": {}
-		},
-		"devtool": "source-map"
+		}
 	},
 	"sass": {
 		"_minify": true,

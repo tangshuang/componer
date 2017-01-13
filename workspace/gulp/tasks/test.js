@@ -2,12 +2,12 @@ import {gulp, path, fs, args, log, config, exit, exists, extend, readJSON} from 
 import {hasComponout, dashlineName} from "../utils"
 
 import {server as karma} from "gulp-karma-runner"
-import open from "open"
 import jasmine from "gulp-jasmine-node"
 
 gulp.task("test", () => {
-	const arg = args.test
-	const name = dashlineName(arg.name)
+	var arg = args.test
+	var name = dashlineName(arg.name)
+	var debug = arg.debug
 
 	if(!hasComponout(name)) {
 		log(`${name} not exists.`, "error")
@@ -66,57 +66,34 @@ gulp.task("test", () => {
 	}
 
 	var preprocessors = {}
-	preprocessors[testPath + "/**/*.js"] = ["webpack", "sourcemap", "coverage"]
+	preprocessors[testPath + "/**/*.js"] = ["webpack", "sourcemap"]
 	preprocessors[testPath + "/**/*.scss"] = ["scss"]
-	preprocessors[srcPath + "/**/*.js"] = ["coverage"]
 
 	var karmaSettings = {
 			preprocessors: preprocessors,
-			reporters: ["progress", "coverage", "html"],
-            coverageReporter: {
-                reporters: [
+	        coverageReporter: {
+	        	reporters: [
                 	{
 						type: "html",
 						dir: reportersPath,
 					},
-					{
-			            type: "text",
-			        },
                 ],
-            },
+	        },
             htmlReporter: {
                 outputDir: reportersPath,
 				reportName: name,
-                urlFriendlyName: true,
             },
 		}
+	extend(true, karmaSettings, settings.karma)
 
-	// if singleRun=true, reporters should be put
-    if(karmaSettings.singleRun) {
-        extend(true, karmaSettings, {
-            webpack: {
-                module: {
-                    preLoaders: [
-                        {
-                            test: /\.js$/, 
-                            loader: "isparta",
-                            exclude: /node_modules|bower_components/,
-                        },
-                    ],
-                },
-            },
-        })
-    }
-
-    extend(true, karmaSettings, settings.karma)
+	if(debug) {
+		karmaSettings.singleRun = false
+	}
 
 	return gulp.src(testPath + "/*.js")
 		.pipe(karma(config.karma(karmaSettings)))
 		.on("end", () => {
-			log("Reporters ware created in " + reportersDir, "help")
-			if(karmaSettings.singleRun) {
-				open(reportersPath + "/" + name + "/index.html")
-			}
+			log("Reporters ware created in componouts/" + name + "/" + reportersDir, "help")
 		})
 
 })

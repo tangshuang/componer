@@ -15,9 +15,6 @@ if(argvs.length <= 2) {
 
 // ----------------------------------
 
-// global `gulp-cli` and `bower` dependented
-var gulp = "gulp"
-var bower = "bower"
 var cwd = process.cwd()
 var info = readJSON(__dirname + "/../package.json")
 
@@ -116,7 +113,7 @@ function execute(cmd, done, fail) {
 		if(config.color) {
 			cmd += " --color"
 		}
-		if(!config.debug) {
+		if(!config.silent) {
 			cmd += " --silent"
 		}
 	}
@@ -240,7 +237,7 @@ commander
 			exit()
 		}
 
-		execute(`cd ${cwd} && ${gulp} add --name=${name} --template=${template} --author=${author}`, () => {
+		execute(`cd ${cwd} && gulp add --name=${name} --template=${template} --author=${author}`, () => {
 			// git init
 			if(options.git) {
 				var url = `https://github.com/${author}/${name}.git`
@@ -255,7 +252,7 @@ commander
 	.action(name => {
 		name = dashline(name)
 		check(name)
-		execute(`cd ${cwd} && ${gulp} build --name=${name}`)
+		execute(`cd ${cwd} && gulp build --name=${name}`)
 	})
 
 commander
@@ -264,16 +261,21 @@ commander
 	.action(name => {
 		name = dashline(name)
 		check(name)
-		execute(`cd ${cwd} && ${gulp} preview --name=${name}`)
+		execute(`cd ${cwd} && gulp preview --name=${name}`)
 	})
 
 commander
 	.command("test <name>")
 	.description("(gulp) test a componout")
+	.option("-D, --debug", "whether to use browser to debug code")
 	.action((name, options) => {
 		name = dashline(name)
 		check(name)
-		execute(`cd ${cwd} && ${gulp} test --name=${name}`)
+		var cmd = `cd ${cwd} && gulp test --name=${name}`
+		if(options.debug) {
+			cmd += " --debug"
+		}
+		execute(cmd)
 	})
 
 commander
@@ -282,7 +284,7 @@ commander
 	.action(name => {
 		name = dashline(name)
 		check(name)
-		execute(`cd ${cwd} && ${gulp} watch --name=${gulp}`)
+		execute(`cd ${cwd} && gulp watch --name=gulp`)
 	})
 
 commander
@@ -291,7 +293,7 @@ commander
 	.description("(gulp) list all componouts")
 	.action(() => {
 		check()
-		execute(`cd ${cwd} && ${gulp} ls`)
+		execute(`cd ${cwd} && gulp ls`)
 	})
 
 // ---------------------------------
@@ -350,54 +352,32 @@ commander
 
 commander
 	.command("install [name]")
-	.description("install componouts [dev]dependencies")
+	.description("(gulp) install componouts [dev]dependencies")
 	.action(name => {
-
-		function Install(name) {
-			if(exists(`${cwd}/componouts/${name}/bower.json`)) {
-				execute(`cd ${cwd} && cd componouts && cd ${name} && ${bower} install --config.directory=${cwd}/bower_components`)
-			}
-			if(exists(`${cwd}/componouts/${name}/package.json`)) {
-				execute(`cd ${cwd} && cd componouts && cd ${name} && npm install --prefix ${cwd}`)
-			}
-		}
-
 		if(name === undefined) {
 			check()
-			fs.readdirSync(cwd + "/componouts").forEach(item => Install(item))
+			execute(`cd ${cwd} && gulp install`)
 		}
 		else {
 			name = dashline(name)
 			check(name)
-			Install(name)
+			execute(`cd ${cwd} && gulp install ${name}`)
 		}
 
 	})
 
 commander
 	.command("link [name]")
-	.description("link local [name] componout as package")
+	.description("(gulp) link local [name] componout as package")
 	.action(name => {
-
-		function Link(name) {
-			if(exists(`${cwd}/componouts/${name}/bower.json`)) {
-				execute(`cd ${cwd} && cd componouts && cd ${name} && ${bower} link`)
-				execute(`cd ${cwd} && ${bower} link ${name}`)
-			}
-			else if(exists(`${cwd}/componouts/${name}/package.json`)) {
-				execute(`cd ${cwd} && cd componouts && cd ${name} && npm link`)
-				execute(`cd ${cwd} && npm link ${name}`)
-			}
-		}
-
 		if(name === undefined) {
 			check()
-			fs.readdirSync(cwd + "/componouts").forEach(item => Link(item))
+			execute(`cd ${cwd} && gulp link`)
 		}
 		else {
 			name = dashline(name)
 			check(name)
-			Link(name)
+			execute(`cd ${cwd} && gulp link ${name}`)
 		}
 
 	})
@@ -415,7 +395,7 @@ commander
 		prompt("Are you sure to remove " + name + " componout? yes/No  ", choice => {
 			if(choice.toLowerCase() === "yes") {
 				if(exists(`${cwd}/bower_components/${name}`)) {
-					execute(`cd ${cwd} && ${bower} unlink ${name}`)
+					execute(`cd ${cwd} && bower unlink ${name}`)
 				}
 				if(exists(`${cwd}/node_modules/${name}`)) {
 					execute(`cd ${cwd} && npm unlink ${name}`)

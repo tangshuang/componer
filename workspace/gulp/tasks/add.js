@@ -2,8 +2,8 @@ import {gulp, fs, path, args, log, config, exit, exists} from "../loader"
 import {PaserTemplate, dashlineName} from "../utils"
 
 gulp.task("add", () => {
-	const arg = args.add
-	const name = dashlineName(arg.name)
+	var arg = args.add
+	var name = dashlineName(arg.name)
 
 	if(!name.substr(0,1).match(/[a-z]/)) {
 		log("Error: component name's first letter must be in [a-z].", "error")

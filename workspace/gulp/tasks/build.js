@@ -4,9 +4,9 @@ import {hasComponout, dashlineName, buildScript, buildStyle} from "../utils"
 import concat from "pipe-concat"
 
 gulp.task("build", () => {
-	const arg = args.build
-	const name = dashlineName(arg.name)
-	const dev = args.dev
+	var arg = args.build
+	var name = dashlineName(arg.name)
+	var dev = args.dev
 
 	if(!hasComponout(name)) {
 		log(`${name} not exists.`, "error")

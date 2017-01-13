@@ -1,5 +1,5 @@
-describe("{{Componout Name}}", function() {
-    it('test', function() {
-        expect(1).toEqual(1);
-    });
-});
+describe("{{Componout Name}}", () => {
+    it('test', () => {
+        expect(1).toEqual(1)
+    })
+})

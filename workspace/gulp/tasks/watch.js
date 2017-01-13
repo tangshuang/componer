@@ -2,8 +2,8 @@ import {gulp, path, args, log, config} from "../loader"
 import {hasComponout, dashlineName, runTask} from "../utils"
 
 gulp.task("watch", () => {
-	const arg = args.watch
-	const name = dashlineName(arg.name)
+	var arg = args.watch
+	var name = dashlineName(arg.name)
 	
 	if(!hasComponout(name)) {
 		log(`${name} not exists.`, "error")
