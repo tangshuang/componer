@@ -36,7 +36,7 @@ if (argvs.length <= 2) {
 
 // ----------------------------------
 
-var instance = _path2.default.resolve(__dirname, "../_");
+var instance = _path2.default.resolve(__dirname, "../workspace");
 var cwd = process.cwd();
 var info = readJSON(__dirname + "/../package.json");
 

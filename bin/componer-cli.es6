@@ -213,6 +213,10 @@ commander
 		
 		log("copying files...")
 		execute("cp -r " + instance + "/. " + cwd + "/")
+		execute(`cd ${cwd} && mkdir bower_components && mkdir componouts`, () => {}, () => {
+			log("You should create `bower_components` and `componouts` directories by yourself.", "warn")
+			log("Do NOT forget to run `npm install`.", "warn")
+		})
 		modify()
 		
 	})

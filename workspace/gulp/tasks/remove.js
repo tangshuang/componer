@@ -19,7 +19,7 @@ gulp.task("remove", () => {
 		execute(`cd ${rootPath} && npm unlink ${name}`)
 	}
 
-	execute(`cd ${cwd} && cd componouts && rm -rf ${name}`, () => {
+	execute(`cd ${rootPath} && cd componouts && rm -rf ${name}`, () => {
 		log("Done! " + name + " has been deleted.", "done")
 	})
 
