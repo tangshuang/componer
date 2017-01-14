@@ -1,12 +1,16 @@
 {
   "name": "componer",
-  "version": "0.0.15",
+  "version": "0.0.23",
   "description": "A components work flow builder tool",
   "main": "index.js",
   "bin": {
-    "componer": "bin/index.js"
+    "componer": "bin/componer-cli.js"
   },
-  "scripts": {},
+  "scripts": {
+    "build": "babel bin/componer-cli.es6 -o bin/componer-cli.js",
+    "watch": "npm run build -- --watch",
+    "prepublish": "npm run build"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/tangshuang/componer.git"
@@ -22,12 +26,12 @@
   },
   "homepage": "https://github.com/tangshuang/componer#readme",
   "dependencies": {
-    "babel-core": "^6.21.0",
-    "babel-preset-latest": "^6.16.0",
-    "babel-register": "^6.18.0",
     "commander": "^2.9.0",
     "process.logger": "^1.1.2",
     "shelljs": "^0.7.5"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "babel-core": "^6.21.0",
+    "babel-preset-latest": "^6.16.0"
+  }
 }

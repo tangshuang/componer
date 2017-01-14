@@ -11,6 +11,15 @@ gulp.task("install", () => {
 		var deps = info.dependencies
 		var devdeps = info.devDependencies
 		var names = Object.keys(deps).concat(Object.keys(devdeps))
+		names = names.filter((value, index, self) => self.indexOf(value) === index)
+
+		names = names.map(name => {
+			if(deps[name]) {
+				return name + "@" + deps[name]
+			}
+			return name + "@" + devdeps[name]
+		})
+
 		return names
 	}
 
@@ -35,11 +44,9 @@ gulp.task("install", () => {
 			}
 		})
 		if(bowerComponents.length > 0) {
-			bowerComponents.filter((value, index, self) => self.indexOf(value) === index)
 			execute(`cd ${rootPath} && bower install ` + bowerComponents.join(" "))
 		}
 		if(npmPackages.length > 0) {
-			npmPackages.filter((value, index, self) => self.indexOf(value) === index)
 			execute(`cd ${rootPath} && npm install ` + npmPackages.join(" "))
 		}
 	}

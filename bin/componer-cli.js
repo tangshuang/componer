@@ -1,79 +1,104 @@
-import fs from "fs"
-import path from "path"
-import readline from "readline"
+#!/usr/bin/env node
+"use strict";
 
-import commander from "commander"
-import shell from "shelljs"
-import logger from "process.logger"
+var _fs = require("fs");
 
-var argvs = process.argv
+var _fs2 = _interopRequireDefault(_fs);
 
-if(argvs.length <= 2) {
-	execute("componer -h")
-	exit()
+var _path = require("path");
+
+var _path2 = _interopRequireDefault(_path);
+
+var _readline = require("readline");
+
+var _readline2 = _interopRequireDefault(_readline);
+
+var _commander = require("commander");
+
+var _commander2 = _interopRequireDefault(_commander);
+
+var _shelljs = require("shelljs");
+
+var _shelljs2 = _interopRequireDefault(_shelljs);
+
+var _process = require("process.logger");
+
+var _process2 = _interopRequireDefault(_process);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var argvs = process.argv;
+
+if (argvs.length <= 2) {
+	execute("componer -h");
+	exit();
 }
 
 // ----------------------------------
 
-var cwd = process.cwd()
-var info = readJSON(__dirname + "/../package.json")
+var instance = _path2.default.resolve(__dirname, "../_");
+var cwd = process.cwd();
+var info = readJSON(__dirname + "/../package.json");
 
 // ----------------------------------
 
 function exit() {
-	process.exit(0)
+	process.exit(0);
 }
 
 function exists(file) {
-	return fs.existsSync(file)
+	return _fs2.default.existsSync(file);
 }
 
 function read(file) {
-	return fs.readFileSync(file)
+	return _fs2.default.readFileSync(file);
 }
 
 function readJSON(file) {
-	return JSON.parse(read(file))
+	return JSON.parse(read(file));
 }
 
-function write(file, content, charset = "utf8") {
-	return fs.writeFileSync(file, content, charset)
+function write(file, content) {
+	var charset = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : "utf8";
+
+	return _fs2.default.writeFileSync(file, content, charset);
 }
 
-function writeJSON(file, json, charset = "utf8") {
-	return write(file, JSON.stringify(json, null, 4), charset)
+function writeJSON(file, json) {
+	var charset = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : "utf8";
+
+	return write(file, JSON.stringify(json, null, 4), charset);
 }
 
 function dashline(name) {
-	name = name.substr(0, 1).toLowerCase() + name.substr(1)
-	return name.replace(/([A-Z])/g, "-$1").toLowerCase()
+	name = name.substr(0, 1).toLowerCase() + name.substr(1);
+	return name.replace(/([A-Z])/g, "-$1").toLowerCase();
 }
 
 /**
  * @param string dir: the path of directory to check whether it is a componer work directory.
  */
 function isComponer(dir) {
-	return exists(`${dir}/package.json`) && exists(`${dir}/gulpfile.babel.js`) && exists(`${dir}/componouts`)
+	return exists(dir + "/package.json") && exists(dir + "/gulpfile.babel.js") && exists(dir + "/componouts");
 }
 
 /**
  * get current componer root dir path (5 up level)
  */
 function current() {
-	var flag = false
-	var current = cwd
+	var flag = false;
+	var current = cwd;
 
-	for(var i = 5;i --;) {
-		if(isComponer(current)) {
-			flag = true
-			break
-		}
-		else {
-			current = path.resolve(current, "..")
+	for (var i = 5; i--;) {
+		if (isComponer(current)) {
+			flag = true;
+			break;
+		} else {
+			current = _path2.default.resolve(current, "..");
 		}
 	}
-	
-	return flag && current
+
+	return flag && current;
 }
 
 /**
@@ -81,24 +106,23 @@ function current() {
  * @param boolean exit: whether to exit process when the result is false.
  */
 function has(name) {
-	if(!exists(`${cwd}/componouts/${name}`)) {
-		return false
+	if (!exists(cwd + "/componouts/" + name)) {
+		return false;
 	}
-	return true
+	return true;
 }
 
 function check(name) {
-	cwd = current()
+	cwd = current();
 
-	if(!cwd) {
-		log("You are not in a componer directory, or files are missing.", "error")
-		exit()
+	if (!cwd) {
+		log("You are not in a componer directory, or files are missing.", "error");
+		exit();
 	}
 
-
-	if(name && !has(name)) {
-		log(`You don't have a componout named ${name} now.`, "error")
-		exit()
+	if (name && !has(name)) {
+		log("You don't have a componout named " + name + " now.", "error");
+		exit();
 	}
 }
 
@@ -108,23 +132,22 @@ function check(name) {
  * @param function fail: callback function when error or fail
  */
 function execute(cmd, done, fail) {
-	if(cmd.indexOf("gulp") > -1 && exists(`${cwd}/.componerrc`)) {
-		var config = readJSON(`${cwd}/.componerrc`)
-		if(config.color) {
-			cmd += " --color"
+	if (cmd.indexOf("gulp") > -1 && exists(cwd + "/.componerrc")) {
+		var config = readJSON(cwd + "/.componerrc");
+		if (config.color) {
+			cmd += " --color";
 		}
-		if(!config.silent) {
-			cmd += " --silent"
+		if (!config.silent) {
+			cmd += " --silent";
 		}
 	}
-	
-	var result = shell.exec(cmd)
-	if(result.code === 0) {
-		typeof done === "function" && done()
-	}
-	else {
-		typeof fail === "function" && fail(result.stderr)
-		exit()
+
+	var result = _shelljs2.default.exec(cmd);
+	if (result.code === 0) {
+		typeof done === "function" && done();
+	} else {
+		typeof fail === "function" && fail(result.stderr);
+		exit();
 	}
 }
 
@@ -133,313 +156,240 @@ function execute(cmd, done, fail) {
  * @param function callback: what to do after input, with answer as a parameter
  */
 function prompt(question, callback) {
-	var rl = readline.createInterface({
+	var rl = _readline2.default.createInterface({
 		input: process.stdin,
-		output: process.stdout,
-	})
-	rl.question(question, answer => {
-		rl.close()
-		callback(answer)
-	})
+		output: process.stdout
+	});
+	rl.question(question, function (answer) {
+		rl.close();
+		callback(answer);
+	});
 }
 
 function log(msg, level) {
-	var config = exists(`${cwd}/.componerrc`) ? readJSON(`${cwd}/.componerrc`) : {}
-	config.color && logger[level] ? logger[level](msg) : console.log(msg)
+	var config = exists(cwd + "/.componerrc") ? readJSON(cwd + "/.componerrc") : {};
+	config.color && _process2.default[level] ? _process2.default[level](msg) : console.log(msg);
 }
 
 // ======================================================
 
-commander
-	.version(info.version)
-	.usage("<task> [options] [name] [param...]")
-	.option("-v, --version", "same as `-V`")
+_commander2.default.version(info.version).usage("<task> [options] [name] [param...]").option("-v, --version", "same as `-V`");
 
-commander
-	.arguments('<cmd>')
-	.action((cmd, options) => {
-		log("Not found `" + cmd + "` command, use `componer -h` to read more.", "warn")
-	})
+_commander2.default.arguments('<cmd>').action(function (cmd, options) {
+	log("Not found `" + cmd + "` command, use `componer -h` to read more.", "warn");
+});
 
-commander
-	.command("init")
-	.description("create a componer workflow frame instance")
-	.action(options => {
+_commander2.default.command("init").description("create a componer workflow frame instance").action(function (options) {
 
-		function modify() {
-			
-			prompt("What is your github user `name` in url? ", author => {
-				if(!author || author === "") {
-					log("You must input your github name to create github address.", "error")
-					exit()
+	function modify() {
+
+		prompt("What is your github user `name` in url? ", function (author) {
+			if (!author || author === "") {
+				log("You must input your github name to create github address.", "error");
+				exit();
+			}
+
+			var pkgInfo = readJSON(cwd + "/package.json");
+			pkgInfo.author = author;
+
+			var dirname = _path2.default.basename(cwd);
+
+			prompt("What is your current project name? (" + dirname + ") ", function (project) {
+				if (!project || project === "") {
+					project = dirname;
 				}
+				project = dashline(project);
 
-				var pkgInfo = readJSON(cwd + "/package.json")
-				pkgInfo.author = author
-				dirname = path.basename(cwd)
+				pkgInfo.name = project;
 
-				prompt("What is your current project name? (" + dirname + ") ", project => {
-					if(!project || project === "") {
-						project = dirname
-					}
-					project = dashline(project)
+				writeJSON(cwd + "/package.json", pkgInfo);
 
-					pkgInfo.name = project
+				log("Done! Do NOT forget to run `npm install` before you begin.", "done");
 
-					writeJSON(cwd + "/package.json", pkgInfo)
+				exit();
+			});
+		});
+	}
 
-					exit()
-				})
-			})
+	if (isComponer(cwd)) {
+		modify();
+		return;
+	}
 
+	if (_fs2.default.readdirSync(cwd).length > 0) {
+		log("Current directory is not empty, you should begin in a new directory.", "error");
+		exit();
+	}
+
+	log("copying files...");
+	execute("cp -r " + instance + "/. " + cwd + "/");
+	modify();
+});
+
+_commander2.default.command("add <name>").description("(gulp) create a componout").option("-t, --template [template]", "template of componout").option("-a, --author [author]", "author of componout").option("-g, --git", "run `git init` after ready").action(function (name, options) {
+	name = dashline(name);
+	check();
+
+	var template = options.template || "default";
+	var author = options.author || readJSON(cwd + "/package.json").author;
+
+	if (!exists(cwd + "/gulp/templates/" + template)) {
+		log("This type of componout is not available.", "warn");
+		exit();
+	}
+	if (!author) {
+		log("Componout author needed, please use `-h` to read more.", "error");
+		exit();
+	}
+
+	execute("cd " + cwd + " && gulp add --name=" + name + " --template=" + template + " --author=" + author, function () {
+		// git init
+		if (options.git) {
+			var url = "https://github.com/" + author + "/" + name + ".git";
+			execute("cd " + cwd + " && cd componouts && cd " + name + " && git init && git remote add origin " + url);
 		}
+	});
+});
 
-		if(isComponer(cwd)) {
-			modify()
-			return
+_commander2.default.command("build [name]").description("(gulp) build a componout").action(function (name) {
+	if (name === undefined) {
+		check();
+		execute("cd " + cwd + " && gulp build");
+	} else {
+		name = dashline(name);
+		check(name);
+		execute("cd " + cwd + " && gulp build --name=" + name);
+	}
+});
+
+_commander2.default.command("preview <name>").description("(gulp) preview a componout").action(function (name) {
+	name = dashline(name);
+	check(name);
+	execute("cd " + cwd + " && gulp preview --name=" + name);
+});
+
+_commander2.default.command("test [name]").description("(gulp) test a componout").option("-D, --debug", "whether to use browser to debug code").option("-b, --browser", "which browser to use select one from [PhantomJS|Chrome|Firefox]").action(function (name, options) {
+	var cmd = "cd " + cwd + " && gulp test";
+
+	if (options.browser) {
+		cmd += " --browser=" + browser;
+	}
+	if (options.debug) {
+		cmd += " --debug";
+	}
+
+	if (name === undefined) {
+		check();
+		if (options.debug) {
+			log("`debug` option is not allowed when testing all componouts", "error");
+			exit();
 		}
+	} else {
+		name = dashline(name);
+		check(name);
+		cmd += " --name=" + name;
+	}
 
-		if(fs.readdirSync(cwd).length > 0) {
-			log("Current directory is not empty, you should begin in a new directory.", "error")
-			exit()
-		}
+	execute(cmd);
+});
 
-		log("copying files...")
-		execute("cp -r " + path.resolve(__dirname, "../workspace") + "/. " + cwd + "/")
-		execute(`cd ${cwd} && mkdir bower_components && mkdir componouts`, () => {}, () => {
-			log("You should create `bower_components` and `componouts` directories by yourself.", "warn")
-		})
-		log("Done! Do NOT forget to run `npm install`.", "done")
+_commander2.default.command("watch [name]").description("(gulp) watch a componout to build it automaticly when code change").action(function (name) {
+	if (name === undefined) {
+		check();
+		execute("cd " + cwd + " && gulp watch");
+	} else {
+		name = dashline(name);
+		check(name);
+		execute("cd " + cwd + " && gulp watch " + name);
+	}
+});
 
-		modify()
-
-	})
-
-commander
-	.command("add <name>")
-	.description("(gulp) create a componout")
-	.option("-t, --template [template]", "template of componout")
-	.option("-a, --author [author]", "author of componout")
-	.option("-g, --git", "run `git init` after ready")
-	.action((name, options) => {
-		name = dashline(name)
-		check()
-
-		var template = options.template || "default"
-		var author = options.author || readJSON(cwd + "/package.json").author
-
-		if(!exists(`${cwd}/gulp/templates/${template}`)) {
-			log("This type of componout is not available.", "warn")
-			exit()
-		}
-		if(!author) {
-			log("Componout author needed, please use `-h` to read more.", "error")
-			exit()
-		}
-
-		execute(`cd ${cwd} && gulp add --name=${name} --template=${template} --author=${author}`, () => {
-			// git init
-			if(options.git) {
-				var url = `https://github.com/${author}/${name}.git`
-				execute(`cd ${cwd} && cd componouts && cd ${name} && git init && git remote add origin ${url}`)
-			}
-		})
-	})
-
-commander
-	.command("build [name]")
-	.description("(gulp) build a componout")
-	.action(name => {
-		if(name === undefined) {
-			check()
-			execute(`cd ${cwd} && gulp build`)
-		}
-		else {
-			name = dashline(name)
-			check(name)
-			execute(`cd ${cwd} && gulp build --name=${name}`)
-		}
-		
-	})
-
-commander
-	.command("preview <name>")
-	.description("(gulp) preview a componout")
-	.action(name => {
-		name = dashline(name)
-		check(name)
-		execute(`cd ${cwd} && gulp preview --name=${name}`)
-	})
-
-commander
-	.command("test [name]")
-	.description("(gulp) test a componout")
-	.option("-D, --debug", "whether to use browser to debug code")
-	.option("-b, --browser", "which browser to use select one from [PhantomJS|Chrome|Firefox]")
-	.action((name, options) => {
-		var cmd = `cd ${cwd} && gulp test`
-
-		if(options.browser) {
-			cmd += ` --browser=${browser}`
-		}
-		if(options.debug) {
-			cmd += " --debug"
-		}
-		
-		if(name === undefined) {
-			check()
-			if(options.debug) {
-				log("`debug` option is not allowed when testing all componouts", "error")
-				exit()
-			}
-		}
-		else {
-			name = dashline(name)
-			check(name)
-			cmd += ` --name=${name}`
-		}
-
-		execute(cmd)
-	})
-
-commander
-	.command("watch [name]")
-	.description("(gulp) watch a componout to build it automaticly when code change")
-	.action(name => {
-		if(name === undefined) {
-			check()
-			execute(`cd ${cwd} && gulp watch`)
-		}
-		else {
-			name = dashline(name)
-			check(name)
-			execute(`cd ${cwd} && gulp watch ${name}`)
-		}
-	})
-
-commander
-	.command("list")
-	.alias("ls")
-	.description("(gulp) list all componouts")
-	.action(() => {
-		check()
-		execute(`cd ${cwd} && gulp ls`)
-	})
+_commander2.default.command("list").alias("ls").description("(gulp) list all componouts").action(function () {
+	check();
+	execute("cd " + cwd + " && gulp list");
+});
 
 // ---------------------------------
 
-commander
-	.command("pull <name> [params...]")
-	.description("clone/pull a componout from https://github.com/componer")
-	.option("-u, --url", "resgtry url")
-	.action((name, options, params) => {
-		name = dashline(name)
-		check()
+_commander2.default.command("pull <name> [params...]").description("clone/pull a componout from https://github.com/componer").option("-u, --url", "resgtry url").action(function (name, options, params) {
+	name = dashline(name);
+	check();
 
-		if(!has(name)) {
-			var url = options.url || `https://github.com/componer/${name}.git`
-			execute(`cd ${cwd} && cd componouts && git clone ${url} ${name}`, () => {
-				log("Done! Componout has been added to componouts directory.", "done")
-			}, () => {
-				log("You can enter componout directory and run `git clone`.", "help")
-			})
+	if (!has(name)) {
+		var url = options.url || "https://github.com/componer/" + name + ".git";
+		execute("cd " + cwd + " && cd componouts && git clone " + url + " " + name, function () {
+			log("Done! Componout has been added to componouts directory.", "done");
+		}, function () {
+			log("You can enter componout directory and run `git clone`.", "help");
+		});
+	} else {
+		var sh = "cd " + cwd + " && cd componouts && cd " + name + " && git pull";
+		if (params.length > 0) {
+			sh += " " + params.join(" ");
 		}
-		else {
-			var sh = `cd ${cwd} && cd componouts && cd ${name} && git pull`
-			if(params.length > 0) {
-				sh += " " + params.join(" ")
-			}
-			execute(sh, () => {
-				log("Done! Componout has been the latest code.", "done")
-			})
+		execute(sh, function () {
+			log("Done! Componout has been the latest code.", "done");
+		});
+	}
+});
+
+_commander2.default.command("push <name> [params...]").description("push a componout to https://github.com/componer").action(function (name, params) {
+	name = dashline(name);
+	check(name);
+
+	prompt("Commit message: ", function (message) {
+		var sh = "cd " + cwd + " && cd componouts && cd " + name + " && git add ./. && git commit -m \"" + message + "\" && git push";
+		if (params.length > 0) {
+			sh += " " + params.join(" ");
 		}
+		execute(sh, function () {
+			log("Done! Componout has been push to https://github.com/componer/" + name, "done");
+		}, function () {
+			log("You can cd to componouts/" + name + " directory to run `git push`.", "help");
+		});
 
-	})
-
-commander
-	.command("push <name> [params...]")
-	.description("push a componout to https://github.com/componer")
-	.action((name, params) => {
-		name = dashline(name)
-		check(name)
-
-		prompt("Commit message: ", message => {
-			var sh = `cd ${cwd} && cd componouts && cd ${name} && git add ./. && git commit -m "${message}" && git push`
-			if(params.length > 0) {
-				sh += " " + params.join(" ")
-			}
-			execute(sh, () => {
-				log("Done! Componout has been push to https://github.com/componer/" + name, "done")
-			}, () => {
-				log("You can cd to componouts/" + name + " directory to run `git push`.", "help")
-			})
-
-			exit()
-		})
-	})
+		exit();
+	});
+});
 
 // -----------------------------------
 
-commander
-	.command("install [name]")
-	.description("(gulp) install componouts [dev]dependencies")
-	.action(name => {
-		if(name === undefined) {
-			check()
-			execute(`cd ${cwd} && gulp install`)
-		}
-		else {
-			name = dashline(name)
-			check(name)
-			execute(`cd ${cwd} && gulp install ${name}`)
-		}
-	})
+_commander2.default.command("install [name]").description("(gulp) install componouts [dev]dependencies").action(function (name) {
+	if (name === undefined) {
+		check();
+		execute("cd " + cwd + " && gulp install");
+	} else {
+		name = dashline(name);
+		check(name);
+		execute("cd " + cwd + " && gulp install " + name);
+	}
+});
 
-commander
-	.command("link [name]")
-	.description("(gulp) link local [name] componout as package")
-	.action(name => {
-		if(name === undefined) {
-			check()
-			execute(`cd ${cwd} && gulp link`)
-		}
-		else {
-			name = dashline(name)
-			check(name)
-			execute(`cd ${cwd} && gulp link ${name}`)
-		}
-	})
+_commander2.default.command("link [name]").description("(gulp) link local [name] componout as package").action(function (name) {
+	if (name === undefined) {
+		check();
+		execute("cd " + cwd + " && gulp link");
+	} else {
+		name = dashline(name);
+		check(name);
+		execute("cd " + cwd + " && gulp link " + name);
+	}
+});
 
 // -----------------------------------
 
-commander
-	.command("remove <name>")
-	.alias("rm")
-	.description("remove a componout from componouts directory")
-	.action(name => {
-		name = dashline(name)
-		check(name)
+_commander2.default.command("remove <name>").alias("rm").description("(gulp) remove a componout from componouts directory").action(function (name) {
+	name = dashline(name);
+	check(name);
 
-		prompt("Are you sure to remove " + name + " componout? yes/No  ", choice => {
-			if(choice.toLowerCase() === "yes") {
-				if(exists(`${cwd}/bower_components/${name}`)) {
-					execute(`cd ${cwd} && bower unlink ${name}`)
-				}
-				if(exists(`${cwd}/node_modules/${name}`)) {
-					execute(`cd ${cwd} && npm unlink ${name}`)
-				}
-
-				execute(`cd ${cwd} && cd componouts && rm -rf ${name}`, () => {
-					log("Done! " + name + " has been deleted.", "done")
-				})
-
-				exit()
-			}
-		})
-		
-	})
+	prompt("Are you sure to remove " + name + " componout? yes/No  ", function (choice) {
+		if (choice.toLowerCase() === "yes") {
+			execute("cd " + cwd + " && gulp remove --name=" + name);
+			exit();
+		}
+	});
+});
 
 // -----------------------------------
 
-commander
-	.parse(argvs)
+_commander2.default.parse(argvs);
