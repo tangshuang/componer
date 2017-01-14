@@ -223,6 +223,10 @@ _commander2.default.command("init").description("create a componer workflow fram
 
 	log("copying files...");
 	execute("cp -r " + instance + "/. " + cwd + "/");
+	execute("cd " + cwd + " && mkdir bower_components && mkdir componouts", function () {}, function () {
+		log("You should create `bower_components` and `componouts` directories by yourself.", "warn");
+		log("Do NOT forget to run `npm install`.", "warn");
+	});
 	modify();
 });
 

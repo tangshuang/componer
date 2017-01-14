@@ -1,6 +1,6 @@
 {
   "name": "componer",
-  "version": "0.0.24",
+  "version": "0.0.25",
   "description": "A components work flow builder tool",
   "main": "index.js",
   "bin": {
