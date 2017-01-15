@@ -6,8 +6,8 @@ import WebpackDevServer from "webpack-dev-server"
 import webpack from "webpack"
 
 gulp.task("preview", () => {
-	var arg = args.preview
-	var name = dashlineName(arg.name)
+	const arg = args.preview
+	const name = dashlineName(arg.name)
 
 	if(!hasComponout(name)) {
 		log(`${name} not exists.`, "error")
@@ -30,20 +30,21 @@ gulp.task("preview", () => {
 	}
 
 	var previewFile = path.join(componoutPath, previewEntry)
-
 	if(!exists(previewFile)) {
 		log(`preview file not found.`, "error")
 		exit()
 	}
 
-	var previewDir = path.dirname(previewFile)
-	var previewHtml = path.join(previewDir, "index.html")
-	var previewBundle = name + ".bundle.js"
+	var previewIndex = settings.entry.index
+	var previewHtml = previewIndex ? path.join(componoutPath, previewIndex) : path.join(path.dirname(previewFile), "index.html")
 
 	if(!exists(previewHtml)) {
 		log("You should put a index.html in your preview directory.", "error")
 		exit()
 	}
+
+	var previewDir = path.dirname(previewHtml)
+	var previewBundle = name + ".bundle.js"
 
 	var host = "127.0.0.1"
 	var port = Math.floor(Math.random() * 1000) + 9000
@@ -57,23 +58,28 @@ gulp.task("preview", () => {
 			var settings = config.webpack({
 				entry: [
 					// "webpack-dev-server/client?http://" + host + ":" + port + "/",
-					// "webpack/hot/dev-server",
-					previewFile
+					"webpack/hot/dev-server",
+					previewFile,
 				],
 				output: {
-					path: previewDir,
 					filename: previewBundle,
 					library: camelName(name),
 					sourceMapFilename: previewBundle + ".map",
 				},
 				plugins: [
-					// new WebpackSupportCrypto(),
-					// new webpack.HotModuleReplacementPlugin(),
+					new webpack.HotModuleReplacementPlugin(),
 				]
 			})
 			var compiler = webpack(settings)
 			new WebpackDevServer(compiler, {
-				// hot: true,
+				// contentBase: previewDir,
+				hot: true,
+				setup: function(app) { // backend server by express
+					if(settings.entry.server) {
+						let entryServer = path.join(componoutPath, settings.entry.server)
+						require(entryServer)(app)
+					}
+				},
 			}).listen(port, host)
 			// TODO: use webpack hot module to reload code later
 
@@ -86,7 +92,16 @@ gulp.task("preview", () => {
 				livereload: {
 					enable: true, // if webpack hot module works, change this to be false
 					port: port + 10,
-					directory: previewDir,
+					directory: componoutPath,
+					filter: file => {
+						let sep = path.sep
+						if(file.indexOf(sep + "preview" + sep) >= 0 || file.indexOf(sep + "src" + sep) >= 0) {
+							return true
+						}
+						else { 
+							return false
+						}
+					},
 				},
 			})
 			

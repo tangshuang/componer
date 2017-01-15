@@ -1,7 +1,7 @@
 # Componer
 
 Componer is a workflow tool to help frontend developers to coding more easily.
-Support ES6. On the shoulders of gulp, bower, webpack, karma, jasmine and so one. THANKS!
+Support ES6. On the shoulders of gulp, bower, webpack, karma, jasmine and so on.
 
 ## Definition
 
@@ -9,9 +9,9 @@ Support ES6. On the shoulders of gulp, bower, webpack, karma, jasmine and so one
 After you initialize in a directory, the directory is called a componer directory.
 
 `componout` is a production created by componer.
-All componouts are lay in `componouts` directory, this directory is the main directory you work in.
+All componouts lay in `componouts` directory, this directory is the main directory you work in.
 
-`componer.json` is the special file which tells componer entry files and compile or test information.
+`componer.json` in a componout directory is the special file which tells componer entry files and compile or test information.
 You should pay attention to this file before you run `componer build`.
 
 ## Install and initialize
@@ -69,12 +69,6 @@ When you preview a componout, it will firstly build it and then setup a local st
 When you test a componout, it use karma and jasmine as framework.
 
 This is what componer can help you to `add -> build -> preview -> test` in your project.
-
-## Index
-
-- [introduce](./docs/intro.md)
-- [cli](./docs/cli.md)
-- [types](./docs/types.md)
 
 ## For Developers
 

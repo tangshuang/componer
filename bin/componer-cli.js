@@ -35,7 +35,6 @@ if (argvs.length <= 2) {
 }
 
 // ----------------------------------
-
 var instance = _path2.default.resolve(__dirname, "../workspace");
 var cwd = process.cwd();
 var info = readJSON(__dirname + "/../package.json");
@@ -313,7 +312,50 @@ _commander2.default.command("list").alias("ls").description("(gulp) list all com
 	execute("cd " + cwd + " && gulp list");
 });
 
-// ---------------------------------
+_commander2.default.command("install [name]").description("(gulp) install componouts [dev]dependencies").action(function (name) {
+	if (name === undefined) {
+		check();
+		execute("cd " + cwd + " && gulp install");
+	} else {
+		name = dashline(name);
+		check(name);
+		execute("cd " + cwd + " && gulp install " + name);
+	}
+});
+
+_commander2.default.command("link [name]").description("(gulp) link local [name] componout as package").action(function (name) {
+	if (name === undefined) {
+		check();
+		execute("cd " + cwd + " && gulp link");
+	} else {
+		name = dashline(name);
+		check(name);
+		execute("cd " + cwd + " && gulp link " + name);
+	}
+});
+
+_commander2.default.command("remove <name>").alias("rm").description("remove a componout from componouts directory").action(function (name) {
+	name = dashline(name);
+	check(name);
+
+	prompt("Are you sure to remove " + name + " componout? yes/No  ", function (choice) {
+		if (choice.toLowerCase() === "yes") {
+			if (exists(cwd + "/bower_components/" + name)) {
+				execute("cd " + cwd + " && bower unlink " + name);
+			}
+
+			if (exists(cwd + "/node_modules/" + name)) {
+				execute("cd " + cwd + " && npm unlink " + name);
+			}
+
+			execute("cd " + cwd + " && cd componouts && rm -rf " + name, function () {
+				log("Done! " + name + " has been deleted.", "done");
+			});
+
+			exit();
+		}
+	});
+});
 
 _commander2.default.command("pull <name> [params...]").description("clone/pull a componout from https://github.com/componer").option("-u, --url", "resgtry url").action(function (name, options, params) {
 	name = dashline(name);
@@ -353,44 +395,6 @@ _commander2.default.command("push <name> [params...]").description("push a compo
 		});
 
 		exit();
-	});
-});
-
-// -----------------------------------
-
-_commander2.default.command("install [name]").description("(gulp) install componouts [dev]dependencies").action(function (name) {
-	if (name === undefined) {
-		check();
-		execute("cd " + cwd + " && gulp install");
-	} else {
-		name = dashline(name);
-		check(name);
-		execute("cd " + cwd + " && gulp install " + name);
-	}
-});
-
-_commander2.default.command("link [name]").description("(gulp) link local [name] componout as package").action(function (name) {
-	if (name === undefined) {
-		check();
-		execute("cd " + cwd + " && gulp link");
-	} else {
-		name = dashline(name);
-		check(name);
-		execute("cd " + cwd + " && gulp link " + name);
-	}
-});
-
-// -----------------------------------
-
-_commander2.default.command("remove <name>").alias("rm").description("(gulp) remove a componout from componouts directory").action(function (name) {
-	name = dashline(name);
-	check(name);
-
-	prompt("Are you sure to remove " + name + " componout? yes/No  ", function (choice) {
-		if (choice.toLowerCase() === "yes") {
-			execute("cd " + cwd + " && gulp remove --name=" + name);
-			exit();
-		}
 	});
 });
 

@@ -1,0 +1,1 @@
+preview的时候，使用componer.json里面的entry.preview字段作为入口。

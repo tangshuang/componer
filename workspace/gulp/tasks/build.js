@@ -59,8 +59,10 @@ gulp.task("build", () => {
 
 	var entryJs = getPath(entryFiles.script, true)
 	var entryScss = getPath(entryFiles.style, true)
+	var entryAssets = getPath(entryFiles.assets, true)
 	var outputJs = getPath(outputDirs.script)
 	var outputCss = getPath(outputDirs.style)
+	var outputAssets = getPath(outputDirs.assets)
 
 	var webpackSettings = settings.webpack
 
@@ -79,6 +81,11 @@ gulp.task("build", () => {
 	}
 	if(entryScss && !settings.sass) {
 		log("Not found `sass` option in componer.json.", "error")
+		exit()
+	}
+
+	if(entryAssets && !outputAssets) {
+		log("No `output.assets` in your componer.json.", "error")
 		exit()
 	}
 
@@ -118,13 +125,22 @@ gulp.task("build", () => {
 		clear(distPath)
 	}
 
-	// build
+	// build begin
 	var streams = []
 
+	// assets
+	if(entryAssets) {
+		let assetsStream = gulp.src(entryAssets + "/**/*")
+			.pipe(gulp.dest(outputAssets))
+		streams.push(assetsStream)
+	}
+
+	// scripts
 	if(entryJs) {
 		streams.push(buildScript(entryJs, outputJs, webpackSettings))
 	}
 
+	// styles
 	if(entryScss) {
 		streams.push(buildStyle(entryScss, outputCss, settings.sass))
 	}

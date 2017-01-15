@@ -2,19 +2,21 @@
 	"entry": {
 		"script": "src/script/{{componout-name}}.js",
 		"style": "src/style/{{componout-name}}.scss",
+		"assets": "src/assets",
 		"preview": "preview/{{componout-name}}.js",
 		"test": "test/specs"
 	},
 	"output": {
 		"script": "dist/js",
 		"style": "dist/css",
+		"assets": "dist/assets",
 		"reporters": "test/reporters"
 	},
 	"webpack": {
 		"_minify": true,
 		"output": {
-			"libraryTarget": "umd",
 			"filename": "{{componout-name}}.js",
+			"libraryTarget": "umd",
 			"library": "{{componoutName}}",
 			"sourceMapFilename": "{{componout-name}}.js.map"
 		},

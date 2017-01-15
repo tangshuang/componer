@@ -1,13 +1,13 @@
 {
 	"entry": {
 		"script": "src/script/{{componout-name}}.js",
-		"style": "src/style/{{componout-name}}.scss",
-		"preview": "preview/{{componout-name}}.js",
+		"index": "preveiw/index.html",
+		"preveiw": "src/script/{{componout-name}}.js",
+		"server": "preveiw/server.js",
 		"test": "test/specs"
 	},
 	"output": {
-		"script": "dist/js",
-		"style": "dist/css",
+		"script": "dist",
 		"reporters": "test/reporters"
 	},
 	"webpack": {
