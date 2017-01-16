@@ -16,7 +16,6 @@ export default function webpack(options) {
 			packageAlias: "packageAlias",
 		},
 		plugins: [],
-		devtool: "source-map",
 	}
 
 	var settings = defaults

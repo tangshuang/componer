@@ -364,30 +364,14 @@ commander
 commander
 	.command("remove <name>")
 	.alias("rm")
-	.description("remove a componout from componouts directory")
+	.description("(gulp) remove a componout from componouts directory")
 	.action(name => {
 		name = dashline(name)
 		check(name)
-
-		prompt("Are you sure to remove " + name + " componout? yes/No  ", choice => {
-			if(choice.toLowerCase() === "yes") {
-				if(exists(`${cwd}/bower_components/${name}`)) {
-					execute(`cd ${cwd} && bower unlink ${name}`)
-				}
-
-				if(exists(`${cwd}/node_modules/${name}`)) {
-					execute(`cd ${cwd} && npm unlink ${name}`)
-				}
-
-				execute(`cd ${cwd} && cd componouts && rm -rf ${name}`, () => {
-					log("Done! " + name + " has been deleted.", "done")
-				})
-
-				exit()
-			}
-		})
-		
+		execute(`cd ${cwd} && gulp remove ${name}`)
 	})
+
+// ----------------------------------------------------
 
 commander
 	.command("pull <name> [params...]")

@@ -26,7 +26,6 @@
   },
   "homepage": "https://github.com/tangshuang/componer#readme",
   "dependencies": {
-    "bower": "^1.8.0",
     "commander": "^2.9.0",
     "process.logger": "^1.1.2",
     "shelljs": "^0.7.5"

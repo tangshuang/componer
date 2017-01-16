@@ -32,8 +32,3 @@ gulp.task("watch", () => {
 		})
 	})
 })
-
-/**
- * usage: componer watch [name]
- * when name is not passed, all componouts src directory will be watched.
- */

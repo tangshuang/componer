@@ -95,11 +95,3 @@ gulp.task("link", () => {
 		Link(name)
 	}
 })
-
-/**
- * usage: componer install [name]
- * when name is missing, all componouts' dependencies will be installed
- *
- * usage: componer link [name]
- * the same as upon
- */

@@ -3,12 +3,12 @@
 		"script": "src/script/{{componout-name}}.js",
 		"style": "src/style/{{componout-name}}.scss",
 		"assets": "src/assets",
-		"preview": "preview/{{componout-name}}.js",
+		"preview": "preview",
 		"test": "test/specs"
 	},
 	"output": {
-		"script": "dist/js",
-		"style": "dist/css",
+		"script": "dist/js/{{componout-name}}.js",
+		"style": "dist/css/{{componout-name}}.css",
 		"assets": "dist/assets",
 		"reporters": "test/reporters"
 	},
@@ -23,7 +23,8 @@
 		"externals": {},
 		"resolve": {
 			"alias": {}
-		}
+		},
+		"devtool": "source-map"
 	},
 	"sass": {
 		"_minify": true,

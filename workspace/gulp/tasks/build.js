@@ -1,5 +1,5 @@
 import {gulp, fs, path, args, log, config, exit, exists, extend, clear, readJSON} from "../loader"
-import {hasComponout, dashlineName, buildScript, buildStyle, runTask} from "../utils"
+import {hasComponout, dashlineName, camelName, buildScript, buildStyle, runTask} from "../utils"
 
 import concat from "pipe-concat"
 
@@ -22,8 +22,6 @@ gulp.task("build", () => {
 	}
 
 	var componoutPath = path.join(config.paths.componouts, name)
-	var srcPath = path.join(componoutPath, "src")
-	var distPath = path.join(componoutPath, "dist")
 
 	if(!exists(componoutPath + "/componer.json")) {
 		log("componer.json not exists.", "error")
@@ -33,14 +31,14 @@ gulp.task("build", () => {
 	var settings = readJSON(componoutPath + "/componer.json")
 
 	var entryFiles = settings.entry
-	var outputDirs = settings.output
+	var outputFiles = settings.output
 
 	if(!entryFiles) {
 		log("Not found `entry` option in componer.json.")
 		exit()
 	}
 
-	if(!outputDirs) {
+	if(!outputFiles) {
 		log("Not found `output` option in componer.json.")
 		exit()
 	}
@@ -60,89 +58,95 @@ gulp.task("build", () => {
 	var entryJs = getPath(entryFiles.script, true)
 	var entryScss = getPath(entryFiles.style, true)
 	var entryAssets = getPath(entryFiles.assets, true)
-	var outputJs = getPath(outputDirs.script)
-	var outputCss = getPath(outputDirs.style)
-	var outputAssets = getPath(outputDirs.assets)
-
-	var webpackSettings = settings.webpack
+	var outputJs = getPath(outputFiles.script)
+	var outputCss = getPath(outputFiles.style)
+	var outputAssets = getPath(outputFiles.assets)
 
 	if(entryJs && !outputJs) {
 		log("No `output.script` in your componer.json.", "error")
 		exit()
 	}
-	if(entryJs && !webpackSettings) {
-		log("Not found `webpack` option in componer.json.", "error")
-		exit()
-	}
-
 	if(entryScss && !outputCss) {
 		log("No `output.style` in your componer.json.", "error")
 		exit()
 	}
-	if(entryScss && !settings.sass) {
-		log("Not found `sass` option in componer.json.", "error")
-		exit()
-	}
-
 	if(entryAssets && !outputAssets) {
 		log("No `output.assets` in your componer.json.", "error")
 		exit()
 	}
 
-	function exterPkgs(pkgfile) {
-		if(!exists(pkgfile)) {
-			return
-		}
-
-		var info = readJSON(pkgfile)
-		var externals = {}
-		var dependencies = info.dependencies
-
-		dependencies = typeof dependencies === "object" && Object.keys(dependencies)
-		if(dependencies && dependencies.length > 0) {
-			dependencies.forEach(dependence => externals[dependence] = dependence)
-		}
-
-		extend(true, webpackSettings, {
-			externals: externals,
-		})
-	}
-
-	// different types of componouts
-	if(exists(componoutPath + "/bower.json")) {
-		exterPkgs(componoutPath + "/bower.json")
-	}
-	else if(exists(componoutPath + "/package.json")) {
-		exterPkgs(componoutPath + "/package.json")
-	}
-	
-	if(!exists(distPath)) {
-		// mkdir
-		fs.mkdir(distPath)
-	}
-	else {
-		// clean the dist dir
-		clear(distPath)
-	}
-
-	// build begin
 	var streams = []
-
-	// assets
-	if(entryAssets) {
-		let assetsStream = gulp.src(entryAssets + "/**/*")
-			.pipe(gulp.dest(outputAssets))
-		streams.push(assetsStream)
-	}
 
 	// scripts
 	if(entryJs) {
-		streams.push(buildScript(entryJs, outputJs, webpackSettings))
+		let outputJsFile = path.join(componoutPath, outputJs)
+		let outputJsDir = path.dirname(outputJsFile)
+		let outputJsName = path.basename(outputJsFile)
+		let outputJsMap = outputJsName + ".map"
+		let webpackSettings = {
+			output: {
+				filename: outputJsName,
+				library: camelName(name),
+				sourceMapFilename: outputJsMap,
+			},
+			devtool: "source-map",
+			externals: {},
+		}
+
+		function exterPkgs(pkgfile) {
+			if(!exists(pkgfile)) {
+				return
+			}
+
+			var info = readJSON(pkgfile)
+			var externals = webpackSettings.externals
+			var dependencies = info.dependencies
+
+			dependencies = typeof dependencies === "object" && Object.keys(dependencies)
+			if(dependencies && dependencies.length > 0) {
+				dependencies.forEach(dependence => externals[dependence] = dependence)
+			}
+		}
+
+		if(exists(componoutPath + "/bower.json")) {
+			exterPkgs(componoutPath + "/bower.json")
+		}
+		else if(exists(componoutPath + "/package.json")) {
+			exterPkgs(componoutPath + "/package.json")
+		}
+
+		if(settings.webpack) {
+			extend(true, webpackSettings, settings.webpack)
+		}
+
+		streams.push(buildScript(entryJs, outputJsDir, webpackSettings))
 	}
 
 	// styles
 	if(entryScss) {
-		streams.push(buildStyle(entryScss, outputCss, settings.sass))
+		let outputCssFile = path.join(componoutPath, outputCss)
+		let outputCssDir = path.dirname(outputCssFile)
+		let outputCssName = path.basename(outputCssFile)
+		let outputCssMap = outputCssName + ".map"
+		let sassSettings = {
+			output: {
+				filename: outputCssName,
+				sourceMapFilename: outputCssMap,
+			},
+		}
+
+		if(settings.sass) {
+			extend(true, sassSettings, settings.sass)
+		}
+
+		streams.push(buildStyle(entryScss, outputCssDir, sassSettings))
+	}
+
+	// assets
+	if(entryAssets && entryAssets !== outputAssets) {
+		let assetsStream = gulp.src(entryAssets + "/**/*")
+			.pipe(gulp.dest(outputAssets))
+		streams.push(assetsStream)
 	}
 
 	if(streams.length > 0) {

@@ -1,34 +1,27 @@
 {
 	"entry": {
 		"script": "src/script/{{componout-name}}.js",
-		"index": "preveiw/index.html",
-		"preveiw": "src/script/{{componout-name}}.js",
-		"server": "preveiw/server.js",
+		"style": "src/style/{{componout-name}}.scss",
+		"assets": "assets",
+		"preveiw": "preveiw",
 		"test": "test/specs"
 	},
 	"output": {
-		"script": "dist",
+		"script": "dist/js/{{componout-name}}.js",
+		"style": "dist/css/{{componout-name}}.css",
+		"assets": "assets",
 		"reporters": "test/reporters"
 	},
 	"webpack": {
 		"_minify": true,
-		"output": {
-			"libraryTarget": "umd",
-			"filename": "{{componout-name}}.js",
-			"library": "{{componoutName}}",
-			"sourceMapFilename": "{{componout-name}}.js.map"
-		},
+		"_sourcemap": true,
+		"output": {},
 		"externals": {},
-		"resolve": {
-			"alias": {}
-		}
 	},
 	"sass": {
 		"_minify": true,
-		"output": {
-			"filename": "{{componout-name}}.css",
-			"sourcemap": true
-		}
+		"_sourcemap": true,
+		"output": {}
 	},
 	"karma": {
 		"singleRun": true,

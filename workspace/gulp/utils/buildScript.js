@@ -8,10 +8,17 @@ import {setFileExt} from "./index"
 import {optimize} from "webpack"
 
 export function buildScript(entryFile, outDir, settings = {}) {
-	settings.output = settings.output || {}
-	settings.output.filename = settings.output.filename || path.basename(entryFile)
+	if(!settings.output) {
+		return false
+	}
 
-	// build js with webpack
+	// if not use sourcemap
+	if(settings._sourcemap === false) {
+		delete settings.output.sourceMapFilename
+		delete settings.devtool
+	}
+
+	// build js with webpack normally
 	var stream1 = gulp.src(entryFile)
 		.pipe(webpack(config.webpack(settings)))
 		.pipe(gulp.dest(outDir))
@@ -25,16 +32,11 @@ export function buildScript(entryFile, outDir, settings = {}) {
 	var filename = settings.output.filename
 	var sourceMapFilename = settings.output.sourceMapFilename
 
-	extend(true, settings, {
-		output: {
-			filename: setFileExt(filename, ".min.js"),
-		},
-		plugins: [
-			new optimize.UglifyJsPlugin({
-				minimize: true,
-			}),
-		],
-	})
+	settings.output.filename = setFileExt(filename, ".min.js")
+	settings.plugins = settings.plugins || []
+	settings.plugins.push(new optimize.UglifyJsPlugin({
+		minimize: true,
+	}))
 
 	if(sourceMapFilename) {
 		settings.output.sourceMapFilename = setFileExt(sourceMapFilename, ".min.js.map", [".map", ".js.map"])
