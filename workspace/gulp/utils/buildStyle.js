@@ -14,6 +14,7 @@ export function buildStyle(entryFile, outDir, settings) {
 
 	var filename = settings.output.filename
 	var isSourceMap = settings.output.sourcemap
+	var sourceMapDir = isSourceMap === "inline" ? undefined : "./"
 	var isMinfiy = settings._minify
 
 	if(!filename) {
@@ -32,7 +33,7 @@ export function buildStyle(entryFile, outDir, settings) {
 			.pipe(sourcemaps.init())
 			.pipe(sass())
 			.pipe(rename(filename))
-			.pipe(sourcemaps.write("./"))
+			.pipe(sourcemaps.write(sourceMapDir))
 			.pipe(gulp.dest(outDir))
 	}
 
@@ -50,7 +51,7 @@ export function buildStyle(entryFile, outDir, settings) {
 			.pipe(sass())
 			.pipe(cssmin())
 			.pipe(rename(setFileExt(filename, ".min.css")))
-			.pipe(sourcemaps.write("./"))
+			.pipe(sourcemaps.write(sourceMapDir))
 			.pipe(gulp.dest(outDir))
 	}
 

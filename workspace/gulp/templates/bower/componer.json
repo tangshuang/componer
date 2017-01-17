@@ -30,7 +30,7 @@
 		"_minify": true,
 		"output": {
 			"filename": "{{componout-name}}.css",
-			"sourcemap": true
+			"sourcemap": "file"
 		}
 	},
 	"karma": {

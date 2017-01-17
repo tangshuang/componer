@@ -70,7 +70,7 @@ gulp.task("preview", () => {
 					library: camelName(name),
 					sourceMapFilename: name + ".bundle.js" + ".map",
 				},
-				devtool: "source-map",
+				devtool: "inline-source-map",
 			})
 	}
 	streams.push(buildScripts())
@@ -79,7 +79,7 @@ gulp.task("preview", () => {
 		return buildStyle(previewStyle, previewTmp, {
 				output: {
 					filename: name + ".bundle.css",
-					sourcemap: true,
+					sourcemap: "inline",
 				},
 			})
 	}
@@ -134,8 +134,11 @@ gulp.task("preview", () => {
 							return false
 						}
 					},
-					onChange: function(file) {
-					},
+
+					onChange: function(file) {},
+				},
+				onOpen: function(url) {
+					log("opening: " + url, "help")
 				},
 			})
 		})
