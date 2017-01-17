@@ -1,6 +1,6 @@
 {
   "name": "componer",
-  "version": "0.0.26",
+  "version": "0.0.27",
   "description": "A components work flow builder tool",
   "main": "index.js",
   "bin": {
@@ -31,6 +31,7 @@
     "shelljs": "^0.7.5"
   },
   "devDependencies": {
+    "babel-cli": "^6.18.0",
     "babel-core": "^6.21.0",
     "babel-preset-latest": "^6.16.0"
   }

@@ -334,28 +334,13 @@ _commander2.default.command("link [name]").description("(gulp) link local [name]
 	}
 });
 
-_commander2.default.command("remove <name>").alias("rm").description("remove a componout from componouts directory").action(function (name) {
+_commander2.default.command("remove <name>").alias("rm").description("(gulp) remove a componout from componouts directory").action(function (name) {
 	name = dashline(name);
 	check(name);
-
-	prompt("Are you sure to remove " + name + " componout? yes/No  ", function (choice) {
-		if (choice.toLowerCase() === "yes") {
-			if (exists(cwd + "/bower_components/" + name)) {
-				execute("cd " + cwd + " && bower unlink " + name);
-			}
-
-			if (exists(cwd + "/node_modules/" + name)) {
-				execute("cd " + cwd + " && npm unlink " + name);
-			}
-
-			execute("cd " + cwd + " && cd componouts && rm -rf " + name, function () {
-				log("Done! " + name + " has been deleted.", "done");
-			});
-
-			exit();
-		}
-	});
+	execute("cd " + cwd + " && gulp remove " + name);
 });
+
+// ----------------------------------------------------
 
 _commander2.default.command("pull <name> [params...]").description("clone/pull a componout from https://github.com/componer").option("-u, --url", "resgtry url").action(function (name, options, params) {
 	name = dashline(name);
