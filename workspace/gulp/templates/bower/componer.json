@@ -7,8 +7,8 @@
 		"test": "test/specs"
 	},
 	"output": {
-		"script": "dist/js/{{componout-name}}.js",
-		"style": "dist/css/{{componout-name}}.css",
+		"script": "dist/js",
+		"style": "dist/css",
 		"assets": "dist/assets",
 		"reporters": "test/reporters"
 	},

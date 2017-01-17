@@ -37,85 +37,85 @@ gulp.task("preview", () => {
 	}
 
 	var previewHtml = path.join(previewDir, "index.html")
+	var previewScript = path.join(previewDir, "index.js")
+	var previewStyle = path.join(previewDir, "index.scss")
+	var previewTmp = path.join(componoutPath, ".tmp")
 
 	if(!exists(previewHtml)) {
 		log("You should put a index.html in your preview directory.", "error")
 		exit()
 	}
-
-	var previewScripts = []
-	var previewStyles = []
-
-	fs.readdirSync(previewDir).forEach(file => {
-		let filepath = path.join(previewDir, file)
-		if(getFileExt(file) === ".js") {
-			previewScripts.push(filepath)
-		}
-		else if(getFileExt(file) === ".scss" || getFileExt(file) === ".css") {
-			previewStyles.push(filepath)
-		}
-	})
-
+	if(!exists(previewScript)) {
+		log("You should put a index.js in your preview directory.", "error")
+		exit()
+	}
+	
 	var host = "127.0.0.1"
 	var port = Math.floor(Math.random() * 1000) + 9000
 	
 	var streams = []
-	var streamInject = gulp.src(previewHtml)
-		.pipe(InjectJsToHtml("buildjs", ".tmp/" + name + ".bundle.js"))
-		.pipe(InjectCssToHtml("buildcss", ".tmp/" + name + ".bundle.css"))
-		.pipe(gulp.dest(previewDir))
-	streams.push(streamInject)
 
-	function build() {
-		var streams = []
-		if(previewScripts.length > 0) {
-			var streamScripts = buildScript(previewScripts, previewDir + "/.tmp", {
+	function buildHtml() {
+		return gulp.src(previewHtml)
+			.pipe(InjectJsToHtml("buildjs", name + ".bundle.js"))
+			.pipe(InjectCssToHtml("buildcss", name + ".bundle.css"))
+			.pipe(gulp.dest(previewTmp))
+	}
+	streams.push(buildHtml())
+
+	function buildScripts() {
+		return buildScript(previewScript, previewTmp, {
 				output: {
 					filename: name + ".bundle.js",
 					library: camelName(name),
 					sourceMapFilename: name + ".bundle.js" + ".map",
 				},
+				devtool: "source-map",
 			})
-			streams.push(streamScripts)
-		}
+	}
+	streams.push(buildScripts())
 
-		if(previewStyles.length > 0) {
-			var streamStyles = buildStyle(previewStyles, previewDir + "/.tmp", {
+	function buildStyles() {
+		return buildStyle(previewStyle, previewTmp, {
 				output: {
 					filename: name + ".bundle.css",
 					sourcemap: true,
 				},
 			})
-			streams.push(streamStyles)
+	}
+	if(exists(previewStyle)) {
+		streams.push(buildStyles())
+	}
+
+	gulp.watch([previewDir + "/**/*", srcPath + "/**/*"], event => {
+		let changefile = event.path
+		let ext = getFileExt(changefile)
+		if(ext === ".js") {
+			buildScripts()
 		}
+		else if(ext === ".scss" || ext === ".css") {
+			buildStyles()
+		}
+		else if(changefile.indexOf("index.html") > -1) {
+			buildHtml()
+		}
+	})
 
-		return streams
-	}
-
-	var streamBuild = build()
 	var $server = new TsServer()
-
-	if(streamBuild.length > 0) {
-		streams.concat(streamBuild)
-		gulp.watch(srcPath, event => {
-			concat(build()).on("end", () => $server.reload())
-		})
-	}
-
 	return concat(streams)
 		.on("end", () => {
 			// setup static server
 			$server.setup({
 				host: host,
 				port: port,
-				root: componoutPath,
-				open: path.basename(previewDir) + "/index.html",
+				root: previewTmp,
+				open: "index.html",
 				livereload: {
 					enable: true,
 					port: port + 10,
-					directory: componoutPath,
+					directory: previewTmp,
 					filter: function(file) {
-						if(file.indexOf(".tmp") < 0 && file.indexOf("preview") > 0) {
+						if(file.indexOf("index.html") > -1 || file.indexOf(name + ".bundle.js") > -1 || file.indexOf(name + ".bundle.css") > -1) {
 							return true
 						}
 						else {

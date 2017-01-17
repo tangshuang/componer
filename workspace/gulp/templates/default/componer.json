@@ -1,27 +1,36 @@
 {
 	"entry": {
 		"script": "src/script/{{componout-name}}.js",
-		"style": "src/style/{{componout-name}}.scss",
 		"assets": "assets",
-		"preveiw": "preveiw",
+		"preview": "preview",
 		"test": "test/specs"
 	},
 	"output": {
-		"script": "dist/js/{{componout-name}}.js",
-		"style": "dist/css/{{componout-name}}.css",
+		"script": "dist",
 		"assets": "assets",
 		"reporters": "test/reporters"
 	},
 	"webpack": {
 		"_minify": true,
-		"_sourcemap": true,
-		"output": {},
+		"output": {
+			"filename": "{{componout-name}}.js",
+			"libraryTarget": "umd",
+			"library": "{{componoutName}}",
+			"sourceMapFilename": "{{componout-name}}.js.map",
+			"publicPath": "assets"
+		},
 		"externals": {},
+		"resolve": {
+			"alias": {}
+		},
+		"devtool": "source-map"
 	},
 	"sass": {
 		"_minify": true,
-		"_sourcemap": true,
-		"output": {}
+		"output": {
+			"filename": "{{componout-name}}.css",
+			"sourcemap": true
+		}
 	},
 	"karma": {
 		"singleRun": true,

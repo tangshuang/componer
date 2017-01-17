@@ -75,22 +75,17 @@ gulp.task("build", () => {
 		exit()
 	}
 
+	// ------------------------------------------------------------
+
 	var streams = []
 
 	// scripts
 	if(entryJs) {
-		let outputJsFile = path.join(componoutPath, outputJs)
-		let outputJsDir = path.dirname(outputJsFile)
-		let outputJsName = path.basename(outputJsFile)
-		let outputJsMap = outputJsName + ".map"
-		let webpackSettings = {
-			output: {
-				filename: outputJsName,
-				library: camelName(name),
-				sourceMapFilename: outputJsMap,
-			},
-			devtool: "source-map",
-			externals: {},
+		let webpackSettings = settings.webpack
+
+		if(!webpackSettings) {
+			log("Not found `webpack` option in your componer.json.", "error")
+			exit()
 		}
 
 		function exterPkgs(pkgfile) {
@@ -99,7 +94,7 @@ gulp.task("build", () => {
 			}
 
 			var info = readJSON(pkgfile)
-			var externals = webpackSettings.externals
+			var externals = webpackSettings.externals || {}
 			var dependencies = info.dependencies
 
 			dependencies = typeof dependencies === "object" && Object.keys(dependencies)
@@ -115,31 +110,19 @@ gulp.task("build", () => {
 			exterPkgs(componoutPath + "/package.json")
 		}
 
-		if(settings.webpack) {
-			extend(true, webpackSettings, settings.webpack)
-		}
-
-		streams.push(buildScript(entryJs, outputJsDir, webpackSettings))
+		streams.push(buildScript(entryJs, outputJs, webpackSettings))
 	}
 
 	// styles
 	if(entryScss) {
-		let outputCssFile = path.join(componoutPath, outputCss)
-		let outputCssDir = path.dirname(outputCssFile)
-		let outputCssName = path.basename(outputCssFile)
-		let outputCssMap = outputCssName + ".map"
-		let sassSettings = {
-			output: {
-				filename: outputCssName,
-				sourceMapFilename: outputCssMap,
-			},
+		let sassSettings = settings.sass
+		
+		if(!sassSettings) {
+			log("Not found `sass` option in your componer.json.", "error")
+			exit()
 		}
 
-		if(settings.sass) {
-			extend(true, sassSettings, settings.sass)
-		}
-
-		streams.push(buildStyle(entryScss, outputCssDir, sassSettings))
+		streams.push(buildStyle(entryScss, outputCss, sassSettings))
 	}
 
 	// assets

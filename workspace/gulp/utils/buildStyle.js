@@ -6,14 +6,14 @@ import cssmin from "gulp-cssmin"
 import rename from "gulp-rename"
 import sourcemaps from "gulp-sourcemaps"
 
-import mergeStream from "pipe-concat"
+import merge from "pipe-concat"
 
 import {setFileExt} from "./index"
 
-export function buildStyle(entryFile, outDir, settings = {}) {
+export function buildStyle(entryFile, outDir, settings) {
 
-	var filename = settings.output && settings.output.filename
-	var isSourceMap = settings.output && settings.output.sourcemap
+	var filename = settings.output.filename
+	var isSourceMap = settings.output.sourcemap
 	var isMinfiy = settings._minify
 
 	if(!filename) {
@@ -61,7 +61,7 @@ export function buildStyle(entryFile, outDir, settings = {}) {
 		}
 
 		let stream2 = SourceMapMinify()
-		return mergeStream(stream1, stream2)
+		return merge(stream1, stream2)
 	}
 	else {
 		let stream1 = NoSourceMapNoMinify()
@@ -70,7 +70,7 @@ export function buildStyle(entryFile, outDir, settings = {}) {
 		}
 
 		let stream2 = NoSourceMapMinify()
-		return mergeStream(stream1, stream2)
+		return merge(stream1, stream2)
 	}
 
 }
