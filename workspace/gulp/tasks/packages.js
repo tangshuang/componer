@@ -1,8 +1,8 @@
-import {gulp, fs, path, config, log, exit, readJSON, execute, args} from "../loader"
-import {hasComponout} from "../utils"
+import {gulp, fs, path, config, log, exit, readJSON, execute, args, exists} from "../loader"
+import {hasComponout, dashlineName} from "../utils"
 
 gulp.task("install", () => {
-	var arg = args.preview
+	var arg = args.install
 	var componoutsPath = config.paths.componouts
 	var rootPath = config.paths.root
 
@@ -68,7 +68,7 @@ gulp.task("install", () => {
 })
 
 gulp.task("link", () => {
-	var arg = args.preview
+	var arg = args.link
 	var componoutsPath = config.paths.componouts
 	var rootPath = config.paths.root
 

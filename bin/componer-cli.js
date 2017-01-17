@@ -303,7 +303,7 @@ _commander2.default.command("watch [name]").description("(gulp) watch a componou
 	} else {
 		name = dashline(name);
 		check(name);
-		execute("cd " + cwd + " && gulp watch " + name);
+		execute("cd " + cwd + " && gulp watch --name=" + name);
 	}
 });
 
@@ -319,7 +319,7 @@ _commander2.default.command("install [name]").description("(gulp) install compon
 	} else {
 		name = dashline(name);
 		check(name);
-		execute("cd " + cwd + " && gulp install " + name);
+		execute("cd " + cwd + " && gulp install --name=" + name);
 	}
 });
 
@@ -330,7 +330,7 @@ _commander2.default.command("link [name]").description("(gulp) link local [name]
 	} else {
 		name = dashline(name);
 		check(name);
-		execute("cd " + cwd + " && gulp link " + name);
+		execute("cd " + cwd + " && gulp link --name=" + name);
 	}
 });
 

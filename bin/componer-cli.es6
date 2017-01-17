@@ -318,7 +318,7 @@ commander
 		else {
 			name = dashline(name)
 			check(name)
-			execute(`cd ${cwd} && gulp watch ${name}`)
+			execute(`cd ${cwd} && gulp watch --name=${name}`)
 		}
 	})
 
@@ -342,7 +342,7 @@ commander
 		else {
 			name = dashline(name)
 			check(name)
-			execute(`cd ${cwd} && gulp install ${name}`)
+			execute(`cd ${cwd} && gulp install --name=${name}`)
 		}
 	})
 
@@ -357,7 +357,7 @@ commander
 		else {
 			name = dashline(name)
 			check(name)
-			execute(`cd ${cwd} && gulp link ${name}`)
+			execute(`cd ${cwd} && gulp link --name=${name}`)
 		}
 	})
 

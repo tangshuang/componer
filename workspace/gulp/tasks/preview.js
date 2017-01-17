@@ -104,12 +104,24 @@ gulp.task("preview", () => {
 	var $server = new TsServer()
 	return concat(streams)
 		.on("end", () => {
+			// backend server
+			var backendServer
+			if(exists(previewDir + "/server.js")) {
+				let serv = require(previewDir + "/server.js")
+				if(typeof serv === "function") {
+					backendServer = serv
+				}
+				else if(typeof serv === "object" && typeof serv.default === "function") {
+					backendServer = serv.default
+				}
+			}
 			// setup static server
 			$server.setup({
 				host: host,
 				port: port,
 				root: previewTmp,
 				open: "index.html",
+				backendServer,
 				livereload: {
 					enable: true,
 					port: port + 10,
