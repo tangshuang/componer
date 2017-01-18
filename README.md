@@ -183,3 +183,64 @@ All componer command should be run in a componer directory. How about the direct
 ```
 
 All of workspace files can be modified, but you should follow the rules.
+
+## Componout
+
+A componout should must contains a componer.json file, which provides build, preview, test information.
+
+We have three default type of componout:
+
+1) npm: use this type to create a npm package
+
+2) bower: use this type to create a component, following bower specs
+
+3) default: uset this type to create a website application or a plugin
+
+Normal directory structure:
+
+```
+-- componout
+ `- src
+ | `- script
+ | |- style
+ | |- assets
+ | `- ...
+ |- preview
+ |- test
+ | `- specs
+ | |- data
+ | |- reporters
+ | `- ...
+ |- dist
+ |- componer.json
+ |- README.md
+ `- ...
+```
+
+In the core idea of componer "组件是素材，不是作品。", I suggest developers to hold up component ideas. You build components, and provide to others to use. A component should follow the idea of **independence**. 
+
+When you use componer to build a componout, if there is a bower.json in the componout directory, it will be considered as a component. Without bower.json, but there is a package.json, it will be considered as a npm package.
+
+When run build task, components' or packages' dependencies will not be packed by webpack. However, "bower_components" is automaticly considered as modules which can be require in source code, so just use bower component name to import the component.
+
+`dependencies` options in bower.json or package.json will be external modules in built componout. `devDependencies` in bower.json and package.json are no useful when building, but will be installed when you run `componer install` task.
+
+All dependencies should be install in "bower_components" and "node_modules" directories in your componer root directory, which in your componout directories will be ignore when building. So run `componer install [name]` after you change the dependencies in .json files of componout.
+
+## gulp tasks
+
+Componer is a shell of node command, tasks are using gulp task framework, you can even modify the previous tasks for you special project. All tasks are in `gulp/tasks` directory.
+
+You can even add a new gulp tasks in this directory, and run the new task by run `gulp new-task` in your componer directory.
+
+Notice: you should follow [process.args](https://github.com/tangshuang/process.args) to use cli parameters.
+
+## MIT License
+
+Copyright 2016 tangshuang
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
