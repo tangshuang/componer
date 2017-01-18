@@ -5,7 +5,6 @@ import logger from "process.logger"
 import processArgs from "process.args"
 import shell from "shelljs"
 import extend from "extend"
-import readline from "readline"
 
 import webpack from "../webpack.config"
 import karma from "../karma.config"
@@ -93,17 +92,6 @@ function clear(dir) {
 	execute("cd " + dir + " && rm -rf * && rm -rf .??*")
 }
 
-function prompt(question, callback) {
-	var rl = readline.createInterface({
-		input: process.stdin,
-		output: process.stdout,
-	})
-	rl.question(question, answer => {
-		rl.close()
-		callback(answer)
-	})
-}
-
 export {
     gulp,
     fs,
@@ -121,7 +109,6 @@ export {
     write,
     writeJSON,
     execute,
-    prompt,
     clear,
     log,
 }

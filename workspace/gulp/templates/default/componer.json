@@ -16,8 +16,7 @@
 			"filename": "{{componout-name}}.js",
 			"libraryTarget": "umd",
 			"library": "{{componoutName}}",
-			"sourceMapFilename": "{{componout-name}}.js.map",
-			"publicPath": "assets"
+			"sourceMapFilename": "{{componout-name}}.js.map"
 		},
 		"externals": {},
 		"resolve": {
