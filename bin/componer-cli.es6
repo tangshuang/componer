@@ -364,26 +364,15 @@ commander
 commander
 	.command("remove <name>")
 	.alias("rm")
-	.description("remove a componout from componouts directory")
+	.description("(gulp) remove a componout from componouts directory")
 	.action(name => {
 		name = dashline(name)
 		check(name)
 		prompt("Are you sure to remove " + name + " componout? yes/No  ", choice => {
 			if(choice.toLowerCase() === "yes") {
-				if(exists(`${cwd}/bower_components/${name}`)) {
-					execute(`cd ${cwd} && bower unlink ${name}`)
-				}
-
-				if(exists(`${cwd}/node_modules/${name}`)) {
-					execute(`cd ${cwd} && npm unlink ${name}`)
-				}
-
-				execute(`cd ${cwd} && cd componouts && rm -rf ${name}`, () => {
-					log("Done! " + name + " has been deleted.", "done")
-				})
-
-				exit()
+				execute(`cd ${cwd} && gulp remove --name=${name}`)
 			}
+			exit()
 		})
 	})
 
@@ -391,8 +380,8 @@ commander
 
 commander
 	.command("pull <name> [params...]")
-	.description("clone/pull a componout from https://github.com/componer")
-	.option("-u, --url", "resgtry url")
+	.description("clone/pull a componout from https://github.com/componer or your own registry")
+	.option("-u, --url", "registry url")
 	.action((name, options, params) => {
 		name = dashline(name)
 		check()
@@ -402,7 +391,7 @@ commander
 			execute(`cd ${cwd} && cd componouts && git clone ${url} ${name}`, () => {
 				log("Done! Componout has been added to componouts directory.", "done")
 			}, () => {
-				log("You can enter componout directory and run `git clone`.", "help")
+				log("Fail! You can enter componout directory and run `git clone`.", "help")
 			})
 		}
 		else {
@@ -419,7 +408,7 @@ commander
 
 commander
 	.command("push <name> [params...]")
-	.description("push a componout to https://github.com/componer")
+	.description("push a componout to remote registry")
 	.action((name, params) => {
 		name = dashline(name)
 		check(name)
@@ -430,7 +419,7 @@ commander
 				sh += " " + params.join(" ")
 			}
 			execute(sh, () => {
-				log("Done! Componout has been push to https://github.com/componer/" + name, "done")
+				log("Done! Componout has been push to remote registry", "done")
 			}, () => {
 				log("You can cd to componouts/" + name + " directory to run `git push`.", "help")
 			})
