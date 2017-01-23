@@ -78,7 +78,7 @@ function dashline(name) {
  * @param string dir: the path of directory to check whether it is a componer work directory.
  */
 function isComponer(dir) {
-	return exists(dir + "/package.json") && exists(dir + "/gulpfile.babel.js") && exists(dir + "/componouts");
+	return exists(dir + "/package.json") && exists(dir + "/gulpfile.babel.js") && exists(dir + "/.componerrc");
 }
 
 /**
@@ -178,9 +178,9 @@ _commander2.default.arguments('<cmd>').action(function (cmd, options) {
 	log("Not found `" + cmd + "` command, use `componer -h` to read more.", "warn");
 });
 
-_commander2.default.command("init").description("create a componer workflow frame instance").action(function (options) {
+_commander2.default.command("init").description("create a componer workflow frame instance").options("-i, --install", "whether to run `npm install` after files created.").action(function (options) {
 
-	function modify() {
+	function modify(isEmpty) {
 
 		prompt("What is your github user `name` in url? ", function (author) {
 			if (!author || author === "") {
@@ -203,7 +203,9 @@ _commander2.default.command("init").description("create a componer workflow fram
 
 				writeJSON(cwd + "/package.json", pkgInfo);
 
-				log("Done! Do NOT forget to run `npm install` before you begin.", "done");
+				if (isEmpty) {
+					options.install ? execute("cd " + cwd + " && npm install") : log("Done! Do NOT forget to run `npm install` before you begin.", "done");
+				}
 
 				exit();
 			});
@@ -226,7 +228,7 @@ _commander2.default.command("init").description("create a componer workflow fram
 		log("You should create `bower_components` and `componouts` directories by yourself.", "warn");
 		log("Do NOT forget to run `npm install`.", "warn");
 	});
-	modify();
+	modify(true);
 });
 
 _commander2.default.command("add <name>").description("(gulp) create a componout").option("-t, --template [template]", "template of componout").option("-a, --author [author]", "author of componout").option("-g, --git", "run `git init` after ready").action(function (name, options) {

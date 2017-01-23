@@ -55,7 +55,7 @@ function dashline(name) {
  * @param string dir: the path of directory to check whether it is a componer work directory.
  */
 function isComponer(dir) {
-	return exists(`${dir}/package.json`) && exists(`${dir}/gulpfile.babel.js`) && exists(`${dir}/componouts`)
+	return exists(`${dir}/package.json`) && exists(`${dir}/gulpfile.babel.js`) && exists(`${dir}/.componerrc`)
 }
 
 /**
@@ -166,9 +166,10 @@ commander
 commander
 	.command("init")
 	.description("create a componer workflow frame instance")
+	.options("-i, --install", "whether to run `npm install` after files created.")
 	.action(options => {
 
-		function modify() {
+		function modify(isEmpty) {
 			
 			prompt("What is your github user `name` in url? ", author => {
 				if(!author || author === "") {
@@ -191,7 +192,9 @@ commander
 
 					writeJSON(cwd + "/package.json", pkgInfo)
 
-					log("Done! Do NOT forget to run `npm install` before you begin.", "done")
+					if(isEmpty) {
+						options.install ? execute(`cd ${cwd} && npm install`) : log("Done! Do NOT forget to run `npm install` before you begin.", "done")
+					}
 
 					exit()
 				})
@@ -209,14 +212,13 @@ commander
 			exit()
 		}
 
-		
 		log("copying files...")
 		execute("cp -r " + instance + "/. " + cwd + "/")
 		execute(`cd ${cwd} && mkdir bower_components && mkdir componouts`, () => {}, () => {
 			log("You should create `bower_components` and `componouts` directories by yourself.", "warn")
 			log("Do NOT forget to run `npm install`.", "warn")
 		})
-		modify()
+		modify(true)
 		
 	})
 

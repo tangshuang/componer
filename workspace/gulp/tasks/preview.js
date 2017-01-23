@@ -3,6 +3,7 @@ import {hasComponout, dashlineName, camelName, getFileExt, setFileExt, buildScri
 
 import TsServer from "ts-server"
 import concat from "pipe-concat"
+import md5File from "md5-file"
 
 gulp.task("preview", () => {
 	var arg = args.preview
@@ -55,14 +56,6 @@ gulp.task("preview", () => {
 	
 	var streams = []
 
-	function buildHtml() {
-		return gulp.src(previewHtml)
-			.pipe(InjectJsToHtml("buildjs", name + ".bundle.js"))
-			.pipe(InjectCssToHtml("buildcss", name + ".bundle.css"))
-			.pipe(gulp.dest(previewTmp))
-	}
-	streams.push(buildHtml())
-
 	function buildScripts() {
 		return buildScript(previewScript, previewTmp, {
 				output: {
@@ -87,18 +80,51 @@ gulp.task("preview", () => {
 		streams.push(buildStyles())
 	}
 
+	function buildHtml() {
+		return gulp.src(previewHtml)
+			.pipe(InjectJsToHtml("buildjs", name + ".bundle.js"))
+			.pipe(InjectCssToHtml("buildcss", name + ".bundle.css"))
+			.pipe(gulp.dest(previewTmp))
+	}
+	streams.push(buildHtml())
+
+	var lastMd5
+	var status = {}
+	var timer
 	gulp.watch([previewDir + "/**/*", srcPath + "/**/*"], event => {
-		let changefile = event.path
-		let ext = getFileExt(changefile)
-		if(ext === ".js") {
-			buildScripts()
+		if(timer) {
+			clearTimeout(timer)
 		}
-		else if(ext === ".scss" || ext === ".css") {
-			buildStyles()
-		}
-		else if(changefile.indexOf("index.html") > -1) {
-			buildHtml()
-		}
+		timer = setTimeout(() => {
+			let changeFile = event.path
+			let newMd5 = md5File.sync(changeFile)
+			if(lastMd5 === newMd5) {
+				return
+			}
+
+			let ext = getFileExt(changeFile)
+			if(ext === ".js") {
+				if(status.script) {
+					return
+				}
+				status.script = true
+				buildScripts().on("end", () => status.script = false)
+			}
+			else if(ext === ".scss" || ext === ".css") {
+				if(status.style) {
+					return
+				}
+				status.style = true
+				buildStyles().on("end", () => status.style = false)
+			}
+			else if(changeFile.indexOf("index.html") > -1) {
+				if(status.html) {
+					return
+				}
+				status.html = true
+				buildHtml().on("end", () => status.html = false)
+			}
+		}, 500)
 	})
 
 	var $server = new TsServer()

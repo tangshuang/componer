@@ -1,13 +1,13 @@
 {
   "name": "componer",
-  "version": "0.0.35",
+  "version": "0.0.37",
   "description": "A components work flow builder tool",
   "main": "index.js",
   "bin": {
-    "componer": "bin/componer-cli.js"
+    "componer": "cli.js"
   },
   "scripts": {
-    "build": "babel bin/componer-cli.es6 -o bin/componer-cli.js",
+    "build": "babel bin/componer-cli.es6 -o cli.js",
     "watch": "npm run build -- --watch",
     "prepublish": "npm run build"
   },

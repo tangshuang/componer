@@ -1,5 +1,7 @@
 bower_components/
 node_modules/
-workspace/componouts/
-docs/
 npm-debug.log
+
+workspace/componouts/
+workspace/bower_components/
+workspace/node_modules/
