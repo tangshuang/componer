@@ -166,7 +166,7 @@ commander
 commander
 	.command("init")
 	.description("create a componer workflow frame instance")
-	.options("-i, --install", "whether to run `npm install` after files created.")
+	.option("-i, --install", "whether to run `npm install` after files created.")
 	.action(options => {
 
 		function modify(isEmpty) {
@@ -193,7 +193,13 @@ commander
 					writeJSON(cwd + "/package.json", pkgInfo)
 
 					if(isEmpty) {
-						options.install ? execute(`cd ${cwd} && npm install`) : log("Done! Do NOT forget to run `npm install` before you begin.", "done")
+						if(options.install) {
+							log("npm install...")
+							execute(`cd ${cwd} && npm install`)
+						}
+						else {
+							log("Done! Do NOT forget to run `npm install` before you begin.", "done")
+						}
 					}
 
 					exit()
