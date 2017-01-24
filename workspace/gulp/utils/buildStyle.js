@@ -3,14 +3,16 @@ import gulp from "gulp"
 import sass from "gulp-sass"
 import concat from "gulp-concat"
 import cssmin from "gulp-cssmin"
+import postcss from "gulp-postcss"
+import cssnext from "postcss-cssnext"
 import rename from "gulp-rename"
 import sourcemaps from "gulp-sourcemaps"
 
 import merge from "pipe-concat"
 
-import {setFileExt} from "./index"
+import {setFileExt, AssetsRelativePath} from "./index"
 
-export function buildStyle(entryFile, outDir, settings) {
+export function buildStyle(entryFile, outDirPath, settings) {
 
 	var filename = settings.output.filename
 	var isSourceMap = settings.output.sourcemap
@@ -21,38 +23,47 @@ export function buildStyle(entryFile, outDir, settings) {
 		filename = typeof entryFile === "string" ? setFileExt(path.basename(entryFile), ".css") : "styles.css"
 	}
 
+	var plugins = [
+    cssnext,
+	]
+
 	function NoSourceMapNoMinify() {
 		return gulp.src(entryFile)
 			.pipe(sass())
+			.pipe(postcss(plugins))
 			.pipe(rename(filename))
-			.pipe(gulp.dest(outDir))
+			.pipe(gulp.dest(outDirPath))
 	}
 
 	function SourceMapNoMinify() {
 		return gulp.src(entryFile)
 			.pipe(sourcemaps.init())
 			.pipe(sass())
+			.pipe(AssetsRelativePath(entryFile, outDirPath))
+			.pipe(postcss(plugins))
 			.pipe(rename(filename))
 			.pipe(sourcemaps.write(sourceMapDir))
-			.pipe(gulp.dest(outDir))
+			.pipe(gulp.dest(outDirPath))
 	}
 
 	function NoSourceMapMinify() {
 		return gulp.src(entryFile)
 			.pipe(sass())
+			.pipe(postcss(plugins))
 			.pipe(cssmin())
 			.pipe(rename(setFileExt(filename, ".min.css")))
-			.pipe(gulp.dest(outDir))
+			.pipe(gulp.dest(outDirPath))
 	}
 
 	function SourceMapMinify() {
 		return gulp.src(entryFile)
 			.pipe(sourcemaps.init())
 			.pipe(sass())
+			.pipe(postcss(plugins))
 			.pipe(cssmin())
 			.pipe(rename(setFileExt(filename, ".min.css")))
 			.pipe(sourcemaps.write(sourceMapDir))
-			.pipe(gulp.dest(outDir))
+			.pipe(gulp.dest(outDirPath))
 	}
 
 	if(isSourceMap) {

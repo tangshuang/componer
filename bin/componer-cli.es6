@@ -55,7 +55,7 @@ function dashline(name) {
  * @param string dir: the path of directory to check whether it is a componer work directory.
  */
 function isComponer(dir) {
-	return exists(`${dir}/package.json`) && exists(`${dir}/gulpfile.babel.js`) && exists(`${dir}/.componerrc`)
+	return exists(`${dir}/package.json`) && exists(`${dir}/.componerrc`)
 }
 
 /**
@@ -74,7 +74,7 @@ function current() {
 			current = path.resolve(current, "..")
 		}
 	}
-	
+
 	return flag && current
 }
 
@@ -119,7 +119,7 @@ function execute(cmd, done, fail) {
 			cmd += " --silent"
 		}
 	}
-	
+
 	var result = shell.exec(cmd)
 	if(result.code === 0) {
 		typeof done === "function" && done()
@@ -170,7 +170,7 @@ commander
 	.action(options => {
 
 		function modify(isEmpty) {
-			
+
 			prompt("What is your github user `name` in url? ", author => {
 				if(!author || author === "") {
 					log("You must input your github name to create github address.", "error")
@@ -225,7 +225,7 @@ commander
 			log("Do NOT forget to run `npm install`.", "warn")
 		})
 		modify(true)
-		
+
 	})
 
 commander
@@ -272,7 +272,7 @@ commander
 			check(name)
 			execute(`cd ${cwd} && gulp build --name=${name}`)
 		}
-		
+
 	})
 
 commander
@@ -298,7 +298,7 @@ commander
 		if(options.debug) {
 			cmd += " --debug"
 		}
-		
+
 		if(name === undefined) {
 			check()
 			if(options.debug) {

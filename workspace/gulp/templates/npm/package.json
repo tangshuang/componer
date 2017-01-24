@@ -7,7 +7,7 @@
   },
   "keywords": [
   ],
-  "author": "{{author}}",
+  "author": "{{author name}}",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/{{author}}/{{componout-name}}.git"

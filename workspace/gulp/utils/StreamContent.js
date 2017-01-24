@@ -1,7 +1,7 @@
 /**
  * pipe plugin
  */
- 
+
 import through from "through2"
 import {log} from "../loader"
 
@@ -19,8 +19,8 @@ export function modifyStreamContent(modify) {
 
 		var content = file.contents.toString()
 
-		content = modify(content) || content
-		
+		content = modify(content, file.path) || content
+
 		file.contents = new Buffer(content)
 		this.push(file)
 		callback()

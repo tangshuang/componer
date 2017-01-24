@@ -1,6 +1,6 @@
+import "babel-polyfill"
 import fs from "fs"
 import path from "path"
-import gulp from "gulp"
 
 var files = fs.readdirSync("./gulp/tasks")
 files.forEach(file => {

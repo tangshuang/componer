@@ -10,7 +10,7 @@
         "es6"
     ],
     "authors": [
-        "{{author}}"
+        "{{author name}}"
     ],
     "homepage": "https://github.com/{{author}}/{{componout-name}}",
     "repository": {
