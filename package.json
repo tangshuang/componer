@@ -1,7 +1,7 @@
 {
   "name": "componer",
   "version": "0.0.40",
-  "description": "A components work flow builder tool",
+  "description": "A components builder tool",
   "main": "index.js",
   "bin": {
     "componer": "bin/componer-cli.js"

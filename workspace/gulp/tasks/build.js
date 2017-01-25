@@ -7,7 +7,7 @@ gulp.task("build", () => {
 	var arg = args.build
 
 	if(arg.name === undefined) {
-		fs.readdirSync(componoutsPath).forEach(item => {
+		fs.readdirSync(config.paths.componouts).forEach(item => {
 			runTask("build", {
 				name: item,
 			})
@@ -93,8 +93,12 @@ gulp.task("build", () => {
 				return
 			}
 
+			if(!webpackSettings.externals) {
+				webpackSettings.externals = {}
+			}
+
 			var info = readJSON(pkgfile)
-			var externals = webpackSettings.externals || {}
+			var externals = webpackSettings.externals
 			var dependencies = info.dependencies
 
 			dependencies = typeof dependencies === "object" && Object.keys(dependencies)
@@ -103,10 +107,10 @@ gulp.task("build", () => {
 			}
 		}
 
-		if(exists(componoutPath + "/bower.json")) {
+		if(exists(componoutPath + "/bower.json") && !exists(componoutPath + "/package.json")) {
 			exterPkgs(componoutPath + "/bower.json")
 		}
-		else if(exists(componoutPath + "/package.json")) {
+		else if(exists(componoutPath + "/package.json") && !exists(componoutPath + "/bower.json")) {
 			exterPkgs(componoutPath + "/package.json")
 		}
 
@@ -116,7 +120,7 @@ gulp.task("build", () => {
 	// styles
 	if(entryScss) {
 		let sassSettings = settings.sass
-		
+
 		if(!sassSettings) {
 			log("Not found `sass` option in your componer.json.", "error")
 			exit()
@@ -135,7 +139,7 @@ gulp.task("build", () => {
 	if(streams.length > 0) {
 		return concat(streams).on("end", () => log(`${name} has been completely built.`, "done"))
 	}
-	
+
 	// build fail
 	log("Something is wrong. Check your componer.json.", "warn")
 	exit()

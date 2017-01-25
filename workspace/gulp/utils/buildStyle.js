@@ -18,6 +18,7 @@ export function buildStyle(entryFile, outDirPath, settings) {
 	var isSourceMap = settings.output.sourcemap
 	var sourceMapDir = isSourceMap === "inline" ? undefined : "./"
 	var isMinfiy = settings._minify
+	var assetsRoot = settings.publicPath || ""
 
 	if(!filename) {
 		filename = typeof entryFile === "string" ? setFileExt(path.basename(entryFile), ".css") : "styles.css"
@@ -30,6 +31,7 @@ export function buildStyle(entryFile, outDirPath, settings) {
 	function NoSourceMapNoMinify() {
 		return gulp.src(entryFile)
 			.pipe(sass())
+			.pipe(AssetsRelativePath(assetsRoot))
 			.pipe(postcss(plugins))
 			.pipe(rename(filename))
 			.pipe(gulp.dest(outDirPath))
@@ -39,7 +41,7 @@ export function buildStyle(entryFile, outDirPath, settings) {
 		return gulp.src(entryFile)
 			.pipe(sourcemaps.init())
 			.pipe(sass())
-			.pipe(AssetsRelativePath(entryFile, outDirPath))
+			.pipe(AssetsRelativePath(assetsRoot))
 			.pipe(postcss(plugins))
 			.pipe(rename(filename))
 			.pipe(sourcemaps.write(sourceMapDir))
@@ -49,6 +51,7 @@ export function buildStyle(entryFile, outDirPath, settings) {
 	function NoSourceMapMinify() {
 		return gulp.src(entryFile)
 			.pipe(sass())
+			.pipe(AssetsRelativePath(assetsRoot))
 			.pipe(postcss(plugins))
 			.pipe(cssmin())
 			.pipe(rename(setFileExt(filename, ".min.css")))
@@ -59,6 +62,7 @@ export function buildStyle(entryFile, outDirPath, settings) {
 		return gulp.src(entryFile)
 			.pipe(sourcemaps.init())
 			.pipe(sass())
+			.pipe(AssetsRelativePath(assetsRoot))
 			.pipe(postcss(plugins))
 			.pipe(cssmin())
 			.pipe(rename(setFileExt(filename, ".min.css")))

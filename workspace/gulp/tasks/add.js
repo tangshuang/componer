@@ -26,16 +26,19 @@ gulp.task("add", () => {
 	return gulp.src([templatesPath + "/**/*", templatesPath + "/.*"])
 		.pipe(PaserTemplate({
 			componoutName: name,
-			authorName: authorName,
+			authorName: author,
 		}))
 		.pipe(gulp.dest(componoutPath))
 		.on("end", () => {
 			exists(componoutPath + "/src/index.js") && fs.renameSync(componoutPath + "/src/index.js", componoutPath + "/src/" + name + ".js")
-			exists(componoutPath + "/test/index.js") && fs.renameSync(componoutPath + "/test/index.js", componoutPath + "/test/" + name + ".js")
-
 			exists(componoutPath + "/src/script/index.js") && fs.renameSync(componoutPath + "/src/script/index.js", componoutPath + "/src/script/" + name + ".js")
 			exists(componoutPath + "/src/style/index.scss") && fs.renameSync(componoutPath + "/src/style/index.scss", componoutPath + "/src/style/" + name + ".scss")
+
+			exists(componoutPath + "/test/index.js") && fs.renameSync(componoutPath + "/test/index.js", componoutPath + "/test/" + name + ".js")
 			exists(componoutPath + "/test/specs/index.js") && fs.renameSync(componoutPath + "/test/specs/index.js", componoutPath + "/test/specs/" + name + ".js")
+
+			exists(componoutPath + "/preview/index.js") && fs.renameSync(componoutPath + "/preview/index.js", componoutPath + "/preview/" + name + ".js")
+			exists(componoutPath + "/preview/index.scss") && fs.renameSync(componoutPath + "/preview/index.scss", componoutPath + "/preview/" + name + ".scss")
 
 			log(`${name} has been completely created.`, "done")
 		})

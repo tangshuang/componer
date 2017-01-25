@@ -10,23 +10,19 @@ function matchAll(str, reg) {
   return res
 }
 
-export function AssetsRelativePath(entryFile, distPath) {
+export function AssetsRelativePath(root) {
 	return modifyStreamContent((content, filePath) => {
     var matches = matchAll(content, /url\((\S+?)\)/gi)
-    var currentDir = path.dirname(filePath)
-
     if(matches instanceof Array) {
       matches.forEach(match => {
-        let url = match[1]
-        // only relative path supported
-        if(url.toString().substr(0, 1) !== ".") {
+        let url = match[1].toString()
+        // only relative path supported, absolute path will be ignore
+        if(url.substr(0, 1) === "/" || url.indexOf("http") === 0) {
           return
         }
 
         let file = url.replace("'", "").replace('"', "")
-        let originalPath = path.resolve(currentDir, file)
-        let relative = path.relative("", originalPath)
-        let res = relative.replace(/\\/g, "/")
+        let res = root + file
         content = content.replace(url, res)
       })
     }

@@ -14,7 +14,7 @@ gulp.task("test", () => {
 		fs.readdirSync(componoutsPath).forEach(item => {
 			runTask("test", {
 				name: item,
-				browser: "PhantomJS"				
+				browser: "PhantomJS"
 			})
 		})
 		return
@@ -36,16 +36,20 @@ gulp.task("test", () => {
 	}
 
 	var settings = readJSON(componoutPath + "/componer.json")
-	var testDir = settings.entry.test
-
-	if(!testDir) {
-		log(`entry.test option is not correct in your componer.json.`, "error")
+	if(!settings.test) {
+		log(`test option is incorrect in your componer.json.`, "error")
 		exit()
 	}
 
-	var testPath = path.join(componoutPath, testDir)
-	if(!exists(testPath)) {
-		log(`test directory not found.`, "error")
+	var testEntry = settings.test.entry
+	if(!testEntry) {
+		log(`test.entry option is not correct in your componer.json.`, "error")
+		exit()
+	}
+
+	var entryfile = path.join(componoutPath, testEntry)
+	if(!exists(entryfile)) {
+		log(`test entry file not found.`, "error")
 		exit()
 	}
 
@@ -53,8 +57,8 @@ gulp.task("test", () => {
 	/**
 	 * if it is a package, run test with jasmine-node
 	 */
-	if(exists(componoutPath + "/package.json")) {
-		return gulp.src(testPath + "/*.js").pipe(jasmine({
+	if(exists(componoutPath + "/package.json") && !exists(componoutPath + "/bower.json")) {
+		return gulp.src(entryfile).pipe(jasmine({
 			timeout: 10000,
 			includeStackTrace: false,
 			color: process.argv.indexOf("--color")
@@ -66,9 +70,9 @@ gulp.task("test", () => {
 	 * if it is normal package can be run in browser
 	 */
 
-	var reportersDir = settings.output.reporters
+	var reportersDir = settings.test.reporters
 	if(!reportersDir) {
-		log("Not found `output.reporters` option in componer.json.", "error")
+		log(`test.reporters option is not correct in your componer.json.`, "error")
 		exit()
 	}
 
@@ -82,30 +86,24 @@ gulp.task("test", () => {
 	preprocessors[testPath + "/**/*.scss"] = ["scss"]
 
 	var karmaSettings = {
+			singleRun: !debug || !settings.test.debug,
+			browsers: browser || settings.test.browsers,
 			preprocessors: preprocessors,
-	        coverageReporter: {
-	        	reporters: [
-                	{
+			coverageReporter: {
+				reporters: [
+					{
 						type: "html",
 						dir: reportersPath,
 					},
-                ],
-	        },
-            htmlReporter: {
-                outputDir: reportersPath,
+				],
+			},
+			htmlReporter: {
+				outputDir: reportersPath,
 				reportName: name,
-            },
+			},
 		}
-	extend(true, karmaSettings, settings.karma)
 
-	if(debug) {
-		karmaSettings.singleRun = false
-	}
-	if(browser) {
-		karmaSettings.browsers = [browser]
-	}
-
-	return gulp.src(testPath + "/*.js")
+	return gulp.src(entryfile)
 		.pipe(karma(config.karma(karmaSettings)))
 		.on("end", () => {
 			log("Reporters ware created in componouts/" + name + "/" + reportersDir, "help")

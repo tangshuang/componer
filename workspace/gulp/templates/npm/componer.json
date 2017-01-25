@@ -1,7 +1,6 @@
 {
 	"entry": {
-		"script": "src/{{componout-name}}.js",
-		"test": "test"
+		"script": "src/{{componout-name}}.js"
 	},
 	"output": {
 		"script": "dist"
@@ -12,9 +11,13 @@
 			"libraryTarget": "commonjs2",
 			"filename": "{{componout-name}}.js"
 		},
+		"target": "node",
 		"externals": {},
 		"resolve": {
 			"alias": {}
 		}
+	},
+	"test": {
+		"entry": "test/specs/{{componout-name}}.js"
 	}
 }

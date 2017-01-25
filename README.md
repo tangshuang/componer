@@ -62,7 +62,7 @@ If you want to add a new type of componout, just create a new dirctory in your g
 
 ### build [name]
 
-When you run build task, componer will compile your ES6 code to ES5 code and combine your code into one file by webpack. 
+When you run build task, componer will compile your ES6 code to ES5 code and combine your code into one file by webpack.
 At the some time, scss files will be compiled to css files, minified by cssmin, and be put in `dist` directory too.
 
 However, componer.json is a special file which is used for compiling.
@@ -119,19 +119,19 @@ If `name` is not given, all componouts will be watched.
 
 ### preview
 
-When you preview a componout, it will firstly build it into a `.tmp` directory and then setup a local static webserver to preview your componout. 
+When you preview a componout, it will firstly build it into a `.tmp` directory and then setup a local static webserver to preview your componout.
 
 You should give a index.html and a index.js file in your preview directory (which is point out in your componer.json). These two files are neccessary, or your preview task will fail. However, you can put a index.scss and server.js in your preview directory. index.scss is used for styles entry, which will be built by sass. And server.js is used for a backend server.
 
 ### test [name]
 
-Componer use karma and jasmine as framework. 
+Componer use karma and jasmine as framework.
 
-You can pass `-D` (short for --debug) and `-b` (short for --browser). 
+You can pass `-D` (short for --debug) and `-b` (short for --browser).
 When use --debug mode, browser will be open, you can debug testing code in browser.
 You can use --browser to change to test in different browser. For example, you can use Firefox. Only "Chrome" or "Firefox" or "PhantomJS" can be used. "PhantomJS" is default.
 
-When you test a node module componout, it use jasmine-node to test it. 
+When you test a node module componout, it use jasmine-node to test it.
 
 If `name` is not given, all componouts will be tested. But debug mode can not be used.
 
@@ -217,13 +217,13 @@ Normal directory structure:
  `- ...
 ```
 
-In the core idea of componer "组件是素材，不是作品。", I suggest developers to hold up component ideas. You build components, and provide to others to use. A component should follow the idea of **independence**. 
+In the core idea of componer "组件是素材，不是作品。", I suggest developers to hold up component ideas. You build components, and provide to others to use. A component should follow the idea of **independence**.
 
-When you use componer to build a componout, if there is a bower.json in the componout directory, it will be considered as a component. Without bower.json, but there is a package.json, it will be considered as a npm package.
+When you use componer to build a componout, if there is a bower.json in the componout directory without package.json file in it, it will be considered as a component. Without bower.json, but there is a package.json, it will be considered as a npm package. However, if there is neither a bower.json nor a package.json, or there are both a bower.json and package.json, the componout will be considered as a application, which will pack all dependencies in the built file.
 
 When run build task, components' or packages' dependencies will not be packed by webpack. However, "bower_components" is automaticly considered as modules which can be require in source code, so just use bower component name to import the component.
 
-`dependencies` options in bower.json or package.json will be external modules in built componout. `devDependencies` in bower.json and package.json are no useful when building, but will be installed when you run `componer install` task.
+`dependencies` options in bower.json or package.json will be external modules in built module componout. `devDependencies` in bower.json and package.json are no useful when building, but will be installed when you run `componer install` task.
 
 All dependencies should be install in "bower_components" and "node_modules" directories in your componer root directory, which in your componout directories will be ignore when building. So run `componer install [name]` after you change the dependencies in .json files of componout.
 

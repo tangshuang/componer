@@ -3,17 +3,15 @@
   "version": "0.0.1",
   "description": "",
   "main": "dist/{{componout-name}}.js",
-  "scripts": {
-  },
-  "keywords": [
-  ],
+  "scripts": {},
+  "keywords": [],
   "author": "{{author name}}",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/{{author}}/{{componout-name}}.git"
+    "url": "git+https://github.com/{{author-name}}/{{componout-name}}.git"
   },
   "bugs": {
-    "url": "https://github.com/{{author}}/{{componout-name}}/issues"
+    "url": "https://github.com/{{author-name}}/{{componout-name}}/issues"
   },
   "license": "ISC"
 }

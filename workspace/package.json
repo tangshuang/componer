@@ -1,10 +1,10 @@
 {
-  "name": "componer-project",
+  "name": "project-name",
   "version": "0.0.1",
-  "description": "A components work flow tool dependented on gulp",
+  "description": "",
   "main": "index.js",
   "scripts": {},
-  "author": "your-github-username",
+  "author": "github-username",
   "license": "ISC",
   "dependencies": {},
   "devDependencies": {
@@ -48,6 +48,7 @@
     "postcss-cssnext": "^2.9.0",
     "process.args": "0.0.6",
     "process.logger": "^1.1.2",
+    "require-reload": "^0.2.2",
     "sass-loader": "^4.0.2",
     "shelljs": "^0.7.5",
     "style-loader": "^0.13.1",

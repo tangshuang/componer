@@ -13,15 +13,21 @@
 			"filename": "{{componout-name}}.js",
 			"libraryTarget": "umd",
 			"library": "{{componoutName}}",
-			"sourceMapFilename": "{{componout-name}}.js.map"
+			"sourceMapFilename": "{{componout-name}}.js.map",
+			"publicPath": ""
 		},
-		"devtool": "source-map"
+		"devtool": "source-map",
+		"externals": {},
+		"resolve": {
+			"alias": {}
+		}
 	},
 	"sass": {
 		"_minify": true,
 		"output": {
 			"filename": "{{componout-name}}.css",
-			"sourcemap": true
+			"sourcemap": true,
+			"publicPath": ""
 		}
 	},
 	"preview": {
@@ -29,7 +35,12 @@
 		"script": "preview/{{componout-name}}.js",
 		"style": "preview/{{componout-name}}.scss",
 		"server": "preview/server.js",
-		"tmpdir": ".tmp"
+		"tmpdir": ".tmp",
+		"listen": [
+			".tmp/index.html",
+			".tmp/{{componout-name}}.js",
+			".tmp/{{componout-name}}.css"
+		]
 	},
 	"test": {
 		"entry": "test/specs/{{componout-name}}.js",

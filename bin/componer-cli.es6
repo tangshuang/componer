@@ -78,6 +78,14 @@ function current() {
 	return flag && current
 }
 
+function fixname(name) {
+	var prefix = config("prefix")
+	if(prefix) {
+		name = prefix + name
+	}
+	return name
+}
+
 /**
  * @param string name: the name of a componout that will be check
  * @param boolean exit: whether to exit process when the result is false.
@@ -97,7 +105,6 @@ function check(name) {
 		exit()
 	}
 
-
 	if(name && !has(name)) {
 		log(`You don't have a componout named ${name} now.`, "error")
 		exit()
@@ -110,12 +117,11 @@ function check(name) {
  * @param function fail: callback function when error or fail
  */
 function execute(cmd, done, fail) {
-	if(cmd.indexOf("gulp") > -1 && exists(`${cwd}/.componerrc`)) {
-		var config = readJSON(`${cwd}/.componerrc`)
-		if(config.color) {
+	if(cmd.indexOf("gulp") > -1) {
+		if(config("color")) {
 			cmd += " --color"
 		}
-		if(!config.silent) {
+		if(!config("silent")) {
 			cmd += " --silent"
 		}
 	}
@@ -146,8 +152,12 @@ function prompt(question, callback) {
 }
 
 function log(msg, level) {
+	config("color") && logger[level] ? logger[level](msg) : console.log(msg)
+}
+
+function config(key) {
 	var config = exists(`${cwd}/.componerrc`) ? readJSON(`${cwd}/.componerrc`) : {}
-	config.color && logger[level] ? logger[level](msg) : console.log(msg)
+	return key ? config[key] : config
 }
 
 // ======================================================
@@ -236,6 +246,7 @@ commander
 	.option("-g, --git", "run `git init` after ready")
 	.action((name, options) => {
 		name = dashline(name)
+		name = fixname(name)
 		check()
 
 		var template = options.template || "default"
@@ -269,6 +280,7 @@ commander
 		}
 		else {
 			name = dashline(name)
+			name = fixname(name)
 			check(name)
 			execute(`cd ${cwd} && gulp build --name=${name}`)
 		}
@@ -280,6 +292,7 @@ commander
 	.description("(gulp) preview a componout")
 	.action(name => {
 		name = dashline(name)
+		name = fixname(name)
 		check(name)
 		execute(`cd ${cwd} && gulp preview --name=${name}`)
 	})
@@ -308,6 +321,7 @@ commander
 		}
 		else {
 			name = dashline(name)
+			name = fixname(name)
 			check(name)
 			cmd += ` --name=${name}`
 		}
@@ -325,6 +339,7 @@ commander
 		}
 		else {
 			name = dashline(name)
+			name = fixname(name)
 			check(name)
 			execute(`cd ${cwd} && gulp watch --name=${name}`)
 		}
@@ -349,6 +364,7 @@ commander
 		}
 		else {
 			name = dashline(name)
+			name = fixname(name)
 			check(name)
 			execute(`cd ${cwd} && gulp install --name=${name}`)
 		}
@@ -364,6 +380,7 @@ commander
 		}
 		else {
 			name = dashline(name)
+			name = fixname(name)
 			check(name)
 			execute(`cd ${cwd} && gulp link --name=${name}`)
 		}
@@ -375,6 +392,7 @@ commander
 	.description("(gulp) remove a componout from componouts directory")
 	.action(name => {
 		name = dashline(name)
+		name = fixname(name)
 		check(name)
 		prompt("Are you sure to remove " + name + " componout? yes/No  ", choice => {
 			if(choice.toLowerCase() === "yes") {
@@ -392,6 +410,7 @@ commander
 	.option("-u, --url", "registry url")
 	.action((name, options, params) => {
 		name = dashline(name)
+		name = fixname(name)
 		check()
 
 		if(!has(name)) {
@@ -419,6 +438,7 @@ commander
 	.description("push a componout to remote registry")
 	.action((name, params) => {
 		name = dashline(name)
+		name = fixname(name)
 		check(name)
 
 		prompt("Commit message: ", message => {
