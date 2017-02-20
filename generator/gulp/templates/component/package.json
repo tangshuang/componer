@@ -6,6 +6,8 @@
   "scripts": {},
   "keywords": [],
   "author": "{{author name}}",
+  "dependencies": {},
+  "devDependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/{{author-name}}/{{componout-name}}.git"

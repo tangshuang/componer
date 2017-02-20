@@ -2,6 +2,6 @@ bower_components/
 node_modules/
 npm-debug.log
 
-workspace/componouts/
-workspace/bower_components/
-workspace/node_modules/
+generator/componouts/
+generator/bower_components/
+generator/node_modules/

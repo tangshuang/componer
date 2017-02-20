@@ -92,6 +92,15 @@ function clear(dir) {
 	execute("cd " + dir + " && rm -rf * && rm -rf .??*")
 }
 
+function load(file) {
+	var rs = require(file)
+	if(typeof rs === "object") {
+		if(rs.default) return rs.default
+		else return rs
+	}
+	return rs
+}
+
 export {
     gulp,
     fs,
@@ -101,7 +110,7 @@ export {
 
     config,
     args,
-    
+
     exit,
     exists,
     read,
@@ -111,4 +120,6 @@ export {
     execute,
     clear,
     log,
+
+	load,
 }

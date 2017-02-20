@@ -16,7 +16,7 @@ if(argvs.length <= 2) {
 }
 
 // ----------------------------------
-var instance = path.resolve(__dirname, "../workspace")
+var generator = path.resolve(__dirname, "../generator")
 var cwd = process.cwd()
 var info = readJSON(__dirname + "/../package.json")
 
@@ -229,9 +229,9 @@ commander
 		}
 
 		log("copying files...")
-		execute("cp -r " + instance + "/. " + cwd + "/")
-		execute(`cd ${cwd} && mkdir bower_components && mkdir componouts`, () => {}, () => {
-			log("You should create `bower_components` and `componouts` directories by yourself.", "warn")
+		execute("cp -r " + generator + "/. " + cwd + "/")
+		execute(`cd ${cwd} && mkdir componouts`, () => {}, () => {
+			log("You should create `componouts` directory by yourself.", "warn")
 			log("Do NOT forget to run `npm install`.", "warn")
 		})
 		modify(true)
