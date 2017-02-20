@@ -1,4 +1,3 @@
-bower_components/
 node_modules/
 npm-debug.log
 
@@ -6,4 +5,4 @@ generator/componouts/
 generator/bower_components/
 generator/node_modules/
 
-bin/componer-cli.js
+bin/componer.js

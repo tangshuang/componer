@@ -1,5 +1,8 @@
 {
 	"color": true,
 	"silent": true,
-	"prefix": ""
+	"projectPrefix": "",
+	"defaultOptions": {
+		"template": "component"
+	}
 }

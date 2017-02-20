@@ -7,6 +7,7 @@ import readline from "readline"
 import commander from "commander"
 import shell from "shelljs"
 import logger from "process.logger"
+import extend from "extend"
 
 var argvs = process.argv
 
@@ -178,6 +179,7 @@ commander
 	.description("create a componer workflow frame instance")
 	.option("-i, --install", "whether to run `npm install` after files created.")
 	.action(options => {
+		options = extend({}, config("defaultOptions"), options)
 
 		function modify(isEmpty) {
 
@@ -187,10 +189,19 @@ commander
 					exit()
 				}
 
-				var pkgInfo = readJSON(cwd + "/package.json")
+				// update .componerrc
+				let componerConfig = readJSON(cwd + "/.componerrc")
+				componerConfig.defaultOptions.author = author
+				writeJSON(cwd + "/.componerrc", componerConfig)
+
+				/**
+				 * update package.json
+				 */
+
+				let pkgInfo = readJSON(cwd + "/package.json")
 				pkgInfo.author = author
 
-				var dirname = path.basename(cwd)
+				let dirname = path.basename(cwd)
 
 				prompt("What is your current project name? (" + dirname + ") ", project => {
 					if(!project || project === "") {
@@ -249,13 +260,21 @@ commander
 		name = fixname(name)
 		check()
 
-		var template = options.template || "default"
-		var author = options.author || readJSON(cwd + "/package.json").author
+		options = extend({}, config("defaultOptions"), options)
+
+		let template = options.template
+		let author = options.author || readJSON(cwd + "/package.json").author
+
+		if(!template || template === "") {
+			log("You must input a template name.", "error")
+			exit()
+		}
 
 		if(!exists(`${cwd}/gulp/templates/${template}`)) {
 			log("This type of componout is not available.", "warn")
 			exit()
 		}
+
 		if(!author) {
 			log("Componout author needed, please use `-h` to read more.", "error")
 			exit()
@@ -303,7 +322,9 @@ commander
 	.option("-D, --debug", "whether to use browser to debug code")
 	.option("-b, --browser", "which browser to use select one from [PhantomJS|Chrome|Firefox]")
 	.action((name, options) => {
-		var cmd = `cd ${cwd} && gulp test`
+		options = extend({}, config("defaultOptions"), options)
+
+		let cmd = `cd ${cwd} && gulp test`
 
 		if(options.browser) {
 			cmd += ` --browser=${browser}`
@@ -412,6 +433,8 @@ commander
 		name = dashline(name)
 		name = fixname(name)
 		check()
+
+		options = extend({}, config("defaultOptions"), options)
 
 		if(!has(name)) {
 			var url = options.url || `https://github.com/componer/${name}.git`

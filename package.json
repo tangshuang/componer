@@ -4,10 +4,10 @@
   "description": "A components builder tool",
   "main": "index.js",
   "bin": {
-    "componer": "bin/componer-cli.js"
+    "componer": "bin/componer.js"
   },
   "scripts": {
-    "build": "babel bin/componer-cli.es6 -o bin/componer-cli.js",
+    "build": "babel bin/componer.es6 -o bin/componer.js",
     "watch": "npm run build -- --watch",
     "prepublish": "npm run build"
   },
@@ -27,6 +27,7 @@
   "homepage": "https://github.com/tangshuang/componer#readme",
   "dependencies": {
     "commander": "^2.9.0",
+    "extend": "^3.0.0",
     "process.logger": "^1.1.2",
     "shelljs": "^0.7.5"
   },
