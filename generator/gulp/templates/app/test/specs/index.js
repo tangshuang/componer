@@ -1,7 +1,8 @@
-import "../../src/script/{{componout-name}}.js"
+import {{ComponoutName}} from "../../src/script/{{componout-name}}.js"
 
 describe("{{Componout Name}}", () => {
     it('test', () => {
-      expect(1).toBeTruthy()
+      let ${{componoutName}} = new {{ComponoutName}}()
+      expect(${{componoutName}}).toBeTruthy()
     })
 })

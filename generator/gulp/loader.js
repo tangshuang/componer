@@ -101,10 +101,10 @@ function clear(dir) {
 	execute("cd " + dir + " && rm -rf * && rm -rf .??*")
 }
 
-function load(file, default = true) {
+function load(file, point = true) {
 	var rs = reload(file)
 	if(typeof rs === "object") {
-		if(default && rs.default) return rs.default
+		if(point && rs.default) return rs.default
 		else return rs
 	}
 	return rs

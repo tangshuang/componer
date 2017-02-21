@@ -106,7 +106,8 @@ function fixname(name) {
 function merge(options, pendKeys = []) {
 	var cpoInfo = config("defaults")
 	var pkgInfo = readJSON(cwd + "/package.json")
-	var keys = Object.keys(options).concat(pendKeys).filter((key, index) => keys.indexOf(key) === index)
+	var keys = Object.keys(options).concat(pendKeys)
+	keys = keys.filter((key, index) => keys.indexOf(key) === index)
 	keys.forEach(key => options[key] = options[key] || cpoInfo[key] || pkgInfo[key])
 	return options
 }
@@ -128,6 +129,11 @@ function check(name) {
 
 	if(!cwd) {
 		log("You are not in a componer directory, or files are missing.", "error")
+		exit()
+	}
+
+	if(!exists(cwd + "/node_modules")) {
+		log("You have not installed node modules, run `npm install` first.", "warn")
 		exit()
 	}
 
@@ -201,12 +207,11 @@ commander
 	.description("create a componer workflow frame instance")
 	.option("-i, --install", "whether to run `npm install` after files created.")
 	.action(options => {
-		options = merge(options)
-
 		function update(info) {
 			// update .componerrc
 			var componerInfo = readJSON(cwd + "/.componerrc")
 			componerInfo.defaults.registries = info.registries
+			componerInfo.defaults.author = info.author
 			writeJSON(cwd + "/.componerrc", componerInfo)
 			// update package.json
 			var pkgInfo = readJSON(cwd + "/package.json")
@@ -224,7 +229,7 @@ commander
 				project = !project || project === "" ? dirname : project
 				info.project = dashline(project)
 
-				prompt("What is your package author name? (default: componer) ", author => {
+				prompt("What is your project author name? (default: componer) ", author => {
 					author = !author || author === "" ? "componer" : author
 					info.author = dashline(author)
 
@@ -247,9 +252,6 @@ commander
 					})
 				})
 			})
-
-
-
 		}
 
 		// if this directory is a componer directory, just modify files
@@ -283,7 +285,7 @@ commander
 		name = dashline(name)
 		name = fixname(name)
 		check()
-		options = merge(options)
+		options = merge(options, ["template", "author"])
 
 		let template = options.template
 		let author = options.author

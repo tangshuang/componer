@@ -30,7 +30,7 @@ module.exports = {
 		},
 	],
 	preview: {
-		index: "preview/index.jade",
+		index: "preview/index.html",
 		script: "preview/{{componout-name}}.js",
 		style: "preview/{{componout-name}}.scss",
 		server: "preview/server.js",
