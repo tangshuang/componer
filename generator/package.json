@@ -1,10 +1,10 @@
 {
-  "name": "project-name",
+  "name": "{{project-name}}",
   "version": "0.0.1",
   "description": "",
   "main": "index.js",
   "scripts": {},
-  "author": "github-username",
+  "author": "{{author-name}}",
   "license": "ISC",
   "dependencies": {},
   "devDependencies": {

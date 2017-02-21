@@ -1,8 +1,9 @@
 {
 	"color": true,
 	"silent": true,
-	"projectPrefix": "",
-	"defaultOptions": {
-		"template": "component"
+	"prefix": "",
+	"defaults": {
+		"template": "component",
+		"registries": "http://github.com/componer"
 	}
 }

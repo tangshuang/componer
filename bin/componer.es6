@@ -7,7 +7,10 @@ import readline from "readline"
 import commander from "commander"
 import shell from "shelljs"
 import logger from "process.logger"
-import extend from "extend"
+
+// ----------------------------------
+//         basic parameters
+// ----------------------------------
 
 var argvs = process.argv
 
@@ -16,11 +19,12 @@ if(argvs.length <= 2) {
 	exit()
 }
 
-// ----------------------------------
 var generator = path.resolve(__dirname, "../generator")
 var cwd = process.cwd()
 var info = readJSON(__dirname + "/../package.json")
 
+// ----------------------------------
+//         basic functions
 // ----------------------------------
 
 function exit() {
@@ -52,6 +56,10 @@ function dashline(name) {
 	return name.replace(/([A-Z])/g, "-$1").toLowerCase()
 }
 
+// ----------------------------------
+//         logic functions
+// ----------------------------------
+
 /**
  * @param string dir: the path of directory to check whether it is a componer work directory.
  */
@@ -79,12 +87,28 @@ function current() {
 	return flag && current
 }
 
+// get config information from .componerrc
+function config(key) {
+	var config = exists(`${cwd}/.componerrc`) ? readJSON(`${cwd}/.componerrc`) : {}
+	return key ? config[key] : config
+}
+
+// add prefix to componout name
 function fixname(name) {
 	var prefix = config("prefix")
 	if(prefix) {
 		name = prefix + name
 	}
 	return name
+}
+
+// merge default options from .componerrc
+function merge(options, pendKeys = []) {
+	var cpoInfo = config("defaults")
+	var pkgInfo = readJSON(cwd + "/package.json")
+	var keys = Object.keys(options).concat(pendKeys).filter((key, index) => keys.indexOf(key) === index)
+	keys.forEach(key => options[key] = options[key] || cpoInfo[key] || pkgInfo[key])
+	return options
 }
 
 /**
@@ -98,6 +122,7 @@ function has(name) {
 	return true
 }
 
+// check whether in componer directory or the componout exists
 function check(name) {
 	cwd = current()
 
@@ -156,11 +181,8 @@ function log(msg, level) {
 	config("color") && logger[level] ? logger[level](msg) : console.log(msg)
 }
 
-function config(key) {
-	var config = exists(`${cwd}/.componerrc`) ? readJSON(`${cwd}/.componerrc`) : {}
-	return key ? config[key] : config
-}
-
+// ======================================================
+//                        commands
 // ======================================================
 
 commander
@@ -179,61 +201,64 @@ commander
 	.description("create a componer workflow frame instance")
 	.option("-i, --install", "whether to run `npm install` after files created.")
 	.action(options => {
-		options = extend({}, config("defaultOptions"), options)
+		options = merge(options)
+
+		function update(info) {
+			// update .componerrc
+			var componerInfo = readJSON(cwd + "/.componerrc")
+			componerInfo.defaults.registries = info.registries
+			writeJSON(cwd + "/.componerrc", componerInfo)
+			// update package.json
+			var pkgInfo = readJSON(cwd + "/package.json")
+			pkgInfo.author = info.author
+			pkgInfo.name = info.project
+			writeJSON(cwd + "/package.json", pkgInfo)
+		}
 
 		function modify(isEmpty) {
+			var info = {}
+			var dirname = path.basename(cwd)
+			var gitbase = "http://github.com/componer"
 
-			prompt("What is your github user `name` in url? ", author => {
-				if(!author || author === "") {
-					log("You must input your github name to create github address.", "error")
-					exit()
-				}
+			prompt("What is your current project name? (default: " + dirname + ") ", project => {
+				project = !project || project === "" ? dirname : project
+				info.project = dashline(project)
 
-				// update .componerrc
-				let componerConfig = readJSON(cwd + "/.componerrc")
-				componerConfig.defaultOptions.author = author
-				writeJSON(cwd + "/.componerrc", componerConfig)
+				prompt("What is your package author name? (default: componer) ", author => {
+					author = !author || author === "" ? "componer" : author
+					info.author = dashline(author)
 
-				/**
-				 * update package.json
-				 */
+					prompt("What is your registries base url? (default: " + gitbase + ") ", registries => {
+						registries = !registries || registries === "" ? gitbase : registries
+						info.registries = registries
 
-				let pkgInfo = readJSON(cwd + "/package.json")
-				pkgInfo.author = author
-
-				let dirname = path.basename(cwd)
-
-				prompt("What is your current project name? (" + dirname + ") ", project => {
-					if(!project || project === "") {
-						project = dirname
-					}
-					project = dashline(project)
-
-					pkgInfo.name = project
-
-					writeJSON(cwd + "/package.json", pkgInfo)
-
-					if(isEmpty) {
-						if(options.install) {
-							log("npm install...")
-							execute(`cd ${cwd} && npm install`)
+						// update files, install and exit
+						update(info)
+						if(isEmpty) {
+							if(options.install) {
+								log("npm install...")
+								execute(`cd ${cwd} && npm install`)
+							}
+							else {
+								log("Done! Do NOT forget to run `npm install` before you begin.", "done")
+							}
 						}
-						else {
-							log("Done! Do NOT forget to run `npm install` before you begin.", "done")
-						}
-					}
-
-					exit()
+						exit()
+					})
 				})
 			})
 
+
+
 		}
 
+		// if this directory is a componer directory, just modify files
 		if(isComponer(cwd)) {
 			modify()
 			return
 		}
 
+		// or do init task
 		if(fs.readdirSync(cwd).length > 0) {
 			log("Current directory is not empty, you should begin in a new directory.", "error")
 			exit()
@@ -254,19 +279,21 @@ commander
 	.description("(gulp) create a componout")
 	.option("-t, --template [template]", "template of componout")
 	.option("-a, --author [author]", "author of componout")
-	.option("-g, --git", "run `git init` after ready")
 	.action((name, options) => {
 		name = dashline(name)
 		name = fixname(name)
 		check()
-
-		options = extend({}, config("defaultOptions"), options)
+		options = merge(options)
 
 		let template = options.template
-		let author = options.author || readJSON(cwd + "/package.json").author
+		let author = options.author
 
 		if(!template || template === "") {
-			log("You must input a template name.", "error")
+			log("You must input a template name, use `-h` to read more.", "error")
+			exit()
+		}
+		if(!author) {
+			log("Componout author needed, use `-h` to read more.", "error")
 			exit()
 		}
 
@@ -275,18 +302,7 @@ commander
 			exit()
 		}
 
-		if(!author) {
-			log("Componout author needed, please use `-h` to read more.", "error")
-			exit()
-		}
-
-		execute(`cd ${cwd} && gulp add --name=${name} --template=${template} --author=${author}`, () => {
-			// git init
-			if(options.git) {
-				var url = `https://github.com/${author}/${name}.git`
-				execute(`cd ${cwd} && cd componouts && cd ${name} && git init && git remote add origin ${url}`)
-			}
-		})
+		execute(`cd ${cwd} && gulp add --name=${name} --template=${template} --author=${author}`)
 	})
 
 commander
@@ -322,29 +338,23 @@ commander
 	.option("-D, --debug", "whether to use browser to debug code")
 	.option("-b, --browser", "which browser to use select one from [PhantomJS|Chrome|Firefox]")
 	.action((name, options) => {
-		options = extend({}, config("defaultOptions"), options)
+		options = merge(options)
 
 		let cmd = `cd ${cwd} && gulp test`
-
-		if(options.browser) {
-			cmd += ` --browser=${browser}`
-		}
-		if(options.debug) {
-			cmd += " --debug"
-		}
-
 		if(name === undefined) {
 			check()
-			if(options.debug) {
-				log("`debug` option is not allowed when testing all componouts", "error")
-				exit()
-			}
 		}
 		else {
 			name = dashline(name)
 			name = fixname(name)
 			check(name)
 			cmd += ` --name=${name}`
+			if(options.debug) {
+				cmd += " --debug"
+			}
+		}
+		if(options.browser) {
+			cmd += ` --browser=${browser}`
 		}
 
 		execute(cmd)
@@ -427,17 +437,16 @@ commander
 
 commander
 	.command("pull <name> [params...]")
-	.description("clone/pull a componout from https://github.com/componer or your own registry")
+	.description("clone/pull a componout from remote registries")
 	.option("-u, --url", "registry url")
 	.action((name, options, params) => {
 		name = dashline(name)
 		name = fixname(name)
 		check()
-
-		options = extend({}, config("defaultOptions"), options)
+		options = merge(options)
 
 		if(!has(name)) {
-			var url = options.url || `https://github.com/componer/${name}.git`
+			var url = options.url || `${options.registries}/${name}.git`
 			execute(`cd ${cwd} && cd componouts && git clone ${url} ${name}`, () => {
 				log("Done! Componout has been added to componouts directory.", "done")
 			}, () => {
