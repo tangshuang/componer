@@ -5,9 +5,16 @@ import logger from "process.logger"
 import processArgs from "process.args"
 import shell from "shelljs"
 import extend from "extend"
+import reload from "require-reload"
 
 import webpack from "../webpack.config"
 import karma from "../karma.config"
+
+const args = processArgs()
+
+// -------------------------------------
+//             paths
+// -------------------------------------
 
 const rootPath = path.resolve(__dirname, "..")
 const gulpDir = "gulp"
@@ -36,7 +43,9 @@ const config = {
 	karma,
 }
 
-const args = processArgs()
+// -------------------------------------
+//             functions
+// -------------------------------------
 
 function exit() {
 	process.exit(0)
@@ -92,14 +101,18 @@ function clear(dir) {
 	execute("cd " + dir + " && rm -rf * && rm -rf .??*")
 }
 
-function load(file) {
-	var rs = require(file)
+function load(file, default = true) {
+	var rs = reload(file)
 	if(typeof rs === "object") {
-		if(rs.default) return rs.default
+		if(default && rs.default) return rs.default
 		else return rs
 	}
 	return rs
 }
+
+// -------------------------------------
+//             exports
+// -------------------------------------
 
 export {
     gulp,
