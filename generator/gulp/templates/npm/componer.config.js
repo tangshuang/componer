@@ -2,6 +2,7 @@ var packageJson = require("./package.json")
 
 module.exports = {
 	name: "{{componout-name}}",
+	type: "npm package",
 	build: [
 		{
 			from: "src/{{componout-name}}.js",

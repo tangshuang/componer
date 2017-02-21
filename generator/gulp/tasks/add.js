@@ -10,7 +10,7 @@ gulp.task("add", () => {
 		exit()
 	}
 
-	var template = arg.template || "default"
+	var template = arg.template || "component"
 	var author = arg.author
 	var componoutPath = path.join(config.paths.componouts, name)
 	var templatesPath = path.join(config.paths.templates, template)

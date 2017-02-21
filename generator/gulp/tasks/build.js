@@ -1,7 +1,10 @@
 import {gulp, fs, path, args, log, config, exit, exists, extend, clear, readJSON} from "../loader"
-import {hasComponout, dashlineName, camelName, buildScript, buildStyle, runTask} from "../utils"
+import {hasComponout, dashlineName, camelName, buildScript, buildStyle, runTask, getFileExt} from "../utils"
 
 import concat from "pipe-concat"
+
+import webpack from "../drivers/webpack"
+
 
 gulp.task("build", () => {
 	var arg = args.build
@@ -23,118 +26,48 @@ gulp.task("build", () => {
 
 	var componoutPath = path.join(config.paths.componouts, name)
 
-	if(!exists(componoutPath + "/componer.json")) {
-		log("componer.json not exists.", "error")
+	if(!exists(componoutPath + "/componer.config.js")) {
+		log("componer.config.js not exists.", "error")
 		exit()
 	}
 
-	var settings = readJSON(componoutPath + "/componer.json")
+	/**
+	 * begin to compress build settings
+	 */
 
-	var entryFiles = settings.entry
-	var outputFiles = settings.output
+	var files = load(componoutPath + "/componer.config.js").build
 
-	if(!entryFiles) {
-		log("Not found `entry` option in componer.json.")
+	if(!files) {
+		log("build option in componer.config.js not found.", "error")
 		exit()
 	}
-
-	if(!outputFiles) {
-		log("Not found `output` option in componer.json.")
-		exit()
-	}
-
-	function getPath(file, warn) {
-		if(!file) {
-			return false
-		}
-		var filePath = path.join(componoutPath, file)
-		if(warn && !exists(filePath)) {
-			log(`Can not found ${file} based on your componer.json.`, "error")
-			exit()
-		}
-		return filePath
-	}
-
-	var entryJs = getPath(entryFiles.script, true)
-	var entryScss = getPath(entryFiles.style, true)
-	var entryAssets = getPath(entryFiles.assets, true)
-	var outputJs = getPath(outputFiles.script)
-	var outputCss = getPath(outputFiles.style)
-	var outputAssets = getPath(outputFiles.assets)
-
-	if(entryJs && !outputJs) {
-		log("No `output.script` in your componer.json.", "error")
-		exit()
-	}
-	if(entryScss && !outputCss) {
-		log("No `output.style` in your componer.json.", "error")
-		exit()
-	}
-	if(entryAssets && !outputAssets) {
-		log("No `output.assets` in your componer.json.", "error")
-		exit()
-	}
-
-	// ------------------------------------------------------------
 
 	var streams = []
+	files.forEach(file => {
+		let entryfile = path.join(componoutPath, file.from)
+		let outputfile = path.join(componoutPath, file.to)
+		let outputdir = path.dirname(outputfile)
+		let outputfilename = path.join(outputfile)
+		let library = camelName(name)
+		let sourceMapFilename = outputfilename + ".map"
 
-	// scripts
-	if(entryJs) {
-		let webpackSettings = settings.webpack
+		let settings = extend(true, {
+			entry: entryfile,
+			output: {
+				path: outputdir,
+				filename: outputfilename,
+				library: library,
+				sourceMapFilename: sourceMapFilename,
+			},
+		}, file.settings)
+		let options = file.options
 
-		if(!webpackSettings) {
-			log("Not found `webpack` option in your componer.json.", "error")
-			exit()
+		let ext = getFileExt(entryfilename)
+
+		if(ext === ".js") {
+			streams.push(webpack(settings, options))
 		}
-
-		function exterPkgs(pkgfile) {
-			if(!exists(pkgfile)) {
-				return
-			}
-
-			if(!webpackSettings.externals) {
-				webpackSettings.externals = {}
-			}
-
-			var info = readJSON(pkgfile)
-			var externals = webpackSettings.externals
-			var dependencies = info.dependencies
-
-			dependencies = typeof dependencies === "object" && Object.keys(dependencies)
-			if(dependencies && dependencies.length > 0) {
-				dependencies.forEach(dependence => externals[dependence] = dependence)
-			}
-		}
-
-		if(exists(componoutPath + "/bower.json") && !exists(componoutPath + "/package.json")) {
-			exterPkgs(componoutPath + "/bower.json")
-		}
-		else if(exists(componoutPath + "/package.json") && !exists(componoutPath + "/bower.json")) {
-			exterPkgs(componoutPath + "/package.json")
-		}
-
-		streams.push(buildScript(entryJs, outputJs, webpackSettings))
-	}
-
-	// styles
-	if(entryScss) {
-		let sassSettings = settings.sass
-
-		if(!sassSettings) {
-			log("Not found `sass` option in your componer.json.", "error")
-			exit()
-		}
-
-		streams.push(buildStyle(entryScss, outputCss, sassSettings))
-	}
-
-	// assets
-	if(entryAssets && entryAssets !== outputAssets) {
-		let assetsStream = gulp.src(entryAssets + "/**/*")
-			.pipe(gulp.dest(outputAssets))
-		streams.push(assetsStream)
-	}
+	})
 
 	if(streams.length > 0) {
 		return concat(streams).on("end", () => log(`${name} has been completely built.`, "done"))
