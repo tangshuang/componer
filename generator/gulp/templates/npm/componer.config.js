@@ -7,6 +7,7 @@ module.exports = {
 		{
 			from: "src/{{componout-name}}.js",
 			to: "dist/{{componout-name}}.js",
+			driver: "webpack",
 			options: {
 				minify: false,
 				sourcemap: false,

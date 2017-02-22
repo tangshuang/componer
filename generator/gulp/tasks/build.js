@@ -1,9 +1,10 @@
-import {gulp, fs, path, args, log, config, exit, exists, extend, clear, readJSON} from "../loader"
-import {hasComponout, dashlineName, camelName, buildScript, buildStyle, runTask, getFileExt} from "../utils"
+import {gulp, fs, path, args, log, config, exit, exists, load} from "../loader"
+import {hasComponout, dashlineName, runTask} from "../utils"
 
 import concat from "pipe-concat"
 
 import webpack from "../drivers/webpack"
+import sass from "../drivers/sass"
 
 
 gulp.task("build", () => {
@@ -44,29 +45,19 @@ gulp.task("build", () => {
 
 	var streams = []
 	files.forEach(file => {
-		let entryfile = path.join(componoutPath, file.from)
-		let outputfile = path.join(componoutPath, file.to)
-		let outputdir = path.dirname(outputfile)
-		let outputfilename = path.join(outputfile)
-		let library = camelName(name)
-		let sourceMapFilename = outputfilename + ".map"
-
-		let settings = extend(true, {
-			entry: entryfile,
-			output: {
-				path: outputdir,
-				filename: outputfilename,
-				library: library,
-				sourceMapFilename: sourceMapFilename,
-			},
-		}, file.settings)
+		let from = path.join(componoutPath, file.from)
+		let to = path.join(componoutPath, file.to)
+		let driver = file.driver
+		let settings = file.settings
 		let options = file.options
 
-		let ext = getFileExt(entryfilename)
-
-		if(ext === ".js") {
-			streams.push(webpack(settings, options))
+		if(!exists(config.paths.gulp + "/drivers/" + driver + ".js")) {
+			log("Can NOT found driver " + driver, "error")
+			return
 		}
+
+		driver = load(config.paths.gulp + "/drivers/" + driver + ".js")
+		streams.push(driver({from, to, settings, options}))
 	})
 
 	if(streams.length > 0) {

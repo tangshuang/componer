@@ -1,65 +1,60 @@
-import webpack from "webpack"
+import path from "path"
+import gulp from "gulp"
+import webpack from "webpack-stream"
+import concat from "pipe-concat"
+
 import config from "./webpack.config"
+import {camelName, setFileExt} from "../utils"
 
 /**
 @param settings: pass to webpack
 @param options: {
+    from: entry file absolute path,
+    to: output file absolute path,
     boolean sourcemap: whether to create a sourcemap file,
     boolean minify: whether to create a minified file,
 }
 **/
 
-export default function(settings, options) {
-    /**
-     * create stream
-     */
-    var stream = new Stream();
-	stream.setMaxListeners(0);
-	stream.writable = stream.readable = true;
+export default function({from, to, settings, options}) {
+    var outputdir = path.dirname(to)
+    var filename = path.basename(to)
 
-    var count = options.minify ? 2 : 1
-    var endemit = function() {
-        count --
-        if(count == 0) stream.emit("end")
-    }
-    var run = function(settings) {
-        webpack(settings, (err, stats) => {
-            if (err || stats.hasErrors()) {
-                console.log("webpack error", err.details)
-            }
-            endemit()
-        })
-    }
-
-    /**
-     * run webpack
-     */
     settings = config(settings)
-    var filename = settings.output.filename
-    if(options.sourcemap) {
-        settings.devtool = options.sourcemap === "inline" ? "inline-source-map" : "source-map"
+    var outputSettings = settings.output
+
+    outputSettings.filename = outputSettings.filename || filename
+    outputSettings.library = outputSettings.library || camelName(filename)
+
+    // sourcemap
+    if(options.sourcemap === "inline") {
+        settings.devtool = "inline-source-map"
+    }
+    else if(options.sourcemap) {
+        settings.devtool = "source-map"
+        outputSettings.sourceMapFilename = outputSettings.sourceMapFilename || filename + ".map"
     }
 
-    run(settings)
+    var stream1 = gulp.src(from)
+        .pipe(webpack(settings))
+        .pipe(gulp.dest(outputdir))
 
-    if(option.minify) {
-        filename = filename.substr(0, filename.lastIndexOf(".js")) + ".min.js"
-        settings.output.filename = filename
-
-        if(options.sourcemap) {
-            let sourcemapfile = settings.output.sourceMapFilename
-            sourcemapfile = sourcemapfile.substr(0, sourcemapfile.lastIndexOf(".js.map")) + ".min.js.map"
-            settings.output.sourceMapFilename = sourcemapfile
-        }
-
-        settings.plugins.contact([
-            new optimize.UglifyJsPlugin({
-                minimize: true,
-            }),
-        ])
-
-        run(settings)
+    if(!option.minify) {
+        return stream1
     }
 
-    return stream
+    // minify
+    outputSettings.filename = outputSettings.filename ? setFileExt(outputSettings.filename, ".min.js") : setFileExt(filename, ".min.js")
+    outputSettings.sourceMapFilename = outputSettings.sourceMapFilename ? setFileExt(outputSettings.sourceMapFilename, ".min.js.map", [".map", ".js.map"]) : setFileExt(filename, ".min.js.map")
+    settings.plugins.contact([
+        new optimize.UglifyJsPlugin({
+            minimize: true,
+        }),
+    ])
+
+    var stream2 = gulp.src(from)
+        .pipe(webpack(settings))
+        .pipe(gulp.dest(outputdir))
+
+    return concat(stream1, stream2)
 }

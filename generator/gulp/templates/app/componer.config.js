@@ -5,6 +5,7 @@ module.exports = {
 		{
 			from: "src/script/{{componout-name}}.js",
 			to: "dist/js/{{componout-name}}.js",
+			driver: "webpack",
 			options: {
 				minify: true,
 				sourcemap: "file",
@@ -13,6 +14,7 @@ module.exports = {
 		{
 			from: "src/style/{{componout-name}}.scss",
 			to: "dist/css/{{componout-name}}.css",
+			driver: "sass",
 			options: {
 				minify: true,
 				sourcemap: "file",
