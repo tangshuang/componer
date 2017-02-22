@@ -44,8 +44,10 @@ export default function({from, to, settings, options}) {
     }
 
     // minify
-    outputSettings.filename = outputSettings.filename ? setFileExt(outputSettings.filename, ".min.js") : setFileExt(filename, ".min.js")
-    outputSettings.sourceMapFilename = outputSettings.sourceMapFilename ? setFileExt(outputSettings.sourceMapFilename, ".min.js.map", [".map", ".js.map"]) : setFileExt(filename, ".min.js.map")
+    filename = outputSettings.filename
+    filename = filename.substr(0, filename.lastIndexOf(".js")) + ".min.js"
+    outputSettings.filename = filename
+    outputSettings.sourceMapFilename && outputSettings.sourceMapFilename = filename + ".map"
     settings.plugins.contact([
         new optimize.UglifyJsPlugin({
             minimize: true,

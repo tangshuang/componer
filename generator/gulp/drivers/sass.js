@@ -10,36 +10,34 @@ import sourcemaps from "gulp-sourcemaps"
 import merge from "pipe-concat"
 
 export default function({from, to, settings, options}) {
-	var entryfile = settings.file
-    var outputfile = settings.outputfile
-    var outputdir = path.dirname(outputfile)
-    var outputfilename = path.basename(outputfile)
+	var outputdir = path.dirname(to)
+    var filename = path.basename(to)
+	var sourcemapdir = options.sourcemap === "inline" ? undefined : "./"
     var plugins = [
         cssnext,
 	]
-    var sourcemapdir = options.sourcemap === "inline" ? undefined : "./"
 
     function NoSourceMapNoMinify() {
-		return gulp.src(entryfile)
+		return gulp.src(from)
 			.pipe(sass())
 			.pipe(postcss(plugins))
-			.pipe(rename(outputfilename))
+			.pipe(rename(filename))
 			.pipe(gulp.dest(outputdir))
 	}
 
 	function HasSourceMapNoMinify() {
-		return gulp.src(entryfile)
+		return gulp.src(from)
 			.pipe(sourcemaps.init())
 			.pipe(sass())
 			.pipe(postcss(plugins))
-			.pipe(rename(outputfilename))
+			.pipe(rename(filename))
 			.pipe(sourcemaps.write(sourcemapdir))
 			.pipe(gulp.dest(outputdir))
 	}
 
 	function NoSourceMapHasMinify() {
-        var filename = outputfilename.substr(0, outputfilename.lastIndexOf(".css")) + ".min.css"
-		return gulp.src(entryfile)
+        var filename = filename.substr(0, filename.lastIndexOf(".css")) + ".min.css"
+		return gulp.src(from)
 			.pipe(sass())
 			.pipe(postcss(plugins))
 			.pipe(cssmin())
@@ -48,8 +46,8 @@ export default function({from, to, settings, options}) {
 	}
 
 	function HasSourceMapHasMinify() {
-        var filename = outputfilename.substr(0, outputfilename.lastIndexOf(".css")) + ".min.css"
-		return gulp.src(entryfile)
+        var filename = filename.substr(0, filename.lastIndexOf(".css")) + ".min.css"
+		return gulp.src(from)
 			.pipe(sourcemaps.init())
 			.pipe(sass())
 			.pipe(postcss(plugins))
@@ -59,21 +57,25 @@ export default function({from, to, settings, options}) {
 			.pipe(gulp.dest(outputdir))
 	}
 
+	// with sourcemap
     if(options.sourcemap) {
+		// not minified
         let stream1 = HasSourceMapNoMinify()
 		if(!options.minify) {
 			return stream1
 		}
-
+		// minified
 		let stream2 = HasSourceMapHasMinify()
 		return merge(stream1, stream2)
     }
 
+	// without sourcemap
+	// not minified
     let stream1 = NoSourceMapNoMinify()
     if(!options.minify) {
         return stream1
     }
-
+	// minified
     let stream2 = NoSourceMapHasMinify()
     return merge(stream1, stream2)
 }

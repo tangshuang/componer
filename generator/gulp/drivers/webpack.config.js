@@ -1,6 +1,6 @@
 import extend from "extend"
-import WebpackPluginBower from "bower-webpack-plugin"
-import WebpackPluginCmd from "./webpack.plugin.cmd"
+import WebPackPluginBower from "bower-webpack-plugin"
+import {WebPackPluginCMD} from "./webpack.plugins"
 
 export default function webpack(settings) {
 	var defaults = {
@@ -50,8 +50,8 @@ export default function webpack(settings) {
 		},
 	])
 	settings.plugins = settings.plugins.concat([
-		new WebpackPluginBower(),
-		new WebpackPluginCmd(),
+		new WebPackPluginBower(),
+		new WebPackPluginCMD(),
 	])
 
     return settings

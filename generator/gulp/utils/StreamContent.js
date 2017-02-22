@@ -5,7 +5,7 @@
 import through from "through2"
 import {log} from "../loader"
 
-export function modifyStreamContent(modify) {
+export function StreamContent(modify) {
 	return through.obj(function(file, endcoding, callback) {
 		if(file.isNull()) {
 			this.push(file)
