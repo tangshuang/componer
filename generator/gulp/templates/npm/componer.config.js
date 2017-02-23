@@ -3,6 +3,7 @@ var packageJson = require("./package.json")
 module.exports = {
 	name: "{{componout-name}}",
 	type: "npm package",
+	version: "0.0.1",
 	build: [
 		{
 			from: "src/{{componout-name}}.js",
@@ -13,7 +14,7 @@ module.exports = {
 				sourcemap: false,
 			},
 			settings: {
-				get externals: function() {
+				get externals() {
 					var deps = Object.keys(packageJson.dependencies)
 					var externals = {}
 					if(deps.length > 0) deps.forEach(dep => externals[dep] = dep)

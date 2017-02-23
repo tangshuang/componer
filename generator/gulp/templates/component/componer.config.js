@@ -4,6 +4,7 @@ var packageJson = require("./package.json")
 module.exports = {
 	name: "{{componout-name}}",
 	type: "component",
+	version: "0.0.1",
 	build: [
 		{
 			from: "src/script/{{componout-name}}.js",
@@ -14,7 +15,7 @@ module.exports = {
 				sourcemap: "file",
 			},
 			settings: {
-				get externals: function() {
+				get externals() {
 					var deps = Object.keys(bowerJson.dependencies).contact(Object.keys(packageJson.dependencies))
 					var externals = {}
 					if(deps.length > 0) deps.forEach(dep => externals[dep] = dep)
@@ -38,7 +39,7 @@ module.exports = {
 		style: "preview/{{componout-name}}.scss",
 		server: "preview/server.js",
 		watch: [
-			"preview/index.jade",
+			"preview/index.html",
 			"preview/{{componout-name}}.js",
 			"preview/{{componout-name}}.scss",
 			"src/**/*",

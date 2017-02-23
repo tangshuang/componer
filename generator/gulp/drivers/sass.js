@@ -36,7 +36,7 @@ export default function({from, to, settings, options}) {
 	}
 
 	function NoSourceMapHasMinify() {
-        var filename = filename.substr(0, filename.lastIndexOf(".css")) + ".min.css"
+        filename = filename.substr(0, filename.lastIndexOf(".css")) + ".min.css"
 		return gulp.src(from)
 			.pipe(sass())
 			.pipe(postcss(plugins))
@@ -46,7 +46,7 @@ export default function({from, to, settings, options}) {
 	}
 
 	function HasSourceMapHasMinify() {
-        var filename = filename.substr(0, filename.lastIndexOf(".css")) + ".min.css"
+        filename = filename.substr(0, filename.lastIndexOf(".css")) + ".min.css"
 		return gulp.src(from)
 			.pipe(sourcemaps.init())
 			.pipe(sass())

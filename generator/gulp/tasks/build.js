@@ -1,15 +1,13 @@
-import {gulp, fs, path, args, log, config, exit, exists, load} from "../loader"
+import {gulp, fs, path, args, log, config, exit, exists, load, readJSON, writeJSON} from "../loader"
 import {hasComponout, dashlineName, runTask} from "../utils"
 
 import concat from "pipe-concat"
-
-import webpack from "../drivers/webpack"
-import sass from "../drivers/sass"
-
+import Stream from "stream"
 
 gulp.task("build", () => {
 	var arg = args.build
 
+	// if there is no name option, build all components
 	if(arg.name === undefined) {
 		fs.readdirSync(config.paths.componouts).forEach(item => {
 			runTask("build", {
@@ -19,6 +17,7 @@ gulp.task("build", () => {
 		return
 	}
 
+	// build named component
 	var name = dashlineName(arg.name)
 	if(!hasComponout(name)) {
 		log(`${name} not exists.`, "error")
@@ -36,8 +35,8 @@ gulp.task("build", () => {
 	 * begin to compress build settings
 	 */
 
-	var files = load(componoutPath + "/componer.config.js").build
-
+	var info = load(componoutPath + "/componer.config.js")
+	var files = info.build
 	if(!files) {
 		log("build option in componer.config.js not found.", "error")
 		exit()
@@ -50,15 +49,34 @@ gulp.task("build", () => {
 		let driver = file.driver
 		let settings = file.settings
 		let options = file.options
+		let driverfile = path.join(config.paths.drivers, driver + ".js")
 
-		if(!exists(config.paths.gulp + "/drivers/" + driver + ".js")) {
+		if(!exists(driverfile)) {
 			log("Can NOT found driver " + driver, "error")
 			return
 		}
 
-		driver = load(config.paths.gulp + "/drivers/" + driver + ".js")
+		driver = load(driverfile)
 		streams.push(driver({from, to, settings, options}))
 	})
+
+	// update package json info
+	var streamx = new Stream()
+	streamx.writable = streamx.readable = true
+	var jsonfiles = ["bower.json", "package.json"]
+	jsonfiles.forEach(json => {
+		let jsonfile = path.join(componoutPath, json)
+		if(exists(jsonfile)) {
+			let jsoncontent = readJSON(jsonfile)
+			jsoncontent.name = info.name || name
+			jsoncontent.version = info.version || "0.0.1"
+			jsoncontent.description = info.description || ""
+			writeJSON(jsonfile, jsoncontent)
+		}
+	})
+	streamx.emit('end')
+	streams.push(streamx)
+
 
 	if(streams.length > 0) {
 		return concat(streams).on("end", () => log(`${name} has been completely built.`, "done"))

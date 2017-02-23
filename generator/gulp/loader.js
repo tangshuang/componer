@@ -7,8 +7,6 @@ import shell from "shelljs"
 import extend from "extend"
 import requireload from "require-reload"
 
-import karma from "../karma.config"
-
 const args = processArgs()
 
 // -------------------------------------
@@ -21,6 +19,7 @@ const tasks = "tasks"
 const snippets = "snippets"
 const templates = "templates"
 const componouts = "componouts"
+const drivers = "drivers"
 
 const config = {
 	dirs: {
@@ -29,6 +28,7 @@ const config = {
 		templates,
 		snippets,
 		componouts,
+		drivers,
 	},
 	paths: {
 		root: rootPath,
@@ -37,8 +37,8 @@ const config = {
 		templates: path.join(rootPath, gulpDir, templates),
 		snippets: path.join(rootPath, gulpDir, snippets),
 		componouts: path.join(rootPath, componouts),
+		drivers: path.join(rootPath, gulpDir, drivers),
 	},
-	karma,
 }
 
 // -------------------------------------

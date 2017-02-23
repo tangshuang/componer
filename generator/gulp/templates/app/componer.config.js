@@ -1,6 +1,7 @@
 module.exports = {
 	name: "{{componout-name}}",
 	type: "application",
+	version: "0.0.1",
 	build: [
 		{
 			from: "src/script/{{componout-name}}.js",
@@ -27,7 +28,7 @@ module.exports = {
 		style: "preview/{{componout-name}}.scss",
 		server: "preview/server.js",
 		watch: [
-			"preview/index.jade",
+			"preview/index.html",
 			"preview/{{componout-name}}.js",
 			"preview/{{componout-name}}.scss",
 			"src/**/*",

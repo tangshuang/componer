@@ -8,6 +8,10 @@ export default function WebPackPluginBase(factory) {
                 let file = compilation.options.output.filename
                 let assets = compilation.assets
                 let asset = assets[file]
+                if(!asset) {
+                    callback()
+                    return
+                }
                 let content = asset.source()
 
                 // begin to modify content

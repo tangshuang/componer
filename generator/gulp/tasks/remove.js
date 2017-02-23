@@ -28,7 +28,3 @@ gulp.task("remove", () => {
 	var arg = args.remove
 	removeComponout(arg)
 })
-gulp.task("rm", () => {
-	var arg = args.rm
-	removeComponout(arg)
-})

@@ -1,11 +1,11 @@
 /**
  * pipe plugin
  */
- 
-import {capitalName, camelName, dashlineName, separateName, modifyStreamContent} from "./index"
+
+import {capitalName, camelName, dashlineName, separateName, StreamContent} from "./index"
 
 export function PaserTemplate(pairs) {
-	return modifyStreamContent(content => {
+	return StreamContent(content => {
 		if(pairs && typeof pairs === "object") {
 			for(let key in pairs) {
 				let value = pairs[key]

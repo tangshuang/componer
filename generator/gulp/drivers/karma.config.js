@@ -22,7 +22,7 @@ export default function karma(options) {
             module: {
                 preLoaders: [
                     {
-                        test: /\.js$/, 
+                        test: /\.js$/,
                         loader: "isparta",
                         exclude: /node_modules|bower_components/,
                     },

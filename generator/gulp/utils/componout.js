@@ -1,4 +1,4 @@
-import {fs, config, exists, readJSON} from "../loader"
+import {fs, config, exists, load} from "../loader"
 import {dashlineName} from "./index"
 
 export function hasComponout(name) {
@@ -25,24 +25,14 @@ export function getComponout(name) {
 		return false
 	}
 
-	if(exists(`${path}/bower.json`)) {
-		type = "bower"
-		info = readJSON(`${path}/bower.json`)
-	}
-	else if(exists(`${path}/package.json`)) {
-		type = "package"
-		info = readJSON(`${path}/package.json`)
-	}
-	else if(exists(`${path}/componer.json`)) {
-		type = "default"
-		info = readJSON(`${path}/componer.json`)
-	}
+	var infofile = path + "/componer.config.js"
+	var info = load(infofile)
 
 	return {
-		name: name,
+		name,
 		path,
-		type,
-		version: info ? info.version : "None",
+		type: info.type || "None",
+		version: info.version || "None",
 		info,
 	}
 
