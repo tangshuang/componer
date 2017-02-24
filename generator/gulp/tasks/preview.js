@@ -1,13 +1,14 @@
 import {gulp, path, fs, args, log, config, exit, exists, load, read} from "../loader"
-import {hasComponout, dashlineName, camelName, runTask, getFileExt, setFileExt} from "../utils"
+import {hasComponout, dashlineName, camelName, runTask, getFileExt, setFileExt, StreamContent} from "../utils"
 
 import browsersync from "browser-sync"
+
 import webpack from "webpack-stream"
+import webpackConfig from "../drivers/webpack.config"
+
 import sass from "gulp-sass"
 import sourcemap from "gulp-sourcemaps"
-import cssmin from "gulp-cssmin"
 
-import webpackConfig from "../drivers/webpack.config"
 
 gulp.task("preview", () => {
 	var arg = args.preview
@@ -34,83 +35,87 @@ gulp.task("preview", () => {
 	}
 
 	var indexfile = path.join(componoutPath, info.index)
-	var scriptfile = path.join(componoutPath, info.script)
-	var stylefile = path.join(componoutPath, info.style)
-	var serverfile = path.join(componoutPath, info.server)
-	var tmpdir = path.join(componoutPath, "preview", ".tmp")
+	var scriptfile = info.script ? path.join(componoutPath, info.script) : false
+	var stylefile = info.style ? path.join(componoutPath, info.style) : false
+	var serverfile = info.server ? path.join(componoutPath, info.server) : false
 
 	if(!exists(indexfile)) {
 		log("preview index file is not found.", "error")
 		exit()
 	}
 
-	var app = browsersync.create()
+	/**
+	 * create a bs server app
+	 */
 
-	// if(exists(stylefile)) {
-	// 	gulp.src(stylefile)
-	// 		.pipe(sourcemap.init())
-	// 		.pipe(sass())
-	// 		.pipe(sourcemap.write())
-	// 		.pipe(app.stream())
-	// }
-	//
-	// if(exists(scriptfile)) {
-	// 	gulp.src(scriptfile)
-	// 		.pipe(webpack(webpackConfig({
-	// 			devtool: "inline-source-map",
-	// 		})))
-	// 		.pipe(app.stream())
-	// }
+	var app = browsersync.create()
+	var middlewares = [
+		{
+			route: "/",
+			handle: function (req, res, next) {
+				let html = read(indexfile)
+				html = html.replace("<!--styles-->", `<link rel="stylesheet" href="${name}.css">`)
+				html = html.replace("<!--scripts-->", `<script src="${name}.js"></script>`)
+				res.end(html)
+				next()
+			},
+		},
+	]
+	if(stylefile && exists(stylefile)) {
+		middlewares.unshift({
+			route: `/${name}.css`,
+			handle: function (req, res, next) {
+				gulp.src(stylefile)
+					.pipe(sourcemap.init())
+					.pipe(sass())
+					.pipe(sourcemap.write())
+					.pipe(StreamContent(content => {
+						res.setHeader('content-type', 'text/css')
+						res.end(content)
+						next()
+					}))
+			},
+		})
+	}
+	if(scriptfile && exists(scriptfile)) {
+		middlewares.unshift({
+			route: `/${name}.js`,
+			handle: function (req, res, next) {
+				gulp.src(scriptfile)
+					.pipe(webpack(webpackConfig({
+						devtool: "inline-source-map",
+					})))
+					.pipe(StreamContent(content => {
+						res.setHeader('content-type', 'text/javascript')
+						res.end(content)
+						next()
+					}))
+			},
+		})
+	}
+	if(serverfile && exists(serverfile)) {
+		let serverware = load(serverfile)
+		middlewares.unshift(serverware)
+	}
+
+	var watchFiles = info.watchFiles
+	if(typeof watchFiles === "string") {
+		watchFiles = path.join(componoutPath, watchFiles)
+	}
+	else if(watchFiles instanceof Array) {
+		watchFiles = watchFiles.map(item => path.join(componoutPath, item))
+	}
+	else {
+		watchFiles = []
+	}
 
 	app.init({
 		server: {
-			baseDir: componoutPath,
+			baseDir: config.paths.root,
 		},
-		middleware: [
-			{
-		        route: "/",
-		        handle: function (req, res, next) {
-					let html = read(indexfile)
-					html = html.replace("<!--styles-->", `<link href="${name}.css">`)
-						.replace("<!--scripts-->", `<script src="${name}.js"></script>`)
-					res.end(html)
-					next()
-		        },
-		    },
-		],
+		files: watchFiles,
+		watchOptions: info.watchOptions ? info.watchOptions : {},
+		middleware: middlewares,
 	})
-
-	// let contents = {}
-	// gulp.watch(info.watch, event => {
-	// 	// if file content not changed, do not run build task
-	// 	let file = event.path
-	// 	let content = read(file)
-	// 	if(contents[file] && contents[file] === content) return
-	// 	contents[file] = content
-	//
-	// 	let ext = getFileExt(file)
-	// 	if(file === indexfile) {
-	// 		gulp.src(indexfile)
-	// 			.pipe(gulp.dest(tmpdir))
-	// 			.pipe(app.stream())
-	// 	}
-	// 	else if(ext === ".scss" && exists(stylefile)) {
-	// 		gulp.src(stylefile)
-	// 			.pipe(sourcemap.init())
-	// 			.pipe(sass())
-	// 			.pipe(cssmin())
-	// 			.pipe(sourcemap.write())
-	// 			.pipe(gulp.dest(tmpdir))
-	// 			.pipe(app.stream())
-	// 	}
-	// 	else if(ext === ".js" && exists(scriptfile)) {
-	// 		gulp.src(scriptfile)
-	// 			.pipe(webpack(webpackConfig({
-	// 				devtool: "inline-source-map",
-	// 			})))
-	// 			.pipe(gulp.dest(tmpdir))
-	// 			.pipe(app.stream())
-	// 	}
-	// })
 
 })

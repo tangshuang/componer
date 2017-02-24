@@ -5,7 +5,7 @@
 import through from "through2"
 import {log} from "../loader"
 
-export function StreamContent(modify) {
+export function StreamContent(factory) {
 	return through.obj(function(file, endcoding, callback) {
 		if(file.isNull()) {
 			this.push(file)
@@ -19,7 +19,7 @@ export function StreamContent(modify) {
 
 		var content = file.contents.toString()
 
-		content = modify(content, file.path) || content
+		content = factory(content, file.path) || content
 
 		file.contents = new Buffer(content)
 		this.push(file)

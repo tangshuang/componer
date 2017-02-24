@@ -38,7 +38,7 @@ module.exports = {
 		script: "preview/{{componout-name}}.js",
 		style: "preview/{{componout-name}}.scss",
 		server: "preview/server.js",
-		watch: [
+		watchFiles: [
 			"preview/index.html",
 			"preview/{{componout-name}}.js",
 			"preview/{{componout-name}}.scss",
