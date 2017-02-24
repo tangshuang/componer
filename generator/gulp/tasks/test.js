@@ -105,6 +105,7 @@ gulp.task("test", () => {
 		.pipe(karma.server(karmaConfig(karmaSettings)))
 		.on("end", () => {
 			log("Reporters ware created in componouts/" + name + "/" + reportersDir, "help")
+			exit()
 		})
 
 })

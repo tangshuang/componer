@@ -1,5 +1,7 @@
-export default function(app) {
-	app.use("/test", (req, res, next) => {
-		res.end("ok")
-	})
+module.exports = {
+	route: "/test",
+	handle: function (req, res, next) {
+		res.end("Hello, Componer!")
+		next()
+	},
 }
