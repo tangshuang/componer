@@ -1,8 +1,7 @@
 import extend from "extend"
 import webpack from "./webpack.config"
 
-export default function karma(options) {
-
+export default function(settings) {
     var defaults = {
         singleRun: true,
         port: 9000 + parseInt(Math.random() * 1000),
@@ -41,11 +40,7 @@ export default function karma(options) {
         plugins: [],
     }
 
-    var settings = defaults
-    if(options && typeof options === "object") {
-        extend(true, settings, options)
-    }
-
+    settings = extend(true, defaults, settings)
     settings.coverageReporter.reporters.push({
         type: "text",
     })
@@ -71,5 +66,4 @@ export default function karma(options) {
     }
 
     return settings
-
 }

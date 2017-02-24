@@ -21,7 +21,6 @@ gulp.task("preview", () => {
 
 	var componoutPath = path.join(config.paths.componouts, name)
 	var srcPath = path.join(componoutPath, "src")
-	var previewPath = path.join(componoutPath, "preview")
 
 	if(!exists(componoutPath + "/componer.config.js")) {
 		log("componer.config.js not exists.", "error")

@@ -25,6 +25,6 @@ module.exports = {
 	],
 	test: {
 		entry: "test/specs/{{componout-name}}.js",
-		browsers: ["Terminal"],
+		browsers: "Terminal",
 	},
 }

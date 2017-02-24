@@ -338,7 +338,7 @@ commander
 	.command("test [name]")
 	.description("(gulp) test a componout")
 	.option("-D, --debug", "whether to use browser to debug code")
-	.option("-b, --browser", "which browser to use select one from [PhantomJS|Chrome|Firefox]")
+	.option("-b, --browser [browser]", "which browser to use select one from [PhantomJS|Chrome|Firefox]")
 	.action((name, options) => {
 		options = merge(options)
 
@@ -356,7 +356,7 @@ commander
 			}
 		}
 		if(options.browser) {
-			cmd += ` --browser=${browser}`
+			cmd += ` --browser=${options.browser}`
 		}
 
 		execute(cmd)

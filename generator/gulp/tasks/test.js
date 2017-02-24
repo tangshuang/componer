@@ -1,8 +1,9 @@
-import {gulp, path, fs, args, log, config, exit, exists, extend, readJSON} from "../loader"
+import {gulp, path, fs, args, log, config, exit, exists, load} from "../loader"
 import {hasComponout, dashlineName, runTask} from "../utils"
 
-import {server as karma} from "gulp-karma-runner"
+import karma from "gulp-karma-runner"
 import jasmine from "gulp-jasmine-node"
+import karmaConfig from "../drivers/karma.config"
 
 gulp.task("test", () => {
 	var arg = args.test
@@ -28,26 +29,23 @@ gulp.task("test", () => {
 
 	var componoutPath = path.join(config.paths.componouts, name)
 	var srcPath = path.join(componoutPath, "src")
-	var distPath = path.join(componoutPath, "dist")
 
-	if(!exists(componoutPath + "/componer.json")) {
-		log("componer.json not exists.", "error")
+	if(!exists(componoutPath + "/componer.config.js")) {
+		log("componer.config.js not exists.", "error")
 		exit()
 	}
 
-	var settings = readJSON(componoutPath + "/componer.json")
-	if(!settings.test) {
-		log(`test option is incorrect in your componer.json.`, "error")
+	var info = load(componoutPath + "/componer.config.js").test
+	if(!info) {
+		log("test option in componer.config.js not found.", "error")
 		exit()
 	}
 
-	var testEntry = settings.test.entry
-	if(!testEntry) {
-		log(`test.entry option is not correct in your componer.json.`, "error")
+	if(!info.entry) {
+		log("test.entry option in componer.config.js not found.", "error")
 		exit()
 	}
-
-	var entryfile = path.join(componoutPath, testEntry)
+	var entryfile = path.join(componoutPath, info.entry)
 	if(!exists(entryfile)) {
 		log(`test entry file not found.`, "error")
 		exit()
@@ -55,9 +53,9 @@ gulp.task("test", () => {
 
 
 	/**
-	 * if it is a package, run test with jasmine-node
+	 * if it is a npm package, run test with jasmine-node
 	 */
-	if(exists(componoutPath + "/package.json") && !exists(componoutPath + "/bower.json")) {
+	if(info.browsers === "Terminal") {
 		return gulp.src(entryfile).pipe(jasmine({
 			timeout: 10000,
 			includeStackTrace: false,
@@ -70,7 +68,7 @@ gulp.task("test", () => {
 	 * if it is normal package can be run in browser
 	 */
 
-	var reportersDir = settings.test.reporters
+	var reportersDir = info.reporters
 	if(!reportersDir) {
 		log(`test.reporters option is not correct in your componer.json.`, "error")
 		exit()
@@ -82,12 +80,12 @@ gulp.task("test", () => {
 	}
 
 	var preprocessors = {}
-	preprocessors[testPath + "/**/*.js"] = ["webpack", "sourcemap"]
-	preprocessors[testPath + "/**/*.scss"] = ["scss"]
+	preprocessors[componoutPath + "/**/*.js"] = ["webpack", "sourcemap"]
+	preprocessors[componoutPath + "/**/*.scss"] = ["scss"]
 
 	var karmaSettings = {
-			singleRun: !debug || !settings.test.debug,
-			browsers: browser || settings.test.browsers,
+			singleRun: debug !== undefined ? !debug : !info.debug,
+			browsers: browser ? [browser] : info.browsers,
 			preprocessors: preprocessors,
 			coverageReporter: {
 				reporters: [
@@ -104,7 +102,7 @@ gulp.task("test", () => {
 		}
 
 	return gulp.src(entryfile)
-		.pipe(karma(config.karma(karmaSettings)))
+		.pipe(karma.server(karmaConfig(karmaSettings)))
 		.on("end", () => {
 			log("Reporters ware created in componouts/" + name + "/" + reportersDir, "help")
 		})
