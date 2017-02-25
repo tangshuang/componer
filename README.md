@@ -39,7 +39,7 @@ componer install [name]
 componer link [name]
 ```
 
-### init
+### init [-i|--install]
 
 After your `npm install -g componer`, you should create a empty directory, and enter it to run `componer init`. Then you will see different files be initialized into this directory.
 
@@ -48,7 +48,9 @@ This directory is called `componer` directory.
 When you run `componer init`, it will ask you two questions: your github name and the package name. The value you typed in will be found in `package.json`. So you can modify the file later.
 Your github name is important, because it will be used when you run `componer add`. If you do not give a `--author` parameter when you run `componer add` task, componer will use your github name to create the package github registry address.
 
-### add <name> [-t bower -a your-github-name]
+If you give a `-i` option, `npm install` will be run after init.
+
+### add <name> [-t|--type component] [-a|--author your-name]
 
 Add a componout. A `componout` is a production created by componer.
 
@@ -60,82 +62,97 @@ If it runs successfully, you will find a new dirctory in componouts directory.
 
 If you want to add a new type of componout, just create a new dirctory in your gulp/templates directory. Type name is the directory name. In template file, you can use `{{component-name}}` as string template.
 
+`defaults` options in `.componerrc` in your project root path will be used as default values if you not give a -t or -a option.
+
 ### build [name]
 
 When you run build task, componer will compile your ES6 code to ES5 code and combine your code into one file by webpack.
-At the some time, scss files will be compiled to css files, minified by cssmin, and be put in `dist` directory too.
 
-However, componer.json is a special file which is used for compiling.
+At the same time, scss files will be compiled to css files, minified by cssmin, and be put in `dist` directory too.
 
-**componer.json**
+However, `componer.config.js` is a special file which has information used for compiling.
 
 ```
-{
-	"entry": {
-		"script": "src/script/{{componout-name}}.js", // which javascript file to build from
-		"style": "src/style/{{componout-name}}.scss", // which style file to build from
-		"assets": "assets", // which directory to copy static files from
-		...
-	},
-	"output": {
-		"script": "dist/js", // which directory to put built javascript files
-		"style": "dist/style", // which directory to put built css files
-		"assets": "assets", // which direcotry to put static files
-		...
-	},
-	"webpack": { // webpack config
-		"_minify": true, // whether to minify built javascript
-		"output": {
-			"filename": "{{componout-name}}.js",
-			"libraryTarget": "umd",
-			"library": "{{componoutName}}",
-			"sourceMapFilename": "{{componout-name}}.js.map",
-			"publicPath": "assets"
+build: [
+	{
+		from: "src/script/bar-chart.js", // entry file to build with
+		to: "dist/js/bar-chart.js", // output file after be built
+		driver: "webpack", // driver to use, only webpack supported for javascript
+		options: { // minify and sourcemap options
+			minify: true,
+			sourcemap: "file", // true (same as "file"), "inline"
 		},
-		"externals": {},
-		"resolve": {
-			"alias": {}
+		settings: {}, // settings passed to webpack, look into webpack config
+	},
+	{
+		from: "src/style/bar-chart.scss",
+		to: "dist/css/bar-chart.css",
+		driver: "sass", // only sass supported for scss
+		options: {
+			minify: true,
+			sourcemap: "file",
 		},
-		"devtool": "source-map" // remove this if you dont want to use sourcemap file
 	},
-	"sass": {
-		"_minify": true,
-		"output": {
-			"filename": "{{componout-name}}.css",
-			"sourcemap": "file" // "inline" or "file"
-		}
-	},
-	...
-}
+],
 ```
 
 If `name` is not given, all componouts will be built one by one.
 
 ### watch [name]
 
-When you are coding, you can run a `componer watch` task to build your code automaticly after you change your code and save the changes. Only `src` directory is watched.
+When you are coding, you can run a `componer watch` task to build your code automaticly after you change your code and save the changes.
 
-If `name` is not given, all componouts will be watched.
+Only `src` directory is being watched.
 
-### preview
+If `name` is not given, all componouts's `src` will be being watched.
 
-When you preview a componout, it will firstly build it into a `.tmp` directory and then setup a local static webserver to preview your componout.
+### preview <name>
 
-You should give a index.html and a index.js file in your preview directory (which is point out in your componer.json). These two files are neccessary, or your preview task will fail. However, you can put a index.scss and server.js in your preview directory. index.scss is used for styles entry, which will be built by sass. And server.js is used for a backend server.
+Open browser to preview your code. `browser-sync` is used. preview options in `componer.config.js` make sense.
 
-### test [name]
+```
+preview: {
+	index: "preview/index.html", // required, html to use as home page
+	script: "preview/bar-chart.js", // option, script to inject to home page, will be compiled by webpack
+	style: "preview/bar-chart.scss", // option, will be compiled by sass
+	server: "preview/server.js", // option, middlewares to be used by browser-sync, look into browser-sync config `middleware`
+	watchFiles: [ // look into browser-sync config `files`
+		"preview/index.html",
+		"preview/bar-chart.js",
+		"preview/bar-chart.scss",
+		"src/**/*",
+	],
+	watchOptions: {}, // look into browser-sync config `watchOptions`
+},
+```
+
+1) index file
+
+A html file, use `<!--styles-->` and `<!--scripts-->` for scripts files to be injected.
+
+2) server file
+
+Export an object or an array or a function. Look into browser-sync middleware config.
+
+3) scripts files
+
+`script` and `style` files will be compiled and be kept in memory, not true local files. All dependencies will be included in the compiled output content.
+
+### test [name] [-D|--debug] [-b|--browser Chrom|Firefox|PhantomJS]
 
 Componer use karma and jasmine as framework.
 
 You can pass `-D` (short for --debug) and `-b` (short for --browser).
+
 When use --debug mode, browser will be open, you can debug testing code in browser.
+
 You can use --browser to change to test in different browser. For example, you can use Firefox. Only "Chrome" or "Firefox" or "PhantomJS" can be used. "PhantomJS" is default.
 
-When you test a node module componout, it use jasmine-node to test it.
+When you test a node module componout, it is different. You should modify `componer.config.js` `test.browsers` to be `Terminal`. If `test.browsers` = `Terminal`, jasmine-node will be used to test node scripts which can be run only in command line not in browsers. Do as so, `-b` will not work.
 
-If `name` is not given, all componouts will be tested. But debug mode can not be used.
+If `name` is not given, all componouts will be tested. `-D` will not work, and debug mode will be ignored.
 
-### remove
+### remove <name>
 
 Remove the named componout, run `unlink` command if possible.
 
@@ -143,58 +160,115 @@ Remove the named componout, run `unlink` command if possible.
 
 List all componouts information.
 
-### install [name]
+### install [name] [pkg]
 
-Install dependencies.
+Install dependencies. If you want to install a package (npm or bower package) for a componout, you can run `componer install componout-name package-name`.
 
-### link
+1) install a package for a componout
 
-Link componout as package. If there is a bower.json in your componout, it will be link to bower_components, if without bower.json there is a package.json, it will be link to node_modules.
+```
+componer install componout-name package-name
+```
 
-### pull
+New package will be put into node_modules directory in your project root path. However, a new dependence will be added into your componout `package.json` or `bower.json`.
 
-Pull your git registry from http://github.com/componer
+npm packages always come first. For example, when you run `componer install my-component jquery`, jquery will be installed by npm into your root node_modules directory, event though there is a bower jquery. On the other hand, if npm run fail, bower packages will be try. eg. `componer install my-component d3`, d3 has only bower package, so npm install will fail and bower install will be run after the error message.
+
+2) install all packages for a componout
+
+```
+componer install componout-name
+```
+
+Without a package name following componout name, all of the componout packages, including npm packages and bower packages, will be installed.
+
+3) install all packages for all componouts
+
+```
+componer install
+```
+
+All npm packages and bower packages will be install in your project root path.
+
+### link <name>
+
+Link componout as package. If there is a bower.json in your componout, it will be linked as a bower component. If there is a package.json, it will be linked as a npm node module.
+
+### pull <name> [-u|--url your-git-registry-address] [origin master]
+
+Pull your componouts from http://github.com/componer, by git. You can change registries in `.componerrc` `defaults` options. If `-u` options is set, registry will be insteaded by this url.
+
+You can try:
+
+```
+componer pull browser-logger
+```
+
+After that, a componout named `browser-logger` will lay in your componouts directory. You will find this componout to be a git registry.
+
+1) add a compount from remote
+
+If the named componout exists, this command do as `git clone your-git-registry-address`
+
+```
+componer pull browser-logger -u https://github.com/componer/browser-logger.git
+```
+
+2) update a componout from remote
+
+If the componout exists, this command do as `git pull [origin master]`
+
+```
+componer pull browser-logger origin master
+```
+
+Notic: `origin master` only works when update, so don't use them when add.
 
 ### push
 
-Push your componout to http://github.com/componer if you have the permission.
+Push your componout to http://github.com/componer (or your coustom registries) if you have the permission.
 
-## Workspace
+```
+componer push browser-logger origin master
+```
+
+However, you may don't have permission to push your code into componer registries. You can fork this project into your own github registries, and use `-u` when pull down from your own github registry.
+
+## Generator
 
 All componer command should be run in a componer directory. How about the directory of componer directory?
 
 ```
 --- your-project-directory
- `- componouts # all componouts will be put here
+ `- componouts 			# all componouts will be put here
  |- gulp
- | `- tasks # all gulp tasks files, you can even modify by yourself
- | |- templates # componouts type templates
- | |- utils # gulp helper files
- | `- loader.js # basic functions and config loader
+ | `- tasks 			# all gulp tasks files, you can even modify by yourself
+ | |- templates 		# componouts type templates
+ | |- drivers			# webpack, sass and their config files
+ | |- utils 			# gulp helper files
+ | `- loader.js 		# basic functions and config loader
  |- bower_components
  |- node_modules
  |- gulpfile.babel.js
- |- webpack.config.js # basic webpack config
- |- karma.config.js # basic karma config
  |- package.json
- |- .componerrc # componer config info in this workspace
+ |- .componerrc 		# componer cli config of this project
  |- .bowerrc
  `- .babelrc
 ```
 
-All of workspace files can be modified, but you should follow the rules.
+All files can be modified, but you should follow the rules.
 
 ## Componout
 
-A componout should must contains a componer.json file, which provides build, preview, test information.
+A componout should must contains a componer.config.js file, which provides build, preview, test information.
 
 We have three default type of componout:
 
 1) npm: use this type to create a npm package
 
-2) bower: use this type to create a component, following bower specs
+2) component: use this type to create a component
 
-3) default: uset this type to create a website application or a plugin
+3) app: use this type to create a website application or a plugin
 
 Normal directory structure:
 
@@ -203,8 +277,8 @@ Normal directory structure:
  `- src
  | `- script
  | |- style
- | |- assets
  | `- ...
+ |- assets
  |- preview
  |- test
  | `- specs
@@ -217,15 +291,17 @@ Normal directory structure:
  `- ...
 ```
 
-In the core idea of componer "组件是素材，不是作品。", I suggest developers to hold up component ideas. You build components, and provide to others to use. A component should follow the idea of **independence**.
+You can use componer to create packages, components and applications. The difference amoung this types is componer.config.js, packages of npm always run in node environment, so the test options in componer.config.js is different, and there is no preview options. Applications will contains all dependencies, so there is not externals options in componer.config.js.
 
-When you use componer to build a componout, if there is a bower.json in the componout directory without package.json file in it, it will be considered as a component. Without bower.json, but there is a package.json, it will be considered as a npm package. However, if there is neither a bower.json nor a package.json, or there are both a bower.json and package.json, the componout will be considered as a application, which will pack all dependencies in the built file.
+In the core idea of componer "组件是素材，不是作品。", I suggest developers to hold up component ideas. You build components, and provide to others to use. A component should follow the idea of **independence**.
 
 When run build task, components' or packages' dependencies will not be packed by webpack. However, "bower_components" is automaticly considered as modules which can be require in source code, so just use bower component name to import the component.
 
+However, bower components provide style files, such as bootstrap providing source less/sass files in main option in bower.json. If you use bower component instead of npm package, webpack will include this styles in javascript code.
+
 `dependencies` options in bower.json or package.json will be external modules in built module componout. `devDependencies` in bower.json and package.json are no useful when building, but will be installed when you run `componer install` task.
 
-All dependencies should be install in "bower_components" and "node_modules" directories in your componer root directory, which in your componout directories will be ignore when building. So run `componer install [name]` after you change the dependencies in .json files of componout.
+All dependencies should be install in "bower_components" and "node_modules" directories in your componer root directory, which in your componout directories will be ignore when building. So run `componer install [name]` after you change the dependencies in .json files of componout manually.
 
 ## gulp tasks
 

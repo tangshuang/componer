@@ -94,7 +94,12 @@ gulp.task("preview", () => {
 	}
 	if(serverfile && exists(serverfile)) {
 		let serverware = load(serverfile)
-		middlewares.unshift(serverware)
+		if(serverware instanceof Array) {
+			middlewares = middlewares.concat(serverware)
+		}
+		else {
+			middlewares.unshift(serverware)
+		}
 	}
 
 	var watchFiles = info.watchFiles

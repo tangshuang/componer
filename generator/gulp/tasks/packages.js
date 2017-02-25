@@ -44,25 +44,46 @@ gulp.task("install", () => {
 			}
 		})
 		if(bowerComponents.length > 0) {
-			execute(`cd ${rootPath} && bower install ` + bowerComponents.join(" "))
+			execute(`cd "${rootPath}" && bower install ` + bowerComponents.join(" "))
 		}
 		if(npmPackages.length > 0) {
-			execute(`cd ${rootPath} && npm install ` + npmPackages.join(" "))
+			execute(`cd "${rootPath}" && npm install ` + npmPackages.join(" "))
 		}
 	}
 	else {
 		let name = dashlineName(arg.name)
+		let pkg = arg.package
 
 		if(!hasComponout(name)) {
 			log(`${name} not exists.`, "error")
 			exit()
 		}
 
-		if(exists(`${componoutsPath}/${name}/bower.json`)) {
-			execute(`cd ${componoutsPath} && cd ${name} && bower install --config.directory=${rootPath}/bower_components`)
+		function bowerInstall() {
+			if(exists(`${componoutsPath}/${name}/bower.json`)) {
+				execute(`cd "${componoutsPath}" && cd ${name} && bower install ${pkg} --config.directory="${rootPath}/bower_components"`)
+			}
 		}
+
 		if(exists(`${componoutsPath}/${name}/package.json`)) {
-			execute(`cd ${cwd} && cd componouts && cd ${name} && npm install --prefix ${rootPath}`)
+			if(pkg) {
+				execute(`cd "${componoutsPath}" && cd ${name} && npm install ${pkg} --save`, () => {
+					if(!exists(`${rootPath}/node_modules/${pkg}`)) {
+						execute(`mv "${componoutsPath}/${name}/node_modules/${pkg}" "${rootPath}/node_modules/${pkg}"`)
+					}
+					execute(`rm -rf "${componoutsPath}/${name}/node_modules"`)
+				}, bowerInstall) // if npm package install error, try bower package
+			}
+			else {
+				let deps = getDeps(`${componoutsPath}/${name}/package.json`)
+				if(deps.length > 0) {
+					execute(`cd "${rootPath}" && npm install ` + deps.join(" "))
+					bowerInstall()
+				}
+			}
+		}
+		else {
+			bowerInstall()
 		}
 	}
 })

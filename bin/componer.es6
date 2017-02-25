@@ -388,9 +388,9 @@ commander
 	})
 
 commander
-	.command("install [name]")
+	.command("install [name] [pkg]")
 	.description("(gulp) install componouts [dev]dependencies")
-	.action(name => {
+	.action((name, pkg) => {
 		if(name === undefined) {
 			check()
 			execute(`cd ${cwd} && gulp install`)
@@ -399,7 +399,11 @@ commander
 			name = dashline(name)
 			name = fixname(name)
 			check(name)
-			execute(`cd ${cwd} && gulp install --name=${name}`)
+			let cmd = `cd ${cwd} && gulp install --name=${name}`
+			if(pkg) {
+				cmd += ` --package=${pkg}`
+			}
+			execute(cmd)
 		}
 	})
 
