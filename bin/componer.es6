@@ -108,7 +108,7 @@ function merge(options, pendKeys = []) {
 	var pkgInfo = readJSON(cwd + "/package.json")
 	var keys = Object.keys(options).concat(pendKeys)
 	keys = keys.filter((key, index) => keys.indexOf(key) === index)
-	keys.forEach(key => options[key] = options[key] || cpoInfo[key] || pkgInfo[key])
+	keys.forEach(key => options[key] = (options[key] || cpoInfo[key] || pkgInfo[key]))
 	return options
 }
 
@@ -159,7 +159,7 @@ function execute(cmd, done, fail) {
 	}
 
 	var result = shell.exec(cmd)
-	if(result.code === 0) {
+	if(result && result.code === 0) {
 		typeof done === "function" && done()
 	}
 	else {
@@ -242,7 +242,7 @@ commander
 						if(isEmpty) {
 							if(options.install) {
 								log("npm install...")
-								execute(`cd ${cwd} && npm install`)
+								execute(`cd "${cwd}" && npm install`)
 							}
 							else {
 								log("Done! Do NOT forget to run `npm install` before you begin.", "done")
@@ -268,7 +268,7 @@ commander
 
 		log("copying files...")
 		execute("cp -r " + generator + "/. " + cwd + "/")
-		execute(`cd ${cwd} && mkdir componouts`, () => {}, () => {
+		execute(`cd "${cwd}" && mkdir componouts`, () => {}, () => {
 			log("You should create `componouts` directory by yourself.", "warn")
 			log("Do NOT forget to run `npm install`.", "warn")
 		})
@@ -304,7 +304,7 @@ commander
 			exit()
 		}
 
-		execute(`cd ${cwd} && gulp add --name=${name} --template=${template} --author=${author}`)
+		execute(`cd "${cwd}" && gulp add --name=${name} --template=${template} --author=${author}`)
 	})
 
 commander
@@ -313,13 +313,13 @@ commander
 	.action(name => {
 		if(name === undefined) {
 			check()
-			execute(`cd ${cwd} && gulp build`)
+			execute(`cd "${cwd}" && gulp build`)
 		}
 		else {
 			name = dashline(name)
 			name = fixname(name)
 			check(name)
-			execute(`cd ${cwd} && gulp build --name=${name}`)
+			execute(`cd "${cwd}" && gulp build --name=${name}`)
 		}
 
 	})
@@ -331,7 +331,7 @@ commander
 		name = dashline(name)
 		name = fixname(name)
 		check(name)
-		execute(`cd ${cwd} && gulp preview --name=${name}`)
+		execute(`cd "${cwd}" && gulp preview --name=${name}`)
 	})
 
 commander
@@ -340,16 +340,18 @@ commander
 	.option("-D, --debug", "whether to use browser to debug code")
 	.option("-b, --browser [browser]", "which browser to use select one from [PhantomJS|Chrome|Firefox]")
 	.action((name, options) => {
-		options = merge(options)
+		let cmd = `cd "${cwd}" && gulp test`
 
-		let cmd = `cd ${cwd} && gulp test`
 		if(name === undefined) {
 			check()
+			options = merge(options)
 		}
 		else {
 			name = dashline(name)
 			name = fixname(name)
 			check(name)
+			options = merge(options)
+
 			cmd += ` --name=${name}`
 			if(options.debug) {
 				cmd += " --debug"
@@ -368,13 +370,13 @@ commander
 	.action(name => {
 		if(name === undefined) {
 			check()
-			execute(`cd ${cwd} && gulp watch`)
+			execute(`cd "${cwd}" && gulp watch`)
 		}
 		else {
 			name = dashline(name)
 			name = fixname(name)
 			check(name)
-			execute(`cd ${cwd} && gulp watch --name=${name}`)
+			execute(`cd "${cwd}" && gulp watch --name=${name}`)
 		}
 	})
 
@@ -384,7 +386,7 @@ commander
 	.description("(gulp) list all componouts")
 	.action(() => {
 		check()
-		execute(`cd ${cwd} && gulp list`)
+		execute(`cd "${cwd}" && gulp list`)
 	})
 
 commander
@@ -393,13 +395,13 @@ commander
 	.action((name, pkg) => {
 		if(name === undefined) {
 			check()
-			execute(`cd ${cwd} && gulp install`)
+			execute(`cd "${cwd}" && gulp install`)
 		}
 		else {
 			name = dashline(name)
 			name = fixname(name)
 			check(name)
-			let cmd = `cd ${cwd} && gulp install --name=${name}`
+			let cmd = `cd "${cwd}" && gulp install --name=${name}`
 			if(pkg) {
 				cmd += ` --package=${pkg}`
 			}
@@ -413,13 +415,13 @@ commander
 	.action(name => {
 		if(name === undefined) {
 			check()
-			execute(`cd ${cwd} && gulp link`)
+			execute(`cd "${cwd}" && gulp link`)
 		}
 		else {
 			name = dashline(name)
 			name = fixname(name)
 			check(name)
-			execute(`cd ${cwd} && gulp link --name=${name}`)
+			execute(`cd "${cwd}" && gulp link --name=${name}`)
 		}
 	})
 
@@ -433,7 +435,7 @@ commander
 		check(name)
 		prompt("Are you sure to remove " + name + " componout? yes/No  ", choice => {
 			if(choice.toLowerCase() === "yes") {
-				execute(`cd ${cwd} && gulp remove --name=${name}`)
+				execute(`cd "${cwd}" && gulp remove --name=${name}`)
 			}
 			exit()
 		})
@@ -453,14 +455,14 @@ commander
 
 		if(!has(name)) {
 			var url = options.url || `${options.registries}/${name}.git`
-			execute(`cd ${cwd} && cd componouts && git clone ${url} ${name}`, () => {
+			execute(`cd "${cwd}" && cd componouts && git clone ${url} ${name}`, () => {
 				log("Done! Componout has been added to componouts directory.", "done")
 			}, () => {
 				log("Fail! You can enter componout directory and run `git clone`.", "help")
 			})
 		}
 		else {
-			var sh = `cd ${cwd} && cd componouts && cd ${name} && git pull`
+			var sh = `cd "${cwd}" && cd componouts && cd ${name} && git pull`
 			if(params.length > 0) {
 				sh += " " + params.join(" ")
 			}
@@ -480,7 +482,7 @@ commander
 		check(name)
 
 		prompt("Commit message: ", message => {
-			var sh = `cd ${cwd} && cd componouts && cd ${name} && git add ./. && git commit -m "${message}" && git push`
+			var sh = `cd "${cwd}" && cd componouts && cd ${name} && git add ./. && git commit -m "${message}" && git push`
 			if(params.length > 0) {
 				sh += " " + params.join(" ")
 			}

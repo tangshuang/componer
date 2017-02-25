@@ -16,7 +16,7 @@ module.exports = {
 			},
 			settings: {
 				get externals() {
-					var deps = Object.keys(bowerJson.dependencies).contact(Object.keys(packageJson.dependencies))
+					var deps = Object.keys(bowerJson.dependencies).concat(Object.keys(packageJson.dependencies))
 					var externals = {}
 					if(deps.length > 0) deps.forEach(dep => externals[dep] = dep)
 					return externals

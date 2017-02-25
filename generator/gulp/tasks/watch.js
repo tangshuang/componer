@@ -34,8 +34,12 @@ gulp.task("watch", () => {
 		contents[file] = content
 
 		log(`${event.path} was ${event.type}, building...`, "help")
+
+		let relativePath = path.relative(componoutsPath, file).replace(/\\/g, "/")
+		let componoutName = relativePath.split("/")[0]
+
 		runTask("build", {
-			name: name
+			name: componoutName
 		})
 	})
 })
