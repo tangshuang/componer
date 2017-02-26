@@ -149,7 +149,7 @@ function check(name) {
  * @param function fail: callback function when error or fail
  */
 function execute(cmd, done, fail) {
-	if(cmd.indexOf("gulp") > -1) {
+	if(cmd.indexOf("gulp") > -1 && cmd.indexOf("/gulp") === -1 && cmd.indexOf("gulp/") === -1) {
 		if(config("color")) {
 			cmd += " --color"
 		}
@@ -267,13 +267,61 @@ commander
 		}
 
 		log("copying files...")
-		execute("cp -r " + generator + "/. " + cwd + "/")
+		execute("cp -rf " + generator + "/. " + cwd + "/")
 		execute(`cd "${cwd}" && mkdir componouts`, () => {}, () => {
 			log("You should create `componouts` directory by yourself.", "warn")
 			log("Do NOT forget to run `npm install`.", "warn")
 		})
 		modify(true)
 
+	})
+
+commander
+	.command("reset")
+	.description("reset componer and curent project componer program")
+	.option("-i, --install", "whether to run `npm install` after files reset")
+	.action(options => {
+		log("Reset may change componer files in your project directory.")
+		prompt("Are you sure to reset? yes/No  ", choice => {
+			if(choice.toLowerCase() === "yes") {
+				let files = [
+					{
+						from: generator + "/gulp/.",
+						to: cwd + "/gulp/",
+					},
+					{
+						from: generator + "/.babelrc",
+						to: cwd + "/.babelrc",
+					},
+					{
+						from: generator + "/.bowerrc",
+						to: cwd + "/.bowerrc",
+					},
+					{
+						from: generator + "/gulpfile.babel.js",
+						to: cwd + "/gulpfile.babel.js",
+					},
+				]
+				files.forEach(item => execute(`cp -rf ${item.from} ${item.to}`))
+
+				// use new package dependencies
+				let pkgJson = cwd + "/package.json"
+				let pkgInfo = readJSON(pkgJson)
+				let newPkgInfo = readJSON(generator + "/package.json")
+				pkgInfo.dependencies = newPkgInfo.dependencies
+				pkgInfo.devDependencies = newPkgInfo.devDependencies
+				writeJSON(pkgJson, pkgInfo)
+
+				if(options.install) {
+					log("npm install...")
+					execute(`cd "${cwd}" && npm install`)
+				}
+				else {
+					log("Done! Do NOT forget to run `npm install`", "done")
+				}
+			}
+			exit()
+		})
 	})
 
 commander
@@ -391,27 +439,97 @@ commander
 
 commander
 	.command("install [name] [pkg]")
-	.description("(gulp) install componouts [dev]dependencies")
+	.description("install componouts [dev]dependencies")
 	.action((name, pkg) => {
+
+		function getDeps(pkgfile) {
+			var info = readJSON(pkgfile)
+			var deps = info.dependencies
+			var devdeps = info.devDependencies
+			var names = Object.keys(deps).concat(Object.keys(devdeps))
+			names = names.filter((value, index, self) => self.indexOf(value) === index)
+			names = names.map(name => {
+				if(deps[name]) {
+					return name + "@" + deps[name]
+				}
+				return name + "@" + devdeps[name]
+			})
+			return names
+		}
+
 		if(name === undefined) {
 			check()
-			execute(`cd "${cwd}" && gulp install`)
+
+			let bowerComponents = []
+			let npmPackages = []
+			fs.readdirSync(componoutsPath).forEach(item => {
+				let componoutPath = path.join(componoutsPath, item)
+				let bowerJson = path.join(componoutPath, "bower.json")
+				if(exists(bowerJson)) {
+					let deps = getDeps(bowerJson)
+					if(deps.length > 0) {
+						bowerComponents.concat(deps)
+					}
+				}
+				let npmJson = path.join(componoutPath, "package.json")
+				if(exists(npmJson)) {
+					let deps = getDeps(npmJson)
+					if(deps.length > 0) {
+						npmPackages.concat(deps)
+					}
+				}
+			})
+
+			if(bowerComponents.length > 0) {
+				execute(`cd "${cwd}" && bower install ` + bowerComponents.join(" "))
+			}
+			if(npmPackages.length > 0) {
+				execute(`cd "${cwd}" && npm install ` + npmPackages.join(" "))
+			}
 		}
 		else {
 			name = dashline(name)
 			name = fixname(name)
 			check(name)
-			let cmd = `cd "${cwd}" && gulp install --name=${name}`
-			if(pkg) {
-				cmd += ` --package=${pkg}`
+
+			function bowerInstall() {
+				if(exists(`${cwd}/componouts/${name}/bower.json`)) {
+					let cmd = `cd "${cwd}" && cd componouts && cd ${name} && bower install --config.directory="${cwd}/bower_components"`
+					if(pkg) {
+						cmd += ` ${pkg} --save`
+					}
+					execute(cmd)
+				}
 			}
-			execute(cmd)
+
+			let npmJson = `${cwd}/componouts/${name}/package.json`
+			if(exists(npmJson) && !pkg) { // if there is no pkg in cli, run `npm install`
+				let npmDeps = getDeps(npmJson)
+				execute(`cd "${cwd}" && npm install ` + npmDeps.join(" "))
+				bowerInstall()
+			}
+			else if(exists(npmJson) && pkg) {
+				execute(`cd "${cwd}" && npm install ${pkg}`, () => {
+					// add dependencies into package.json of componout
+					let npmPkgInfo = readJSON(npmJson)
+					let pkgName = pkg
+					let pkgVer = "latest"
+					if(pkg.indexOf("@")) {
+						[pkgName, pkgVer] = pkg.split("@")
+					}
+					npmPkgInfo.dependencies.pkgName = pkgVer
+					writeJSON(npmJson, npmPkgInfo)
+				}, bowerInstall)
+			}
+			else {
+				bowerInstall()
+			}
 		}
 	})
 
 commander
 	.command("link [name]")
-	.description("(gulp) link local [name] componout as package")
+	.description("link local [name] componout as package")
 	.action(name => {
 		if(name === undefined) {
 			check()
@@ -428,14 +546,22 @@ commander
 commander
 	.command("remove <name>")
 	.alias("rm")
-	.description("(gulp) remove a componout from componouts directory")
+	.description("remove a componout from componouts directory")
 	.action(name => {
 		name = dashline(name)
 		name = fixname(name)
 		check(name)
 		prompt("Are you sure to remove " + name + " componout? yes/No  ", choice => {
 			if(choice.toLowerCase() === "yes") {
-				execute(`cd "${cwd}" && gulp remove --name=${name}`)
+				if(exists(`${cwd}/bower_components/${name}`)) {
+					execute(`cd "${cwd}" && bower unlink ${name}`)
+				}
+				if(exists(`${cwd}/node_modules/${name}`)) {
+					execute(`cd "${cwd}" && npm unlink ${name}`)
+				}
+				execute(`cd "${cwd}" && cd componouts && rm -rf ${name}`, () => {
+					log("Done! " + name + " has been deleted.", "done")
+				})
 			}
 			exit()
 		})
@@ -470,7 +596,6 @@ commander
 				log("Done! Componout has been the latest code.", "done")
 			})
 		}
-
 	})
 
 commander
