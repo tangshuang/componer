@@ -71,7 +71,7 @@ gulp.task("preview", () => {
 				sourceMapFilename: name + ".vendor.js.map",
 				library: camelName(name) + 'Vendor',
 			},
-			devtool: "source-map",
+			devtool: "inline-source-map",
 			plugins: [
 				new webpack.DllPlugin({
 					path: tmpdir + '/manifest.json',
@@ -117,11 +117,10 @@ gulp.task("preview", () => {
 				gulp.src(stylefile)
 					.pipe(sourcemap.init())
 					.pipe(sass())
+					.pipe(sourcemap.write())
 					.pipe(StreamContent(content => {
 						res.end(content)
-						return content
 					}))
-					.pipe(sourcemap.write("."))
 					.pipe(gulp.dest(tmpdir))
 			},
 		})
@@ -138,7 +137,7 @@ gulp.task("preview", () => {
 							library: camelName(name),
 							sourceMapFilename: name + ".js.map",
 						},
-						devtool: "source-map",
+						devtool: "inline-source-map",
 						plugins: [
 							new webpack.DllReferencePlugin({
 								context: tmpdir,
