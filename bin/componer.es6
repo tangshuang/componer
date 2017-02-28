@@ -302,7 +302,7 @@ commander
 						to: cwd + "/gulpfile.babel.js",
 					},
 				]
-				files.forEach(item => execute(`cp -rf ${item.from} ${item.to}`))
+				files.forEach(item => execute(`rm -rf ${item.to} && cp -rf ${item.from} ${item.to}`))
 
 				// use new package dependencies
 				let pkgJson = cwd + "/package.json"
@@ -460,6 +460,7 @@ commander
 		if(name === undefined) {
 			check()
 
+			let componoutsPath = path.join(cwd, "componouts")
 			let bowerComponents = []
 			let npmPackages = []
 			fs.readdirSync(componoutsPath).forEach(item => {
@@ -514,10 +515,10 @@ commander
 					let npmPkgInfo = readJSON(npmJson)
 					let pkgName = pkg
 					let pkgVer = "latest"
-					if(pkg.indexOf("@")) {
+					if(pkg.indexOf("@") > -1) {
 						[pkgName, pkgVer] = pkg.split("@")
 					}
-					npmPkgInfo.dependencies.pkgName = pkgVer
+					npmPkgInfo.dependencies[pkgName] = pkgVer
 					writeJSON(npmJson, npmPkgInfo)
 				}, bowerInstall)
 			}
@@ -553,11 +554,12 @@ commander
 		check(name)
 		prompt("Are you sure to remove " + name + " componout? yes/No  ", choice => {
 			if(choice.toLowerCase() === "yes") {
+				let componoutPath = `${cwd}/componouts/${name}`
 				if(exists(`${cwd}/bower_components/${name}`)) {
-					execute(`cd "${cwd}" && bower unlink ${name}`)
+					execute(`cd "${cwd}" && bower unlink ${name} && cd "${componoutPath}" && bower unlink`)
 				}
 				if(exists(`${cwd}/node_modules/${name}`)) {
-					execute(`cd "${cwd}" && npm unlink ${name}`)
+					execute(`cd "${cwd}" && npm unlink ${name} && cd "${componoutPath}" && npm unlink`)
 				}
 				execute(`cd "${cwd}" && cd componouts && rm -rf ${name}`, () => {
 					log("Done! " + name + " has been deleted.", "done")

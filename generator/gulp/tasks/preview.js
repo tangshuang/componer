@@ -1,14 +1,13 @@
-import {gulp, path, fs, args, log, config, exit, exists, load, read} from "../loader"
+import {gulp, path, fs, args, log, config, exit, exists, clear, load, read, readJSON} from "../loader"
 import {hasComponout, dashlineName, camelName, runTask, getFileExt, setFileExt, StreamContent} from "../utils"
 
 import browsersync from "browser-sync"
-
-import webpack from "webpack-stream"
+import webpack from "webpack"
+import webpackStream from "webpack-stream"
 import webpackConfig from "../drivers/webpack.config"
 
 import sass from "gulp-sass"
 import sourcemap from "gulp-sourcemaps"
-
 
 gulp.task("preview", () => {
 	var arg = args.preview
@@ -37,11 +36,52 @@ gulp.task("preview", () => {
 	var scriptfile = info.script ? path.join(componoutPath, info.script) : false
 	var stylefile = info.style ? path.join(componoutPath, info.style) : false
 	var serverfile = info.server ? path.join(componoutPath, info.server) : false
+	var tmpdir = info.tmpdir ? path.join(componoutPath, info.tmpdir) : path.join(componoutPath, ".preview_tmp")
 
 	if(!exists(indexfile)) {
 		log("preview index file is not found.", "error")
 		exit()
 	}
+
+	clear(tmpdir) // clear tmp dir
+	
+	/**
+	 * pre build dependencies vendors
+	 */
+	 
+	if(scriptfile && exists(scriptfile)) {
+		let bowerJson = path.join(componoutPath, "bower.json")
+	 	let pkgJson = path.join(componoutPath, "package.json")
+		let getDeps = function(pkgfile) {
+			if(!exists(pkgfile)) {
+				return []
+			}
+			let deps = readJSON(pkgfile).dependencies
+			return Object.keys(deps)
+		}
+		let deps = getDeps(bowerJson).concat(getDeps(pkgJson))
+		// create vendor bundle
+		webpack(webpackConfig({
+			entry: {
+				vendor: deps,
+			},
+			output: {
+				path: tmpdir,
+				filename: name + ".vendor.js",
+				sourceMapFilename: name + ".vendor.js.map",
+				library: camelName(name) + 'Vendor',
+			},
+			devtool: "source-map",
+			plugins: [
+				new webpack.DllPlugin({
+					path: tmpdir + '/manifest.json',
+					name: camelName(name) + 'Vendor',
+					context: tmpdir,
+				}),
+			],
+		})).run((error, handle) => {})
+	}
+
 
 	/**
 	 * create a bs server app
@@ -52,11 +92,20 @@ gulp.task("preview", () => {
 		{
 			route: "/",
 			handle: function (req, res, next) {
-				let html = read(indexfile)
-				html = html.replace("<!--styles-->", `<link rel="stylesheet" href="${name}.css">`)
-				html = html.replace("<!--scripts-->", `<script src="${name}.js"></script>`)
-				res.end(html)
-				next()
+				res.setHeader('content-type', 'text/html')
+				gulp.src(indexfile)
+					.pipe(StreamContent(html => {
+						if(stylefile && exists(stylefile)) {
+							html = html.replace("<!--styles-->", `<link rel="stylesheet" href="${name}.css">`)
+						}
+						if(scriptfile && exists(scriptfile)) {
+							html = html.replace("<!--scripts-->", `<script src="${name}.js"></script>`)
+							html = html.replace("<!--vendors-->", `<script src="${name}.vendor.js"></script>`)
+						}
+						res.end(html)
+						return html
+					}))
+					.pipe(gulp.dest(tmpdir))
 			},
 		},
 	]
@@ -64,15 +113,16 @@ gulp.task("preview", () => {
 		middlewares.unshift({
 			route: `/${name}.css`,
 			handle: function (req, res, next) {
+				res.setHeader('content-type', 'text/css')
 				gulp.src(stylefile)
 					.pipe(sourcemap.init())
 					.pipe(sass())
-					.pipe(sourcemap.write())
 					.pipe(StreamContent(content => {
-						res.setHeader('content-type', 'text/css')
 						res.end(content)
-						next()
+						return content
 					}))
+					.pipe(sourcemap.write("."))
+					.pipe(gulp.dest(tmpdir))
 			},
 		})
 	}
@@ -80,15 +130,26 @@ gulp.task("preview", () => {
 		middlewares.unshift({
 			route: `/${name}.js`,
 			handle: function (req, res, next) {
+				res.setHeader('content-type', 'application/javascript')
 				gulp.src(scriptfile)
-					.pipe(webpack(webpackConfig({
-						devtool: "inline-source-map",
+					.pipe(webpackStream(webpackConfig({
+						output: {
+							filename: name + ".js",
+							library: camelName(name),
+							sourceMapFilename: name + ".js.map",
+						},
+						devtool: "source-map",
+						plugins: [
+							new webpack.DllReferencePlugin({
+								context: tmpdir,
+								manifest: load(tmpdir + "/manifest.json"),
+							}),
+						],
 					})))
 					.pipe(StreamContent(content => {
-						res.setHeader('content-type', 'text/javascript')
 						res.end(content)
-						next()
 					}))
+					.pipe(gulp.dest(tmpdir))
 			},
 		})
 	}
@@ -115,7 +176,7 @@ gulp.task("preview", () => {
 
 	app.init({
 		server: {
-			baseDir: config.paths.root,
+			baseDir: tmpdir,
 		},
 		files: watchFiles,
 		watchOptions: info.watchOptions ? info.watchOptions : {},

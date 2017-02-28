@@ -5,7 +5,10 @@ import {WebPackPluginCMD} from "./webpack.plugins"
 export default function webpack(settings) {
 	var defaults = {
 		output: {
+			filename: "[name].js",
+			library: "[name]_[hash]",
 			libraryTarget: "umd",
+			sourceMapFilename: "[name].js.map",
 		},
 		module: {
 			preLoaders: [],
