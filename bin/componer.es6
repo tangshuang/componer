@@ -205,7 +205,7 @@ commander
 commander
 	.command("init")
 	.description("create a componer workflow frame instance")
-	.option("-i, --install", "whether to run `npm install` after files created.")
+	.option("-I, --install", "whether to run `npm install` after files created.")
 	.action(options => {
 		function update(info) {
 			// update .componerrc
@@ -279,7 +279,7 @@ commander
 commander
 	.command("reset")
 	.description("reset componer and curent project componer program")
-	.option("-i, --install", "whether to run `npm install` after files reset")
+	.option("-I, --install", "whether to run `npm install` after files reset")
 	.action(options => {
 		log("Reset may change componer files in your project directory.")
 		prompt("Are you sure to reset? yes/No  ", choice => {
@@ -438,9 +438,12 @@ commander
 	})
 
 commander
-	.command("install [name] [pkg]")
+	.command("install [name]")
 	.description("install componouts [dev]dependencies")
-	.action((name, pkg) => {
+	.option("-p, --package [package]", "package name to install")
+	.action((name, options) => {
+
+		let pkg = options.package
 
 		function getDeps(pkgfile) {
 			var info = readJSON(pkgfile)
@@ -574,8 +577,8 @@ commander
 commander
 	.command("pull <name> [params...]")
 	.description("clone/pull a componout from remote registries")
-	.option("-u, --url", "registry url")
-	.action((name, options, params) => {
+	.option("-u, --url [url]", "registry url")
+	.action((name, params, options) => {
 		name = dashline(name)
 		name = fixname(name)
 		check()

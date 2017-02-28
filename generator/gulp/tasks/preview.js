@@ -43,12 +43,12 @@ gulp.task("preview", () => {
 		exit()
 	}
 
-	clear(tmpdir) // clear tmp dir
-	
+	if(exists(tmpdir)) clear(tmpdir) // clear tmp dir
+
 	/**
 	 * pre build dependencies vendors
 	 */
-	 
+
 	if(scriptfile && exists(scriptfile)) {
 		let bowerJson = path.join(componoutPath, "bower.json")
 	 	let pkgJson = path.join(componoutPath, "package.json")

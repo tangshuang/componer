@@ -39,7 +39,7 @@ componer install [name]
 componer link [name]
 ```
 
-### init [-i|--install]
+### init [-I|--install]
 
 After your `npm install -g componer`, you should create a empty directory, and enter it to run `componer init`. Then you will see different files be initialized into this directory.
 
@@ -48,7 +48,13 @@ This directory is called `componer` directory.
 When you run `componer init`, it will ask you two questions: your github name and the package name. The value you typed in will be found in `package.json`. So you can modify the file later.
 Your github name is important, because it will be used when you run `componer add`. If you do not give a `--author` parameter when you run `componer add` task, componer will use your github name to create the package github registry address.
 
-If you give a `-i` option, `npm install` will be run after init.
+If you give a `-I` option, `npm install` will be run after init.
+
+### reset [-I|--install]
+
+Copy componer gulp directory/gupfile.babel.js to exists project directory.
+
+**Notice**: project files relative with gulp with be rewrited.
 
 ### add <name> [-t|--type component] [-a|--author your-name]
 
@@ -160,14 +166,14 @@ Remove the named componout, run `unlink` command if possible.
 
 List all componouts information.
 
-### install [name] [pkg]
+### install [name] [-p|--package package-name]
 
 Install dependencies. If you want to install a package (npm or bower package) for a componout, you can run `componer install componout-name package-name`.
 
 1) install a package for a componout
 
 ```
-componer install componout-name package-name
+componer install componout-name -p package-name
 ```
 
 New package will be put into node_modules directory in your project root path. However, a new dependence will be added into your componout `package.json` or `bower.json`.
@@ -188,7 +194,7 @@ Without a package name following componout name, all of the componout packages, 
 componer install
 ```
 
-All npm packages and bower packages will be install in your project root path.
+All npm packages and bower packages will be install in your project root path. `-p` is not useful in this method.
 
 ### link <name>
 
@@ -224,7 +230,7 @@ componer pull browser-logger origin master
 
 Notic: `origin master` only works when update, so don't use them when add.
 
-### push
+### push <name> [origin master]
 
 Push your componout to http://github.com/componer (or your coustom registries) if you have the permission.
 
