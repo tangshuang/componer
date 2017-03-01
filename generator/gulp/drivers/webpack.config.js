@@ -51,6 +51,10 @@ export default function webpack(settings) {
 			test: /\.html$/,
 			loader: "html?attrs=img:src input:src",
 		},
+		{
+			test: /\.json$/,
+			loader: "json",
+		},
 	])
 	settings.plugins = settings.plugins.concat([
 		new WebPackPluginBower(),

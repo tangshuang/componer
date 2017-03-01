@@ -68,7 +68,6 @@ gulp.task("preview", () => {
 			output: {
 				path: tmpdir,
 				filename: name + ".vendor.js",
-				sourceMapFilename: name + ".vendor.js.map",
 				library: camelName(name) + 'Vendor',
 			},
 			devtool: "inline-source-map",
