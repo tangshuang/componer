@@ -52,6 +52,14 @@ export default function webpack(settings) {
 			loader: "html?attrs=img:src input:src",
 		},
 		{
+			test: /\.jade$/,
+			loader: "jade",
+		},
+		{
+			test: /\.hbs$/,
+			loader: "handlebars",
+		},
+		{
 			test: /\.json$/,
 			loader: "json",
 		},
