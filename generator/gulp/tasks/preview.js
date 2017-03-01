@@ -69,11 +69,12 @@ gulp.task("preview", () => {
 				path: tmpdir,
 				filename: name + ".vendor.js",
 				library: camelName(name) + 'Vendor',
+				sourceMapFilename: name + ".vendor.js.map",
 			},
-			devtool: "inline-source-map",
+			devtool: "source-map",
 			plugins: [
 				new webpack.DllPlugin({
-					path: tmpdir + '/manifest.json',
+					path: tmpdir + `/${name}.vendor.js.json`,
 					name: camelName(name) + 'Vendor',
 					context: tmpdir,
 				}),
@@ -112,13 +113,19 @@ gulp.task("preview", () => {
 		middlewares.unshift({
 			route: `/${name}.css`,
 			handle: function (req, res, next) {
+				if(req.originalUrl !== `/${name}.css`) {
+					next()
+					return
+				}
 				res.setHeader('content-type', 'text/css')
 				gulp.src(stylefile)
 					.pipe(sourcemap.init())
 					.pipe(sass())
-					.pipe(sourcemap.write())
-					.pipe(StreamContent(content => {
-						res.end(content)
+					.pipe(sourcemap.write("."))
+					.pipe(StreamContent((content, filepath) => {
+						if(getFileExt(filepath) === ".css") {
+							res.end(content)
+						}
 					}))
 					.pipe(gulp.dest(tmpdir))
 			},
@@ -128,6 +135,10 @@ gulp.task("preview", () => {
 		middlewares.unshift({
 			route: `/${name}.js`,
 			handle: function (req, res, next) {
+				if(req.originalUrl !== `/${name}.js`) {
+					next()
+					return
+				}
 				res.setHeader('content-type', 'application/javascript')
 				gulp.src(scriptfile)
 					.pipe(webpackStream(webpackConfig({
@@ -136,16 +147,18 @@ gulp.task("preview", () => {
 							library: camelName(name),
 							sourceMapFilename: name + ".js.map",
 						},
-						devtool: "inline-source-map",
+						devtool: "source-map",
 						plugins: [
 							new webpack.DllReferencePlugin({
 								context: tmpdir,
-								manifest: load(tmpdir + "/manifest.json"),
+								manifest: load(tmpdir + `/${name}.vendor.js.json`),
 							}),
 						],
 					})))
-					.pipe(StreamContent(content => {
-						res.end(content)
+					.pipe(StreamContent((content, filepath) => {
+						if(getFileExt(filepath) === ".js") {
+							res.end(content)
+						}
 					}))
 					.pipe(gulp.dest(tmpdir))
 			},
