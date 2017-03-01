@@ -27,6 +27,10 @@ gulp.task("watch", () => {
 
 	let contents = {}
 	gulp.watch(entryfiles, event => {
+		if(event.type !== "changed") {
+			return
+		}
+		
 		// if file content not changed, do not run build task
 		let file = event.path
 		let content = read(file)
