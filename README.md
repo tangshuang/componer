@@ -122,6 +122,7 @@ preview: {
 	script: "preview/bar-chart.js", // option, script to inject to home page, will be compiled by webpack
 	style: "preview/bar-chart.scss", // option, will be compiled by sass
 	server: "preview/server.js", // option, middlewares to be used by browser-sync, look into browser-sync config `middleware`
+	tmpdir: ".preview_tmp", // option, default is '.preview_tmp'
 	watchFiles: [ // look into browser-sync config `files`
 		"preview/index.html",
 		"preview/bar-chart.js",
@@ -134,7 +135,7 @@ preview: {
 
 1) index file
 
-A html file, use `<!--styles-->` and `<!--scripts-->` for scripts files to be injected.
+A html file, use `<!--styles-->` and `<!--vendors-->` `<!--scripts-->` for scripts files to be injected. If they are not found, css will be injected before `</head>` and scripts will be injected before `</body>`
 
 2) server file
 
@@ -142,7 +143,7 @@ Export an object or an array or a function. Look into browser-sync middleware co
 
 3) scripts files
 
-`script` and `style` files will be compiled and be kept in memory, not true local files. All dependencies will be included in the compiled output content.
+`script` and `style` files will be compiled and be kept in memory, not true local files (though files compiled will be created after page shown). All dependencies will be included in the compiled output content.
 
 ### test [name] [-D|--debug] [-b|--browser Chrom|Firefox|PhantomJS]
 
@@ -166,7 +167,7 @@ Remove the named componout, run `unlink` command if possible.
 
 List all componouts information.
 
-### install [name] [-p|--package package-name]
+### install [name] [-p|--package package-name] [-S|--save|-D|--savedev]
 
 Install dependencies. If you want to install a package (npm or bower package) for a componout, you can run `componer install componout-name package-name`.
 
@@ -180,13 +181,15 @@ New package will be put into node_modules directory in your project root path. H
 
 npm packages always come first. For example, when you run `componer install my-component jquery`, jquery will be installed by npm into your root node_modules directory, event though there is a bower jquery. On the other hand, if npm run fail, bower packages will be try. eg. `componer install my-component d3`, d3 has only bower package, so npm install will fail and bower install will be run after the error message.
 
+Pass `-S` to save this dependence to package.json or bower.json dependencies option, `-D` is to save to devDependencies. If you do not pass `-S` or `-D`, componer will use `-S` default. If you want to install some package without saving to .json files, just use `npm install` or `bower install`. `-S` or `-D` is nouseful when there is no `-p`.
+
 2) install all packages for a componout
 
 ```
 componer install componout-name
 ```
 
-Without a package name following componout name, all of the componout packages, including npm packages and bower packages, will be installed.
+Without a package name following componout name, all of the componout packages based on its .json files, including npm packages and bower packages, will be installed.
 
 3) install all packages for all componouts
 
@@ -194,7 +197,7 @@ Without a package name following componout name, all of the componout packages, 
 componer install
 ```
 
-All npm packages and bower packages will be install in your project root path. `-p` is not useful in this method.
+All npm packages and bower packages will be install in your project root path. `-p` and `-S` and `-D` is nouseful in this method.
 
 ### link <name>
 

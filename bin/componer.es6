@@ -441,6 +441,8 @@ commander
 	.command("install [name]")
 	.description("install componouts [dev]dependencies")
 	.option("-p, --package [package]", "package name to install")
+	.option("-S, --save", "save to .json dependencies (default)")
+	.option("-D, --savedev", "save to .json devDependencies")
 	.action((name, options) => {
 
 		let pkg = options.package
@@ -501,6 +503,7 @@ commander
 					let cmd = `cd "${cwd}" && cd componouts && cd ${name} && bower install --config.directory="${cwd}/bower_components"`
 					if(pkg) {
 						cmd += ` ${pkg} --save`
+						if(options.savedev) cmd += "-dev"
 					}
 					execute(cmd)
 				}
@@ -521,7 +524,8 @@ commander
 					if(pkg.indexOf("@") > -1) {
 						[pkgName, pkgVer] = pkg.split("@")
 					}
-					npmPkgInfo.dependencies[pkgName] = pkgVer
+					if(options.savedev) npmPkgInfo.devDependencies[pkgName] = pkgVer
+					else npmPkgInfo.dependencies[pkgName] = pkgVer
 					writeJSON(npmJson, npmPkgInfo)
 				}, bowerInstall)
 			}
