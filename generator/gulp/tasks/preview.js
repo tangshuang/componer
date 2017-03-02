@@ -219,7 +219,7 @@ gulp.task("preview", () => {
 		// except style files
 		watchFiles = otherWatchFiles.concat([`!${componoutPath}/**/*.scss`, `!${componoutPath}/**/*.css`])
 		// watch style files by gulp, and reload css files after style files changed
-		gulp.watch(styleWatchFiles, event => app.reload("*.css"))
+		gulp.watch(styleWatchFiles, event => if(event.type === "changed") app.reload("*.css"))
 	}
 
 	app.init({
