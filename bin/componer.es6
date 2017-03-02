@@ -149,7 +149,7 @@ function check(name) {
  * @param function fail: callback function when error or fail
  */
 function execute(cmd, done, fail) {
-	if(cmd.indexOf("gulp") > -1 && cmd.indexOf("/gulp") === -1 && cmd.indexOf("gulp/") === -1) {
+	if(cmd.indexOf('gulp ') === 0 || cmd.indexOf(' gulp ') > 0) {
 		if(config("color")) {
 			cmd += " --color"
 		}
