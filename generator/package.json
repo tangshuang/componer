@@ -48,6 +48,7 @@
     "karma-spec-reporter": "0.0.26",
     "karma-verbose-reporter": "0.0.4",
     "karma-webpack": "^1.8.0",
+    "md5-file": "^3.1.1",
     "phantomjs-prebuilt": "^2.1.14",
     "pipe-concat": "0.0.2",
     "postcss-cssnext": "^2.9.0",

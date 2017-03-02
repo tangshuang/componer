@@ -9,19 +9,22 @@ import sourcemaps from "gulp-sourcemaps"
 
 import merge from "pipe-concat"
 
-export default function({from, to, settings, options}) {
+import cssCopyAssets from "./gulp-css-copy-assets"
+
+export default function({from, to, settings = {}, options = {}}) {
 	var outputdir = path.dirname(to)
     var filename = path.basename(to)
 	var sourcemapdir = options.sourcemap === "inline" ? undefined : "./"
     var plugins = [
-        cssnext,
+        cssnext(settings.cssnext),
 	]
 
     function NoSourceMapNoMinify() {
 		return gulp.src(from)
 			.pipe(sass())
-			.pipe(postcss(plugins))
+			.pipe(postcss(plugins, settings.postcss))
 			.pipe(rename(filename))
+			.pipe(cssCopyAssets(settings.assets))
 			.pipe(gulp.dest(outputdir))
 	}
 
@@ -29,9 +32,10 @@ export default function({from, to, settings, options}) {
 		return gulp.src(from)
 			.pipe(sourcemaps.init())
 			.pipe(sass())
-			.pipe(postcss(plugins))
+			.pipe(postcss(plugins, settings.postcss))
 			.pipe(rename(filename))
 			.pipe(sourcemaps.write(sourcemapdir))
+			.pipe(cssCopyAssets(settings.assets))
 			.pipe(gulp.dest(outputdir))
 	}
 
@@ -39,9 +43,10 @@ export default function({from, to, settings, options}) {
         filename = filename.substr(0, filename.lastIndexOf(".css")) + ".min.css"
 		return gulp.src(from)
 			.pipe(sass())
-			.pipe(postcss(plugins))
+			.pipe(postcss(plugins, settings.postcss))
 			.pipe(cssmin())
 			.pipe(rename(filename))
+			.pipe(cssCopyAssets(settings.assets))
 			.pipe(gulp.dest(outputdir))
 	}
 
@@ -50,10 +55,11 @@ export default function({from, to, settings, options}) {
 		return gulp.src(from)
 			.pipe(sourcemaps.init())
 			.pipe(sass())
-			.pipe(postcss(plugins))
+			.pipe(postcss(plugins, settings.postcss))
 			.pipe(cssmin())
 			.pipe(rename(filename))
 			.pipe(sourcemaps.write(sourcemapdir))
+			.pipe(cssCopyAssets(settings.assets))
 			.pipe(gulp.dest(outputdir))
 	}
 

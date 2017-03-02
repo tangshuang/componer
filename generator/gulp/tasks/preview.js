@@ -10,6 +10,7 @@ import webpackConfig from '../drivers/webpack.config'
 
 import sass from 'gulp-sass'
 import sourcemap from 'gulp-sourcemaps'
+import cssCopyAssets from "../drivers/gulp-css-copy-assets"
 
 gulp.task('preview', () => {
 	let arg = args.preview
@@ -135,6 +136,7 @@ gulp.task('preview', () => {
 							res.end(content)
 						}
 					}))
+					.pipe(cssCopyAssets())
 					.pipe(gulp.dest(tmpdir))
 			},
 		})

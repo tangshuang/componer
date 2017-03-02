@@ -16,7 +16,7 @@ import config from './webpack.config'
 }
 **/
 
-export default function({from, to, settings, options}) {
+export default function({from, to, settings  = {}, options = {}}) {
     var outputdir = path.dirname(to)
     var filename = path.basename(to)
 
