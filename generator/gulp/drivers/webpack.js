@@ -1,11 +1,10 @@
-import path from "path"
-import gulp from "gulp"
-import webpack from "webpack-stream"
-import concat from "pipe-concat"
-import extend from "extend"
+import path from 'path'
+import gulp from 'gulp'
+import webpack from 'webpack-stream'
+import concat from 'pipe-concat'
+import extend from 'extend'
 
-import config from "./webpack.config"
-import {camelName} from "../utils"
+import config from './webpack.config'
 
 /**
 @param settings: pass to webpack
@@ -25,15 +24,15 @@ export default function({from, to, settings, options}) {
     var outputSettings = settings.output
 
     outputSettings.filename = outputSettings.filename || filename
-    outputSettings.library = outputSettings.library || camelName(filename)
+    outputSettings.library = outputSettings.library || path.basename(filename, '.js')
 
     // sourcemap
-    if(options.sourcemap === "inline") {
-        settings.devtool = "inline-source-map"
+    if(options.sourcemap === 'inline') {
+        settings.devtool = 'inline-source-map'
     }
     else if(options.sourcemap) {
-        settings.devtool = "source-map"
-        outputSettings.sourceMapFilename = outputSettings.sourceMapFilename || filename + ".map"
+        settings.devtool = 'source-map'
+        outputSettings.sourceMapFilename = outputSettings.sourceMapFilename || filename + '.map'
     }
 
     var stream1 = gulp.src(from)
@@ -48,9 +47,9 @@ export default function({from, to, settings, options}) {
     settings = extend(true, {}, settings)
     outputSettings = settings.output
     filename = outputSettings.filename
-    filename = filename.substr(0, filename.lastIndexOf(".js")) + ".min.js"
+    filename = filename.substr(0, filename.lastIndexOf('.js')) + '.min.js'
     outputSettings.filename = filename
-    if(outputSettings.sourceMapFilename) outputSettings.sourceMapFilename = filename + ".map"
+    if(outputSettings.sourceMapFilename) outputSettings.sourceMapFilename = filename + '.map'
     settings.plugins.push(
         new webpack.webpack.optimize.UglifyJsPlugin({
             minimize: true,

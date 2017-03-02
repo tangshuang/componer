@@ -1,19 +1,20 @@
-var packageJson = require("./package.json")
+var packageJson = require('./package.json')
 
 module.exports = {
-	name: "{{componout-name}}",
-	type: "npm package",
-	version: "0.0.1",
+	name: '{{componout-name}}',
+	type: 'npm package',
+	version: '0.0.1',
 	build: [
 		{
-			from: "src/{{componout-name}}.js",
-			to: "dist/{{componout-name}}.js",
-			driver: "webpack",
+			from: 'src/{{componout-name}}.js',
+			to: 'dist/{{componout-name}}.js',
+			driver: 'webpack',
 			options: {
 				minify: false,
 				sourcemap: false,
 			},
 			settings: {
+				library: '{{componout-name}}',
 				get externals() {
 					var deps = Object.keys(packageJson.dependencies)
 					var externals = {}
@@ -24,7 +25,7 @@ module.exports = {
 		}
 	],
 	test: {
-		entry: "test/specs/{{componout-name}}.js",
-		browsers: "Terminal",
+		entry: 'test/specs/{{componout-name}}.js',
+		browsers: 'Terminal',
 	},
 }
