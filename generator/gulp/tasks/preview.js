@@ -60,13 +60,16 @@ gulp.task("preview", () => {
  		let deps = readJSON(pkgfile).dependencies
  		return Object.keys(deps)
  	}
- 	let deps = getDeps(bowerJson).concat(getDeps(pkgJson))
+ 	let vendors = getDeps(bowerJson).concat(getDeps(pkgJson))
+	if(Array.isArray(info.vendors)) {
+		vendors = vendors.concat(info.vendors)
+	}
 
 	if(scriptfile && exists(scriptfile)) {
 		// create vendor bundle
-		if(deps.length > 0) webpack(webpackConfig({
+		if(vendors.length > 0) webpack(webpackConfig({
 			entry: {
-				vendor: deps,
+				vendor: vendors,
 			},
 			output: {
 				path: tmpdir,
@@ -103,7 +106,7 @@ gulp.task("preview", () => {
 							html = html.replace(partten, `<link rel="stylesheet" href="${name}.css">`)
 						}
 						if(scriptfile && exists(scriptfile)) {
-							if(deps.length > 0) {
+							if(vendors.length > 0) {
 								let partten = html.indexOf("<!--vendors-->") > -1 ? "<!--vendors-->" : "</body>"
 								html = html.replace(partten, `<script src="${name}.vendor.js"></script>`)
 							}
@@ -157,7 +160,7 @@ gulp.task("preview", () => {
 						},
 						devtool: "source-map",
 						plugins: [
-							deps.length > 0 ? new webpack.DllReferencePlugin({
+							vendors.length > 0 ? new webpack.DllReferencePlugin({
 								context: tmpdir,
 								manifest: load(tmpdir + `/${name}.vendor.js.json`),
 							}) : undefined,

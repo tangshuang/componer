@@ -123,6 +123,7 @@ preview: {
 	style: "preview/bar-chart.scss", // option, will be compiled by sass
 	server: "preview/server.js", // option, middlewares to be used by browser-sync, look into browser-sync config `middleware`
 	tmpdir: ".preview_tmp", // option, default is '.preview_tmp'
+	vendors: [], // option, modules to put into vendors file which will not be rebuild when reload. default "undefined"
 	watchFiles: [ // look into browser-sync config `files`
 		"preview/index.html",
 		"preview/bar-chart.js",
