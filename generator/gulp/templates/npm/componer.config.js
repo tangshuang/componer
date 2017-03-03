@@ -25,7 +25,7 @@ module.exports = {
 		}
 	],
 	test: {
-		entry: 'test/specs/{{componout-name}}.js',
+		entry: 'test/{{componout-name}}.js',
 		browsers: 'Terminal',
 	},
 }
