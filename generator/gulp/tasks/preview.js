@@ -10,8 +10,12 @@ import webpackStream from 'webpack-stream'
 import webpackConfig from '../drivers/webpack.config'
 
 import sass from 'gulp-sass'
+import sassConfig from '../drivers/sass.config'
 import sourcemap from 'gulp-sourcemaps'
-import cssCopyAssets from '../drivers/gulp-css-copy-assets'
+import cssCopyAssets from '../utils/gulp-css-copy-assets'
+import postcss from 'gulp-postcss'
+import cssnext from 'postcss-cssnext'
+import rename from 'gulp-rename'
 
 gulp.task('preview', () => {
 	let arg = args.preview
@@ -131,11 +135,15 @@ gulp.task('preview', () => {
 				res.setHeader('content-type', 'text/css')
 				gulp.src(stylefile)
 					.pipe(sourcemap.init())
-					.pipe(sass())
-					.pipe(cssCopyAssets())
+					.pipe(sass(sassConfig()))
+					.pipe(postcss([cssnext()]))
+					.pipe(rename(`/${name}.css`))
 					.pipe(sourcemap.write('.'))
-					.pipe(GulpBuffer((content, chunk) => {
-						if(getFileExt(chunk.path) === '.css') {
+					.pipe(cssCopyAssets({
+						srcdirs: glob.sync(path.join(componoutPath, '**/')),
+					}))
+					.pipe(GulpBuffer((content, file) => {
+						if(getFileExt(file.path) === '.css') {
 							res.end(content)
 						}
 					}))
@@ -167,8 +175,8 @@ gulp.task('preview', () => {
 							}) : undefined,
 						],
 					})))
-					.pipe(GulpBuffer((content, chunk) => {
-						if(getFileExt(chunk.path) === '.js') {
+					.pipe(GulpBuffer((content, file) => {
+						if(getFileExt(file.path) === '.js') {
 							res.end(content)
 						}
 					}))
