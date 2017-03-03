@@ -26,7 +26,7 @@ export default function(options) {
                   return
                 }
                 // clear ' or  '
-                let file = url.replace('"', '').replace('\'', '')
+                let file = url.replace('"', '').replace("'", '')
                 let filetruepath = path.resolve(path.dirname(chunk.path), file)
 
                 // if there is no such file, ignore

@@ -1,20 +1,21 @@
-import path from "path"
-import gulp from "gulp"
-import sass from "gulp-sass"
-import cssmin from "gulp-cssmin"
-import postcss from "gulp-postcss"
-import cssnext from "postcss-cssnext"
-import rename from "gulp-rename"
-import sourcemaps from "gulp-sourcemaps"
+import path from 'path'
+import gulp from 'gulp'
+import sass from 'gulp-sass'
+import cssmin from 'gulp-cssmin'
+import postcss from 'gulp-postcss'
+import cssnext from 'postcss-cssnext'
+import rename from 'gulp-rename'
+import sourcemaps from 'gulp-sourcemaps'
 
-import merge from "pipe-concat"
+import merge from 'pipe-concat'
 
-import cssCopyAssets from "./gulp-css-copy-assets"
+import cssCopyAssets from '../utils/gulp-css-copy-assets'
 
 export default function({from, to, settings = {}, options = {}}) {
 	var outputdir = path.dirname(to)
     var filename = path.basename(to)
-	var sourcemapdir = options.sourcemap === "inline" ? undefined : "./"
+	var basename = path.basename(to, '.css')
+	var sourcemapdir = options.sourcemap === 'inline' ? undefined : './'
     var plugins = [
         cssnext(settings.cssnext),
 	]
@@ -34,13 +35,13 @@ export default function({from, to, settings = {}, options = {}}) {
 			.pipe(sass())
 			.pipe(postcss(plugins, settings.postcss))
 			.pipe(rename(filename))
-			.pipe(sourcemaps.write(sourcemapdir))
 			.pipe(cssCopyAssets(settings.assets))
+			.pipe(sourcemaps.write(sourcemapdir))
 			.pipe(gulp.dest(outputdir))
 	}
 
 	function NoSourceMapHasMinify() {
-        filename = filename.substr(0, filename.lastIndexOf(".css")) + ".min.css"
+        filename = basename + '.min.css'
 		return gulp.src(from)
 			.pipe(sass())
 			.pipe(postcss(plugins, settings.postcss))
@@ -51,15 +52,15 @@ export default function({from, to, settings = {}, options = {}}) {
 	}
 
 	function HasSourceMapHasMinify() {
-        filename = filename.substr(0, filename.lastIndexOf(".css")) + ".min.css"
+        filename = basename + '.min.css'
 		return gulp.src(from)
 			.pipe(sourcemaps.init())
 			.pipe(sass())
 			.pipe(postcss(plugins, settings.postcss))
 			.pipe(cssmin())
 			.pipe(rename(filename))
-			.pipe(sourcemaps.write(sourcemapdir))
 			.pipe(cssCopyAssets(settings.assets))
+			.pipe(sourcemaps.write(sourcemapdir))
 			.pipe(gulp.dest(outputdir))
 	}
 

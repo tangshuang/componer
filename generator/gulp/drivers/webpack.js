@@ -19,12 +19,13 @@ import config from './webpack.config'
 export default function({from, to, settings  = {}, options = {}}) {
     var outputdir = path.dirname(to)
     var filename = path.basename(to)
+    var basename = path.basename(to, '.js')
 
     settings = config(settings)
     var outputSettings = settings.output
 
     outputSettings.filename = outputSettings.filename || filename
-    outputSettings.library = outputSettings.library || path.basename(filename, '.js')
+    outputSettings.library = outputSettings.library || basename
 
     // sourcemap
     if(options.sourcemap === 'inline') {
@@ -47,7 +48,7 @@ export default function({from, to, settings  = {}, options = {}}) {
     settings = extend(true, {}, settings)
     outputSettings = settings.output
     filename = outputSettings.filename
-    filename = filename.substr(0, filename.lastIndexOf('.js')) + '.min.js'
+    filename = path.basename(filename, '.js') + '.min.js'
     outputSettings.filename = filename
     if(outputSettings.sourceMapFilename) outputSettings.sourceMapFilename = filename + '.map'
     settings.plugins.push(

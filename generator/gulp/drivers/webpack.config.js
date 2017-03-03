@@ -1,6 +1,6 @@
 import extend from 'extend'
 import WebPackPluginBower from 'bower-webpack-plugin'
-import {WebPackPluginCMD} from './webpack.plugins'
+import WebPackPluginCMD from '../utils/webpack-plugin-cmd'
 
 export default function webpack(settings) {
 	var defaults = {
@@ -29,20 +29,12 @@ export default function webpack(settings) {
 			loader: 'style!css',
 		},
 		{
-			test: /\.jpg$/,
+			test: /\.jpe?g$|\.gif$|\.png$|\.svg$|\.woff$|\.ttf$|\.wav$|\.mp3$/,
 			loader: 'file',
 		},
 		{
 			test: /\.svg$/,
 			loader: 'url?limit=15000&mimetype=image/svg+xml',
-		},
-		{
-			test: /\.woff(\?v=\d+\.\d+\.\d+)?$/,
-			loader: 'url?limit=100000&minetype=application/x-font-woff',
-		},
-		{
-			test: /\.png$/,
-			loader: 'url?limit=15000&mimetype=image/png',
 		},
 		{
 			test: /\.html$/,
