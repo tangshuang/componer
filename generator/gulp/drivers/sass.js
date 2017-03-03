@@ -6,10 +6,10 @@ import postcss from 'gulp-postcss'
 import cssnext from 'postcss-cssnext'
 import rename from 'gulp-rename'
 import sourcemaps from 'gulp-sourcemaps'
-
 import merge from 'pipe-concat'
 
 import cssCopyAssets from '../utils/gulp-css-copy-assets'
+import sassConfig from './sass.config'
 
 export default function({from, to, settings = {}, options = {}}) {
 	var outputdir = path.dirname(to)
@@ -22,7 +22,7 @@ export default function({from, to, settings = {}, options = {}}) {
 
     function NoSourceMapNoMinify() {
 		return gulp.src(from)
-			.pipe(sass())
+			.pipe(sass(sassConfig(settings.sass)))
 			.pipe(postcss(plugins, settings.postcss))
 			.pipe(rename(filename))
 			.pipe(cssCopyAssets(settings.assets))
@@ -32,18 +32,18 @@ export default function({from, to, settings = {}, options = {}}) {
 	function HasSourceMapNoMinify() {
 		return gulp.src(from)
 			.pipe(sourcemaps.init())
-			.pipe(sass())
+			.pipe(sass(sassConfig(settings.sass)))
 			.pipe(postcss(plugins, settings.postcss))
 			.pipe(rename(filename))
-			.pipe(cssCopyAssets(settings.assets))
 			.pipe(sourcemaps.write(sourcemapdir))
+			.pipe(cssCopyAssets(settings.assets))
 			.pipe(gulp.dest(outputdir))
 	}
 
 	function NoSourceMapHasMinify() {
         filename = basename + '.min.css'
 		return gulp.src(from)
-			.pipe(sass())
+			.pipe(sass(sassConfig(settings.sass)))
 			.pipe(postcss(plugins, settings.postcss))
 			.pipe(cssmin())
 			.pipe(rename(filename))
@@ -55,12 +55,12 @@ export default function({from, to, settings = {}, options = {}}) {
         filename = basename + '.min.css'
 		return gulp.src(from)
 			.pipe(sourcemaps.init())
-			.pipe(sass())
+			.pipe(sass(sassConfig(settings.sass)))
 			.pipe(postcss(plugins, settings.postcss))
 			.pipe(cssmin())
 			.pipe(rename(filename))
-			.pipe(cssCopyAssets(settings.assets))
 			.pipe(sourcemaps.write(sourcemapdir))
+			.pipe(cssCopyAssets(settings.assets))
 			.pipe(gulp.dest(outputdir))
 	}
 
