@@ -1,5 +1,6 @@
 import {gulp, path, fs, args, log, config, exit, exists, clear, load, read, readJSON} from '../loader'
-import {hasComponout, dashlineName, camelName, runTask, getFileExt, setFileExt, StreamContent} from '../utils'
+import {hasComponout, dashName, camelName, getFileExt} from '../utils'
+import GulpBuffer from '../utils/gulp-buffer'
 
 import glob from 'glob'
 import browsersync from 'browser-sync'
@@ -10,11 +11,11 @@ import webpackConfig from '../drivers/webpack.config'
 
 import sass from 'gulp-sass'
 import sourcemap from 'gulp-sourcemaps'
-import cssCopyAssets from "../drivers/gulp-css-copy-assets"
+import cssCopyAssets from '../drivers/gulp-css-copy-assets'
 
 gulp.task('preview', () => {
 	let arg = args.preview
-	let name = dashlineName(arg.name)
+	let name = dashName(arg.name)
 
 	if(!hasComponout(name)) {
 		log(`${name} not exists.`, 'error')
@@ -46,7 +47,8 @@ gulp.task('preview', () => {
 		exit()
 	}
 
-	if(exists(tmpdir)) clear(tmpdir) // clear tmp dir
+	// clear tmp dir
+	clear(tmpdir)
 
 	/**
 	 * pre build dependencies vendors
@@ -75,14 +77,14 @@ gulp.task('preview', () => {
 			output: {
 				path: tmpdir,
 				filename: name + '.vendor.js',
-				library: camelName(name) + 'Vendor',
+				library: name + '-vendor',
 				sourceMapFilename: name + '.vendor.js.map',
 			},
 			devtool: 'source-map',
 			plugins: [
 				new webpack.DllPlugin({
 					path: tmpdir + `/${name}.vendor.js.json`,
-					name: camelName(name) + 'Vendor',
+					name: name + '-vendor',
 					context: tmpdir,
 				}),
 			],
@@ -101,7 +103,7 @@ gulp.task('preview', () => {
 			handle: function (req, res, next) {
 				res.setHeader('content-type', 'text/html')
 				gulp.src(indexfile)
-					.pipe(StreamContent(html => {
+					.pipe(GulpBuffer(html => {
 						if(stylefile && exists(stylefile)) {
 							html = html.replace('<!--styles-->', `<link rel="stylesheet" href="${name}.css">`)
 						}
@@ -130,13 +132,13 @@ gulp.task('preview', () => {
 				gulp.src(stylefile)
 					.pipe(sourcemap.init())
 					.pipe(sass())
+					.pipe(cssCopyAssets())
 					.pipe(sourcemap.write('.'))
-					.pipe(StreamContent((content, filepath) => {
-						if(getFileExt(filepath) === '.css') {
+					.pipe(GulpBuffer((content, chunk) => {
+						if(getFileExt(chunk.path) === '.css') {
 							res.end(content)
 						}
 					}))
-					.pipe(cssCopyAssets())
 					.pipe(gulp.dest(tmpdir))
 			},
 		})
@@ -165,8 +167,8 @@ gulp.task('preview', () => {
 							}) : undefined,
 						],
 					})))
-					.pipe(StreamContent((content, filepath) => {
-						if(getFileExt(filepath) === '.js') {
+					.pipe(GulpBuffer((content, chunk) => {
+						if(getFileExt(chunk.path) === '.js') {
 							res.end(content)
 						}
 					}))
