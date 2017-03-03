@@ -1,5 +1,5 @@
 import {config, exists, scandir, load} from '../loader'
-import {dashName} from './name-convert'
+import {dashName} from './convert-name'
 
 export function hasComponout(name) {
 	if(!exists(config.paths.componouts + '/' + name)) {

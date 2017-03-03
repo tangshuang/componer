@@ -1,5 +1,5 @@
 export * from './componout'
 export * from './file-ext'
-export * from './name-converter'
+export * from './convert-name'
 export * from './run-task'
 export * from './str-pad'

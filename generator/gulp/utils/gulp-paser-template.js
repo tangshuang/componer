@@ -1,5 +1,5 @@
 import GulpBuffer from './gulp-buffer'
-import {camelName, dashName, spaceName} from './name-convert'
+import {camelName, dashName, spaceName} from './convert-name'
 
 export default function(pairs) {
 	return GulpBuffer(content => {
