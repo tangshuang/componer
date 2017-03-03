@@ -129,6 +129,10 @@ function load(file, useDefault = true) {
 	return rs
 }
 
+function copy(from, to) {
+	execute(`cp -rf "${from}" "${to}"`)
+}
+
 // -------------------------------------
 //             exports
 // -------------------------------------
@@ -151,6 +155,7 @@ export {
 	scandir,
 	clear,
 	rename,
+	copy,
 	load,
 
     execute,
