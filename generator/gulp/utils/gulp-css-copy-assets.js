@@ -2,7 +2,6 @@ import path from 'path'
 import md5file from 'md5-file'
 import fs from 'fs'
 import GulpBuffer from './gulp-buffer'
-import {copy} from '../loader'
 
 function matchAll(str, reg) {
   var res = []

@@ -14,12 +14,19 @@ module.exports = {
 				sourcemap: false,
 			},
 			settings: {
-				library: '{{componout-name}}',
+				output: {
+					library: '{{componout-name}}',
+					libraryTarget: 'commonjs2',
+				},
 				get externals() {
 					var deps = Object.keys(packageJson.dependencies)
 					var externals = {}
 					if(deps.length > 0) deps.forEach(dep => externals[dep] = dep)
 					return externals
+				},
+				node: {
+				    global: false,
+				    Buffer: false,
 				},
 			},
 		}

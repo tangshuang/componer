@@ -8,7 +8,9 @@ module.exports = {
 			to: 'dist/js/{{componout-name}}.js',
 			driver: 'webpack',
 			settings: {
-				library: '{{componout-name}}',
+				output: {
+					library: '{{componout-name}}',
+				},
 			},
 			options: {
 				minify: true,

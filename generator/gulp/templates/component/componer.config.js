@@ -15,7 +15,9 @@ module.exports = {
 				sourcemap: 'file',
 			},
 			settings: {
-				library: '{{componout-name}}',
+				output: {
+					library: '{{componout-name}}',
+				},
 				get externals() {
 					var deps = Object.keys(bowerJson.dependencies).concat(Object.keys(packageJson.dependencies))
 					var externals = {}
