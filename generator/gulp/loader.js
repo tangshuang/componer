@@ -1,11 +1,11 @@
-import gulp from "gulp"
-import fs from "fs"
-import path from "path"
-import logger from "process.logger"
-import processArgs from "process.args"
-import shell from "shelljs"
-import extend from "extend"
-import requireload from "require-reload"
+import gulp from 'gulp'
+import fs from 'fs'
+import path from 'path'
+import logger from 'process.logger'
+import processArgs from 'process.args'
+import shell from 'shelljs'
+import extend from 'extend'
+import requireload from 'require-reload'
 
 const args = processArgs()
 
@@ -13,13 +13,13 @@ const args = processArgs()
 //             paths
 // -------------------------------------
 
-const rootPath = path.resolve(__dirname, "..")
-const gulpDir = "gulp"
-const tasks = "tasks"
-const snippets = "snippets"
-const templates = "templates"
-const componouts = "componouts"
-const drivers = "drivers"
+const rootPath = path.resolve(__dirname, '..')
+const gulpDir = 'gulp'
+const tasks = 'tasks'
+const snippets = 'snippets'
+const templates = 'templates'
+const componouts = 'componouts'
+const drivers = 'drivers'
 
 const config = {
 	dirs: {
@@ -53,41 +53,42 @@ function exists(file) {
 	return fs.existsSync(file)
 }
 
-function read(file, charset = "utf8") {
-	if(!exists(file)) {
-		return false
-	}
+function read(file, charset = 'utf8') {
+	if(!exists(file)) return
 	return fs.readFileSync(file, charset)
 }
 
-function readJSON(file, charset = "utf8") {
-	if(!exists(file)) {
-		return false
-	}
+function readJSON(file, charset = 'utf8') {
+	if(!exists(file)) return
 	return JSON.parse(read(file, charset))
 }
 
-function write(file, content, charset = "utf8") {
+function write(file, content, charset = 'utf8') {
 	return fs.writeFileSync(file, content, charset)
 }
 
-function writeJSON(file, json, charset = "utf8") {
+function writeJSON(file, json, charset = 'utf8') {
 	return write(file, JSON.stringify(json, null, 4), charset)
+}
+
+function scandir(dir) {
+	if(!exists(dir)) return
+	return fs.readdirSync(dir)
 }
 
 function execute(cmd, done, fail) {
 	var result = shell.exec(cmd)
 	if(result.code === 0) {
-		typeof done === "function" && done()
+		if(typeof done === 'function') done()
 	}
 	else {
-		typeof fail === "function" && fail(result.stderr)
+		if(typeof fail === 'function') fail(result.stderr)
 		exit()
 	}
 }
 
 function log(content, level) {
-	if(process.argv.indexOf("--color") && logger[level]) {
+	if(process.argv.indexOf('--color') && logger[level]) {
 		logger[level](content)
 	}
 	else {
@@ -96,12 +97,12 @@ function log(content, level) {
 }
 
 function clear(dir) {
-	execute("cd " + dir + " && rm -rf * && rm -rf .??*")
+	execute('cd ' + dir + ' && rm -rf * && rm -rf .??*')
 }
 
 function load(file, useDefault = true) {
 	var rs = requireload(file)
-	if(typeof rs === "object") {
+	if(typeof rs === 'object') {
 		if(useDefault && rs.default) return rs.default
 		else return rs
 	}
@@ -118,19 +119,20 @@ export {
     path,
     extend,
     logger,
+	load,
 
     config,
     args,
 
-    exit,
     exists,
     read,
     readJSON,
     write,
     writeJSON,
-    execute,
-    clear,
-    log,
+	scandir,
+	clear,
 
-	load,
+    execute,
+    log,
+	exit,
 }
