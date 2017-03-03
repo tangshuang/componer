@@ -1,7 +1,7 @@
-import path from "path"
-import GulpBuffer from "./gulp-buffer"
-import md5file from "md5-file"
-import fs from "fs"
+import path from 'path'
+import md5file from 'md5-file'
+import fs from 'fs'
+import GulpBuffer from './gulp-buffer'
 
 function matchAll(str, reg) {
   var res = []
@@ -14,7 +14,7 @@ function matchAll(str, reg) {
 
 export default function(options) {
     return GulpBuffer((content, chunk, context) => {
-        if(path.extname(chunk.path) !== ".css") {
+        if(path.extname(chunk.path) !== '.css') {
             return content
         }
         let matches = matchAll(content, /url\((\S+?)\)/gi)
@@ -22,11 +22,11 @@ export default function(options) {
             matches.forEach(match => {
                 let url = match[1].toString()
                 // only relative path supported, absolute path will be ignore
-                if(url.substr(0, 1) === "/" || url.indexOf("http") === 0) {
+                if(url.substr(0, 1) === '/' || url.indexOf('http') === 0) {
                   return
                 }
-                // clear ' or  "
-                let file = url.replace("'", "").replace('"', "")
+                // clear ' or  '
+                let file = url.replace('"', '').replace('\'', '')
                 let filetruepath = path.resolve(path.dirname(chunk.path), file)
 
                 // if there is no such file, ignore

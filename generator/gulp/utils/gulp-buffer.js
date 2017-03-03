@@ -1,4 +1,4 @@
-import through from "through2"
+import through from 'through2'
 
 export default function(factory) {
 	return through.obj(function(chunk, endcoding, callback) {
@@ -8,7 +8,7 @@ export default function(factory) {
 		}
 
 		if(chunk.isStream()) {
-			console.log("streaming not supported", "error")
+			console.log('streaming not supported', 'error')
 			return callback()
 		}
 
