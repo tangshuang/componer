@@ -281,6 +281,8 @@ commander
 	.description("reset componer and curent project componer program")
 	.option("-I, --install", "whether to run `npm install` after files reset")
 	.action(options => {
+		check()
+
 		log("Reset may change componer files in your project directory.")
 		prompt("Are you sure to reset? yes/No  ", choice => {
 			if(choice.toLowerCase() === "yes") {
@@ -302,6 +304,7 @@ commander
 						to: cwd + "/gulpfile.babel.js",
 					},
 				]
+
 				files.forEach(item => execute(`rm -rf ${item.to} && cp -rf ${item.from} ${item.to}`))
 
 				// use new package dependencies
@@ -539,15 +542,26 @@ commander
 	.command("link [name]")
 	.description("link local [name] componout as package")
 	.action(name => {
+		function Link(name) {
+			if(exists(`${cwd}/componouts/${name}/package.json`)) {
+				execute(`cd "${cwd}" && cd componouts && cd ${name} && npm link`)
+				execute(`cd "${cwd}" && npm link ${name}`)
+			}
+			else if(exists(`${cwd}/componouts/${name}/bower.json`)) {
+				execute(`cd "${cwd}" && cd componouts && cd ${name} && bower link`)
+				execute(`cd "${cwd}" && bower link ${name}`)
+			}
+		}
+
 		if(name === undefined) {
 			check()
-			execute(`cd "${cwd}" && gulp link`)
+			fs.readdirSync(`${cwd}/componouts`).forEach(item => Link(item))
 		}
 		else {
 			name = dashline(name)
 			name = fixname(name)
 			check(name)
-			execute(`cd "${cwd}" && gulp link --name=${name}`)
+			Link(name)
 		}
 	})
 
