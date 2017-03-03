@@ -1,33 +1,31 @@
-import {gulp, fs, path, args, log, config, exit, exists, load, readJSON, writeJSON} from "../loader"
-import {hasComponout, dashlineName, runTask} from "../utils"
+import {gulp, fs, path, args, log, config, exit, exists, scandir, load, readJSON, writeJSON} from '../loader'
+import {hasComponout, dashName, run} from '../utils'
 
-import concat from "pipe-concat"
-import Stream from "stream"
+import concat from 'pipe-concat'
+import Stream from 'stream'
 
-gulp.task("build", () => {
+gulp.task('build', () => {
 	var arg = args.build
 
 	// if there is no name option, build all components
 	if(arg.name === undefined) {
-		fs.readdirSync(config.paths.componouts).forEach(item => {
-			runTask("build", {
-				name: item,
-			})
-		})
+		scandir(config.paths.componouts).forEach(item => run('build', {
+			name: item,
+		}))
 		return
 	}
 
 	// build named component
-	var name = dashlineName(arg.name)
+	var name = dashName(arg.name)
 	if(!hasComponout(name)) {
-		log(`${name} not exists.`, "error")
+		log(`${name} not exists.`, 'error')
 		exit()
 	}
 
 	var componoutPath = path.join(config.paths.componouts, name)
 
-	if(!exists(componoutPath + "/componer.config.js")) {
-		log("componer.config.js not exists.", "error")
+	if(!exists(componoutPath + '/componer.config.js')) {
+		log('componer.config.js not exists.', 'error')
 		exit()
 	}
 
@@ -35,10 +33,10 @@ gulp.task("build", () => {
 	 * begin to compress build settings
 	 */
 
-	var info = load(componoutPath + "/componer.config.js")
+	var info = load(componoutPath + '/componer.config.js')
 	var files = info.build
 	if(!files) {
-		log("build option in componer.config.js not found.", "error")
+		log('build option in componer.config.js not found.', 'error')
 		exit()
 	}
 
@@ -49,10 +47,10 @@ gulp.task("build", () => {
 		let driver = file.driver
 		let settings = file.settings
 		let options = file.options
-		let driverfile = path.join(config.paths.drivers, driver + ".js")
+		let driverfile = path.join(config.paths.drivers, driver + '.js')
 
 		if(!exists(driverfile)) {
-			log("Can NOT found driver " + driver, "error")
+			log('Can NOT found driver ' + driver, 'error')
 			return
 		}
 
@@ -63,14 +61,14 @@ gulp.task("build", () => {
 	// update package json info
 	var streamx = new Stream()
 	streamx.writable = streamx.readable = true
-	var jsonfiles = ["bower.json", "package.json"]
+	var jsonfiles = ['bower.json', 'package.json']
 	jsonfiles.forEach(json => {
 		let jsonfile = path.join(componoutPath, json)
 		if(exists(jsonfile)) {
 			let jsoncontent = readJSON(jsonfile)
 			jsoncontent.name = info.name || name
-			jsoncontent.version = info.version || "0.0.1"
-			jsoncontent.description = info.description || ""
+			jsoncontent.version = info.version || '0.0.1'
+			jsoncontent.description = info.description || ''
 			writeJSON(jsonfile, jsoncontent)
 		}
 	})
@@ -79,11 +77,11 @@ gulp.task("build", () => {
 
 
 	if(streams.length > 0) {
-		return concat(streams).on("end", () => log(`${name} has been completely built.`, "done"))
+		return concat(streams).on('end', () => log(`${name} has been completely built.`, 'done'))
 	}
 
 	// build fail
-	log("Something is wrong. Check your componer.json.", "warn")
+	log('Something is wrong. Check your componer.json.', 'warn')
 	exit()
 
 })
