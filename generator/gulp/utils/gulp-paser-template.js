@@ -4,6 +4,7 @@ import {camelName, dashName, spaceName} from './convert-name'
 export default function(pairs) {
 	return GulpBuffer(content => {
 		if(pairs && typeof pairs === 'object') {
+			content = content.toString()
 			let keys = Object.keys(pairs)
 			keys.forEach(key => {
 				let value = pairs[key]

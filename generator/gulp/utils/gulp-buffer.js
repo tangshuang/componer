@@ -13,7 +13,7 @@ export default function(factory) {
 		}
 
 		var content = file.contents
-		content = factory(content.toString(), file, this) || content
+		content = factory(content, file, this) || content
 
 		file.contents = new Buffer(content)
 		this.push(file)

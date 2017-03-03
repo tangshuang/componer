@@ -108,6 +108,7 @@ gulp.task('preview', () => {
 				res.setHeader('content-type', 'text/html')
 				gulp.src(indexfile)
 					.pipe(GulpBuffer(html => {
+						html = html.toString()
 						if(stylefile && exists(stylefile)) {
 							html = html.replace('<!--styles-->', `<link rel="stylesheet" href="${name}.css">`)
 						}
@@ -140,10 +141,14 @@ gulp.task('preview', () => {
 					.pipe(rename(`/${name}.css`))
 					.pipe(sourcemap.write('.'))
 					.pipe(cssCopyAssets({
-						srcdirs: glob.sync(path.join(componoutPath, '**/')),
+						srcdirs: glob.sync([
+							path.join(componoutPath, '**/'),
+							'!' + tmpdir,
+						]),
 					}))
 					.pipe(GulpBuffer((content, file) => {
 						if(getFileExt(file.path) === '.css') {
+							content = content.toString()
 							res.end(content)
 						}
 					}))
@@ -177,6 +182,7 @@ gulp.task('preview', () => {
 					})))
 					.pipe(GulpBuffer((content, file) => {
 						if(getFileExt(file.path) === '.js') {
+							content = content.toString()
 							res.end(content)
 						}
 					}))
