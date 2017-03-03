@@ -1,6 +1,6 @@
 import shell from 'shelljs'
 
-export function runTask(task, args) {
+export function run(task, args) {
 	var cmd = 'gulp ' + task
 
 	if(args) {

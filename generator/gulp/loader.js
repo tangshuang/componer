@@ -45,35 +45,12 @@ const config = {
 //             functions
 // -------------------------------------
 
+/**
+ * process relative functions
+ */
+
 function exit() {
 	process.exit(0)
-}
-
-function exists(file) {
-	return fs.existsSync(file)
-}
-
-function read(file, charset = 'utf8') {
-	if(!exists(file)) return
-	return fs.readFileSync(file, charset)
-}
-
-function readJSON(file, charset = 'utf8') {
-	if(!exists(file)) return
-	return JSON.parse(read(file, charset))
-}
-
-function write(file, content, charset = 'utf8') {
-	return fs.writeFileSync(file, content, charset)
-}
-
-function writeJSON(file, json, charset = 'utf8') {
-	return write(file, JSON.stringify(json, null, 4), charset)
-}
-
-function scandir(dir) {
-	if(!exists(dir)) return
-	return fs.readdirSync(dir)
 }
 
 function execute(cmd, done, fail) {
@@ -96,11 +73,54 @@ function log(content, level) {
 	}
 }
 
+/**
+ * file relative functions
+ */
+
+function exists(file) {
+	return fs.existsSync(file)
+}
+
+function read(file, charset = 'utf8') {
+	if(!exists(file)) return
+	return fs.readFileSync(file, charset)
+}
+
+function readJSON(file, charset = 'utf8') {
+	if(!exists(file)) return
+	return JSON.parse(read(file, charset))
+}
+
+function write(file, content, charset = 'utf8') {
+	fs.writeFile(file, content, charset)
+}
+
+function writeJSON(file, json, charset = 'utf8') {
+	write(file, JSON.stringify(json, null, 4), charset)
+}
+
+function scandir(dir) {
+	if(!exists(dir)) return
+	return fs.readdirSync(dir)
+}
+
 function clear(dir) {
+	if(!exists(dir)) return
 	execute('cd ' + dir + ' && rm -rf * && rm -rf .??*')
 }
 
+function mkdir(dir) {
+	if(exists(dir)) return
+	fs.mkdir(dir)
+}
+
+function rename(file, newfile) {
+	if(!exists(file)) return
+	fs.rename(file, newfile)
+}
+
 function load(file, useDefault = true) {
+	if(!exists(file)) return
 	var rs = requireload(file)
 	if(typeof rs === 'object') {
 		if(useDefault && rs.default) return rs.default
@@ -118,19 +138,20 @@ export {
     fs,
     path,
     extend,
-    logger,
-	load,
 
     config,
     args,
 
     exists,
     read,
+	write,
     readJSON,
-    write,
     writeJSON,
+	mkdir,
 	scandir,
 	clear,
+	rename,
+	load,
 
     execute,
     log,
