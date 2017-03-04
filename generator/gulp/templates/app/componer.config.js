@@ -1,7 +1,6 @@
 module.exports = {
 	name: '{{componout-name}}',
 	type: 'application',
-	version: '0.0.1',
 	build: [
 		{
 			from: 'src/script/{{componout-name}}.js',

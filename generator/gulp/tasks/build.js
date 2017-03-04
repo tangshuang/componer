@@ -58,24 +58,6 @@ gulp.task('build', () => {
 		streams.push(driver({from, to, settings, options}))
 	})
 
-	// update package json info
-	var streamx = new Stream()
-	streamx.writable = streamx.readable = true
-	var jsonfiles = ['bower.json', 'package.json']
-	jsonfiles.forEach(json => {
-		let jsonfile = path.join(componoutPath, json)
-		if(exists(jsonfile)) {
-			let jsoncontent = readJSON(jsonfile)
-			jsoncontent.name = info.name || name
-			jsoncontent.version = info.version || '0.0.1'
-			jsoncontent.description = info.description || ''
-			writeJSON(jsonfile, jsoncontent)
-		}
-	})
-	streamx.emit('end')
-	streams.push(streamx)
-
-
 	if(streams.length > 0) {
 		return concat(streams).on('end', () => log(`${name} has been completely built.`, 'done'))
 	}

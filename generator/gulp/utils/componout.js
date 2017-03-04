@@ -1,4 +1,4 @@
-import {config, exists, scandir, load} from '../loader'
+import {config, exists, scandir, load, readJSON} from '../loader'
 import {dashName} from './convert-name'
 
 export function hasComponout(name) {
@@ -10,22 +10,20 @@ export function hasComponout(name) {
 
 export function getComponout(name) {
 	name = dashName(name)
-	var dir = config.paths.componouts
-	var type = 'None'
-	var path = `${dir}/${name}`
-
-	if(!exists(path)) {
+	var dir = `${config.paths.componouts}/${name}`
+	if(!exists(dir)) {
 		return false
 	}
 
-	var infofile = path + '/componer.config.js'
-	var info = load(infofile)
+	var infofile = dir + '/componer.config.js'
+	var info = exists(infofile) ? load(infofile) : {
+		type: 'config file not found!',
+	}
 
 	return {
 		name,
-		path,
-		type: info.type || 'None',
-		version: info.version || 'None',
+		type: info.type || 'Not defined!',
+		path: dir,
 		info,
 	}
 
@@ -35,5 +33,5 @@ export function getComponouts() {
 	var dir = config.paths.componouts
 	var componouts = []
 	scandir(dir).forEach(name => componouts.push(getComponout(name)))
-	return componouts
+	return componouts.filter(item => !!item)
 }
