@@ -593,54 +593,28 @@ commander
 // ----------------------------------------------------
 
 commander
-	.command("pull <name> [params...]")
-	.description("clone/pull a componout from remote registries")
-	.option("-u, --url [url]", "registry url")
-	.action((name, params, options) => {
+	.command("clone <name>")
+	.description("clone a componout from github.com/componer")
+	.option("-u, --url [url]", "use your own registry url")
+	.action((name, options) => {
 		name = dashline(name)
 		name = fixname(name)
 		check()
 		options = merge(options)
 
-		if(!has(name)) {
-			var url = options.url || `${options.registries}/${name}.git`
-			execute(`cd "${cwd}" && cd componouts && git clone ${url} ${name}`, () => {
-				log("Done! Componout has been added to componouts directory.", "done")
-			}, () => {
-				log("Fail! You can enter componout directory and run `git clone`.", "help")
-			})
-		}
-		else {
-			var sh = `cd "${cwd}" && cd componouts && cd ${name} && git pull`
-			if(params.length > 0) {
-				sh += " " + params.join(" ")
-			}
-			execute(sh, () => {
-				log("Done! Componout has been the latest code.", "done")
-			})
-		}
-	})
-
-commander
-	.command("push <name> [params...]")
-	.description("push a componout to remote registry")
-	.action((name, params) => {
-		name = dashline(name)
-		name = fixname(name)
-		check(name)
-
-		prompt("Commit message: ", message => {
-			var sh = `cd "${cwd}" && cd componouts && cd ${name} && git add ./. && git commit -m "${message}" && git push`
-			if(params.length > 0) {
-				sh += " " + params.join(" ")
-			}
-			execute(sh, () => {
-				log("Done! Componout has been push to remote registry", "done")
-			}, () => {
-				log("You can cd to componouts/" + name + " directory to run `git push`.", "help")
-			})
-
+		if(has(name)) {
+			log(`${name} has been in your componouts`)
 			exit()
+		}
+
+		let url = options.url
+		if(!url && options.registries) url = `${options.registries}/${name}.git`
+		if(!url) url = `https://github.com/componer/${name}.git`
+
+		execute(`cd "${cwd}" && cd componouts && git clone ${url} ${name}`, () => {
+			log("Done! Componout has been added to componouts directory.", "done")
+		}, () => {
+			log("Fail! You can enter componouts directory and run `git clone`.", "help")
 		})
 	})
 

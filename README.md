@@ -32,8 +32,7 @@ componer test [name] [-D] [-b Chrome]
 componer remove/rm name
 componer list/ls
 
-componer pull name
-componer push name [origin master]
+componer clone name
 
 componer install [name]
 componer link [name]
@@ -204,45 +203,20 @@ All npm packages and bower packages will be install in your project root path. `
 
 Link componout as package. If there is a bower.json in your componout, it will be linked as a bower component. If there is a package.json, it will be linked as a npm node module.
 
-### pull <name> [-u|--url your-git-registry-address] [origin master]
+### clone <name> [-u|--url your-git-registry-address]
 
-Pull your componouts from http://github.com/componer, by git. You can change registries in `.componerrc` `defaults` options. If `-u` options is set, registry will be insteaded by this url.
+Clone a compount from http://github.com/componer, by git.
+You can change registries in `.componerrc` with `defaults` options.
+If `-u` options is set, registry will be insteaded by this url.
 
 You can try:
 
 ```
-componer pull browser-logger
+componer clone browser-logger
 ```
 
-After that, a componout named `browser-logger` will lay in your componouts directory. You will find this componout to be a git registry.
-
-1) add a compount from remote
-
-If the named componout exists, this command do as `git clone your-git-registry-address`
-
-```
-componer pull browser-logger -u https://github.com/componer/browser-logger.git
-```
-
-2) update a componout from remote
-
-If the componout exists, this command do as `git pull [origin master]`
-
-```
-componer pull browser-logger origin master
-```
-
-Notic: `origin master` only works when update, so don't use them when add.
-
-### push <name> [origin master]
-
-Push your componout to http://github.com/componer (or your coustom registries) if you have the permission.
-
-```
-componer push browser-logger origin master
-```
-
-However, you may don't have permission to push your code into componer registries. You can fork this project into your own github registries, and use `-u` when pull down from your own github registry.
+After that, a componout named `browser-logger` will lay in your componouts directory.
+You will find this componout to be a git registry.
 
 ## Generator
 
