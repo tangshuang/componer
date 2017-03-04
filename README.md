@@ -97,6 +97,12 @@ build: [
 			minify: true,
 			sourcemap: "file",
 		},
+		settings: {
+			sass: {}, // settings for node-sass
+			postcss: {}, // settings for postcss
+			nextcss: {}, // settings for nextcss
+			assets: {}, // settings for gulp-css-copy-assets
+		},
 	},
 ],
 ```
@@ -145,7 +151,7 @@ Export an object or an array or a function. Look into browser-sync middleware co
 
 `script` and `style` files will be compiled and be kept in memory, not true local files (though files compiled will be created after page shown). All dependencies will be included in the compiled output content.
 
-### test [name] [-D|--debug] [-b|--browser Chrom|Firefox|PhantomJS]
+### test [name] [-D|--debug] [-b|--browser Chrome|Firefox|PhantomJS]
 
 Componer use karma and jasmine as framework.
 

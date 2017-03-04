@@ -1,9 +1,11 @@
 var packageJson = require('./package.json')
+var deps = Object.keys(packageJson.dependencies)
+var externals = {}
+if(deps.length > 0) deps.forEach(dep => externals[dep] = dep)
 
 module.exports = {
 	name: '{{componout-name}}',
 	type: 'npm package',
-	version: '0.0.1',
 	build: [
 		{
 			from: 'src/{{componout-name}}.js',
@@ -18,16 +20,12 @@ module.exports = {
 					library: '{{componout-name}}',
 					libraryTarget: 'commonjs2',
 				},
-				get externals() {
-					var deps = Object.keys(packageJson.dependencies)
-					var externals = {}
-					if(deps.length > 0) deps.forEach(dep => externals[dep] = dep)
-					return externals
-				},
+				target: 'node',
 				node: {
-				    global: false,
-				    Buffer: false,
+					global: false,
+					Buffer: false,
 				},
+				externals: externals,
 			},
 		}
 	],
