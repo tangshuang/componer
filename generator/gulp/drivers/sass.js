@@ -64,6 +64,11 @@ export default function({from, to, settings = {}, options = {}}) {
 			.pipe(gulp.dest(outputdir))
 	}
 
+	// do something before build
+	if(typeof options.before === 'function') {
+		options.before(settings)
+	}
+
 	// with sourcemap
     if(options.sourcemap) {
 		// not minified
@@ -84,5 +89,9 @@ export default function({from, to, settings = {}, options = {}}) {
     }
 	// minified
     let stream2 = NoSourceMapHasMinify()
-    return merge(stream1, stream2)
+    return merge(stream1, stream2).on('end', () => {
+        if(typeof options.after === 'function') {
+            options.after()
+        }
+    })
 }

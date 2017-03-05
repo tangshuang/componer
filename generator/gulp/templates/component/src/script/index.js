@@ -1,8 +1,14 @@
 export default class {{ComponoutName}} {
-  constructor() {}
-  set(key, value) {}
-  get(key) {}
-  test() {
-    console.log('test ok.')
-  }
+    constructor(options) {
+        this.options = options
+    }
+    get(key) {
+        return this[key]
+    }
+    set(key, value) {
+        this[key] = value
+    }
+    toString() {
+        return '{{ComponoutName}}'
+    }
 }

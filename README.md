@@ -86,6 +86,8 @@ build: [
 		options: { // minify and sourcemap options
 			minify: true,
 			sourcemap: "file", // true (same as "file"), "inline"
+			before: function(settings) {}, // execute before build
+			after: function() {}, // execute after build finished
 		},
 		settings: {}, // settings passed to webpack, look into webpack config
 	},
@@ -128,7 +130,7 @@ preview: {
 	style: "preview/bar-chart.scss", // option, will be compiled by sass
 	server: "preview/server.js", // option, middlewares to be used by browser-sync, look into browser-sync config `middleware`
 	tmpdir: ".preview_tmp", // option, default is '.preview_tmp'
-	vendors: [], // option, modules to put into vendors file which will not be rebuild when reload. default "undefined"
+	vendors: [], // option, modules to put into vendors file which will not be rebuild when reload. default "undefined", when preview, dependencies in .json file will be contained, so you do not need to include them.
 	watchFiles: [ // look into browser-sync config `files`
 		"preview/index.html",
 		"preview/bar-chart.js",

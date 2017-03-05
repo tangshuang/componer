@@ -36,6 +36,11 @@ export default function({from, to, settings  = {}, options = {}}) {
         outputSettings.sourceMapFilename = outputSettings.sourceMapFilename || filename + '.map'
     }
 
+    // do something before build
+    if(typeof options.before === 'function') {
+        options.before(settings)
+    }
+
     var stream1 = gulp.src(from)
         .pipe(webpack(settings))
         .pipe(gulp.dest(outputdir))
@@ -61,5 +66,9 @@ export default function({from, to, settings  = {}, options = {}}) {
         .pipe(webpack(settings))
         .pipe(gulp.dest(outputdir))
 
-    return concat(stream1, stream2)
+    return concat(stream1, stream2).on('end', () => {
+        if(typeof options.after === 'function') {
+            options.after()
+        }
+    })
 }

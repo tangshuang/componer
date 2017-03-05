@@ -17,6 +17,10 @@ export default function(pairs) {
 					.replace((new RegExp('{{' + spaceName(key, true) + '}}', 'g')), spaceName(value, true))
 			})
 		}
+
+		// remove explanatory note in template
+		content = content.replace((new RegExp('\\/\\/\\[.*?\\]\\/\\/', 'g')), '')
+
 		return content
 	})
 }
