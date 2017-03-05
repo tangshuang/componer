@@ -1,6 +1,6 @@
 module.exports = {
 	name: '{{componout-name}}',
-	type: 'application',
+	type: 'app',
 	build: [
 		{
 			from: 'src/script/{{componout-name}}.js',

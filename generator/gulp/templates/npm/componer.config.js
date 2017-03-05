@@ -5,7 +5,7 @@ if(deps.length > 0) deps.forEach(dep => externals[dep] = dep)
 
 module.exports = {
 	name: '{{componout-name}}',
-	type: 'npm package',
+	type: 'npm',
 	build: [
 		{
 			from: 'src/{{componout-name}}.js',

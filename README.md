@@ -187,7 +187,7 @@ New package will be put into node_modules directory in your project root path. H
 
 npm packages always come first. For example, when you run `componer install my-component jquery`, jquery will be installed by npm into your root node_modules directory, event though there is a bower jquery. On the other hand, if npm run fail, bower packages will be try. eg. `componer install my-component d3`, d3 has only bower package, so npm install will fail and bower install will be run after the error message.
 
-Pass `-S` to save this dependence to package.json or bower.json dependencies option, `-D` is to save to devDependencies. If you do not pass `-S` or `-D`, componer will use `-S` default. If you want to install some package without saving to .json files, just use `npm install` or `bower install`. `-S` or `-D` is nouseful when there is no `-p`.
+Pass `-S` to save this dependence to package.json or bower.json dependencies option, `-D` is to save to devDependencies. If you do not pass `-S` or `-D`. If you pass neither of them, .json files will not change. `-S` or `-D` is nouseful when there is no `-p`.
 
 2) install all packages for a componout
 
@@ -205,9 +205,28 @@ componer install
 
 All npm packages and bower packages will be install in your project root path. `-p` and `-S` and `-D` is nouseful in this method.
 
+**dependencies version**
+
+When you run install task, you should know that compner will not help you to resolve your dependencies version problems. Then bebind versions will cover the previous ones and conflicts will be show and the end.
+
 ### link <name>
 
-Link componout as package. If there is a bower.json in your componout, it will be linked as a bower component. If there is a package.json, it will be linked as a npm node module.
+Link componout as package/component into node_modules/bower_components. Now only npm and bower supported.
+
+In componer, components follow rules with bower components. So if you want to link your component as a bower component, you should pass `bower` to type option in componer.config.js:
+
+```
+module.exports = {
+	name: 'componout-name',
+	type: 'bower', // only npm and bower supported link task, other types will be ignored.
+	build: [
+		{
+...
+```
+
+`bower` and `npm` are supported, other types will be ignore.
+
+When you run `componer link a-name`, componer will run `npm/bower link` to link your componout. After you run `componer link a-name`, you can use `require('a-name')` in other componouts to use this componout.
 
 ### clone <name> [-u|--url your-git-registry-address]
 
