@@ -1,7 +1,7 @@
 {
   "name": "{{project-name}}",
   "version": "0.0.1",
-  "description": "",
+  "description": "A instance project of componer.",
   "main": "index.js",
   "scripts": {},
   "author": "{{author-name}}",

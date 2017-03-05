@@ -581,10 +581,10 @@ commander
 					execute(`cd "${cwd}" && npm install ${pkg}`, () => {
 						// add dependencies into package.json of componout
 						let pkgName = pkg
-						let pkgVer = readJSON(cwd + "/node_modules/" + pkgName + "/package.json").version || "*"
 						if(pkg.indexOf("@") > -1) {
-							[pkgName, pkgVer] = pkg.split("@")
+							[pkgName] = pkg.split("@")
 						}
+						let pkgVer = readJSON(cwd + "/node_modules/" + pkgName + "/package.json").version || "*"
 
 						let npmPkgInfo = readJSON(npmJson)
 						if(options.save) {
