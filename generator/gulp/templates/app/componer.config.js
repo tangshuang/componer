@@ -34,13 +34,13 @@ module.exports = {
 						output: {
 							path: dist,
 							filename: '{{componout-name}}.vendor.js',
-							library: '{{componout-name}}-vendor',
+							library: '{{ComponoutName}}Vendor',
 							sourceMapFilename: '{{componout-name}}.vendor.js.map',
 						},
 						devtool: 'source-map',
 						plugins: [
 							new webpack.DllPlugin({
-								name: '{{componout-name}}-vendor',
+								name: '{{ComponoutName}}Vendor',
 								path: dist + '/{{componout-name}}.vendor.js.json',
 								context: dist,
 							}),
@@ -54,7 +54,7 @@ module.exports = {
 			},
 			settings: {
 				output: {
-					library: '{{componout-name}}',
+					library: '{{ComponoutName}}',
 				},
 				plugins: [
 					// if there are some vendors, use DllReferencePlugin to use vendors script file in final built script file

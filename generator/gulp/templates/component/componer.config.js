@@ -18,7 +18,7 @@ module.exports = {
 			},
 			settings: {
 				output: {
-					library: '{{componout-name}}',
+					library: '{{ComponoutName}}',
 				},
 				externals: externals,
 			},

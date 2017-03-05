@@ -64,8 +64,8 @@ gulp.task('preview', () => {
  		if(!exists(pkgfile)) {
  			return []
  		}
- 		let deps = readJSON(pkgfile).dependencies
- 		return Object.keys(deps)
+ 		let info = readJSON(pkgfile)
+ 		return Object.keys(info.dependencies).concat(Object.keys(info.devDependencies))
  	}
  	let vendors = getDeps(bowerJson).concat(getDeps(pkgJson))
 	if(Array.isArray(info.vendors)) {
@@ -81,14 +81,14 @@ gulp.task('preview', () => {
 			output: {
 				path: tmpdir,
 				filename: name + '.vendor.js',
-				library: name + '-vendor',
+				library: camelName(name, true) + 'Vendor',
 				sourceMapFilename: name + '.vendor.js.map',
 			},
 			devtool: 'source-map',
 			plugins: [
 				new webpack.DllPlugin({
 					path: tmpdir + `/${name}.vendor.js.json`,
-					name: name + '-vendor',
+					name: camelName(name, true) + 'Vendor',
 					context: tmpdir,
 				}),
 			],
@@ -141,10 +141,7 @@ gulp.task('preview', () => {
 					.pipe(rename(`/${name}.css`))
 					.pipe(sourcemap.write('.'))
 					.pipe(cssCopyAssets({
-						srcdirs: glob.sync([
-							path.join(componoutPath, '**/'),
-							'!' + tmpdir,
-						]),
+						srcdirs: glob.sync(path.join(componoutPath, '**/')),
 					}))
 					.pipe(GulpBuffer((content, file) => {
 						if(getFileExt(file.path) === '.css') {
@@ -169,7 +166,7 @@ gulp.task('preview', () => {
 					.pipe(webpackStream(webpackConfig({
 						output: {
 							filename: name + '.js',
-							library: camelName(name),
+							library: camelName(name, true),
 							sourceMapFilename: name + '.js.map',
 						},
 						devtool: 'source-map',

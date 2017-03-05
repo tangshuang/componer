@@ -6,6 +6,8 @@ import extend from 'extend'
 
 import config from './webpack.config'
 
+import {camelName} from '../utils/convert-name'
+
 /**
 @param settings: pass to webpack
 @param options: {
@@ -25,7 +27,7 @@ export default function({from, to, settings  = {}, options = {}}) {
     var outputSettings = settings.output
 
     outputSettings.filename = outputSettings.filename || filename
-    outputSettings.library = outputSettings.library || basename
+    outputSettings.library = outputSettings.library || camelName(basename, true)
 
     // sourcemap
     if(options.sourcemap === 'inline') {
