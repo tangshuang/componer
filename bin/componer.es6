@@ -520,7 +520,7 @@ commander
 		}
 		/**
 		 * componer install {{name}}
-		 * install all of a componout, or install only one package by using -p option
+		 * install all packages of a componout, or install only one package by using -p option
 		 */
 		else {
 			name = dashline(name)
@@ -548,7 +548,7 @@ commander
 			let bowerJson = `${cwd}/componouts/${name}/bower.json`
 
 			/**
-			 * if install all of a componout
+			 * if install all packages of a componout
 			 */
 			if(!pkg) {
 				if(exists(npmJson)) {
@@ -598,19 +598,6 @@ commander
 					}, bowerInstall)
 				}
 				else bowerInstall()
-			}
-
-
-			if(exists(npmJson) && !pkg) { // if there is no pkg in cli, run `npm install`
-				let npmDeps = getDeps(npmJson)
-				execute(`cd "${cwd}" && npm install ` + npmDeps.join(" "))
-				bowerInstall()
-			}
-			else if(exists(npmJson) && pkg) {
-
-			}
-			else {
-				bowerInstall()
 			}
 		}
 	})
