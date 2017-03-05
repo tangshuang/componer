@@ -1,7 +1,7 @@
 module.exports = {
-	route: "/test",
+	route: '/test',
 	handle: function (req, res, next) {
-		res.end("Hello, Componer!")
+		res.end('Hello, Componer!')
 		next()
 	},
 }

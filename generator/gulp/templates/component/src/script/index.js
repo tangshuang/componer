@@ -3,6 +3,6 @@ export default class {{ComponoutName}} {
   set(key, value) {}
   get(key) {}
   test() {
-    console.log("test ok.")
+    console.log('test ok.')
   }
 }
