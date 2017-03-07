@@ -8,7 +8,7 @@ export function run(task, args) {
 			let value = args[key]
 			cmd += ` --${key}`
 			if(value !== true && value) {
-				cmd += `='${value}'`
+				cmd += `="${value}"`
 			}
 		}
 	}
