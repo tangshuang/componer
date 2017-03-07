@@ -1,17 +1,7 @@
 import webpack from 'webpack'
 import fs from 'fs'
+import path from 'path'
 import webpackConfig from '../../gulp/drivers/webpack.config' //[ truthy componout relative path ]//
-
-let dir = __dirname
-let bowerJson = path.join(dir, 'bower.json')
-let pkgJson = path.join(dir, 'package.json')
-let dist = path.join(dir, 'dist')
-
-let getDeps = function(pkgfile) {
-	let deps = require(pkgfile).dependencies
-	return Object.keys(deps)
-}
-let vendors = getDeps(bowerJson).concat(getDeps(pkgJson))
 
 module.exports = {
 	name: '{{componout-name}}',
@@ -25,6 +15,17 @@ module.exports = {
 				minify: true,
 				sourcemap: 'file',
 				before: settings => {
+					let dir = __dirname
+					let bowerJson = path.join(dir, 'bower.json')
+					let pkgJson = path.join(dir, 'package.json')
+					let dist = path.join(dir, 'dist')
+
+					let getDeps = function(pkgfile) {
+						let deps = require(pkgfile).dependencies
+						return Object.keys(deps)
+					}
+					let vendors = getDeps(bowerJson).concat(getDeps(pkgJson))
+
 					if(vendors.length === 0) return
 					// if there are some vendors, use DllPlugin to created vendors scripts file
 					webpack(webpackConfig({
@@ -46,6 +47,12 @@ module.exports = {
 							}),
 						],
 					})).run((error, handle) => {})
+					settings.plugins.push(
+						new webpack.DllReferencePlugin({
+							context: dist,
+							manifest: require(dist + '/{{componout-name}}.vendor.js.json'),
+						})
+					)
 				},
 				after: () => {
 					let vendorjson = dist + '/{{componout-name}}.vendor.js.json'
@@ -54,15 +61,8 @@ module.exports = {
 			},
 			settings: {
 				output: {
-					library: '{{ComponoutName}}',
+					library: '{{componout-name}}',
 				},
-				plugins: [
-					// if there are some vendors, use DllReferencePlugin to use vendors script file in final built script file
-					vendors.length > 0 ? new webpack.DllReferencePlugin({
-						context: dist,
-						manifest: require(dist + '/{{componout-name}}.vendor.js.json'),
-					}) : undefined,
-				],
 			},
 		},
 		{

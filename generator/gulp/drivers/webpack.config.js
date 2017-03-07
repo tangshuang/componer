@@ -54,7 +54,10 @@ export default function webpack(settings) {
 		},
 	])
 	settings.plugins = settings.plugins.concat([
-		new WebPackPluginBower(),
+		new WebPackPluginBower({
+			modulesDirectories: 'bower_components',
+			searchResolveModulesDirectories: false,
+		}),
 		new WebPackPluginCMD(),
 	])
 

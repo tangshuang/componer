@@ -166,7 +166,7 @@ gulp.task('preview', () => {
 					.pipe(webpackStream(webpackConfig({
 						output: {
 							filename: name + '.js',
-							library: camelName(name, true),
+							library: name,
 							sourceMapFilename: name + '.js.map',
 						},
 						devtool: 'source-map',

@@ -17,7 +17,6 @@ module.exports = {
 			},
 			settings: {
 				output: {
-					library: '{{ComponoutName}}',
 					libraryTarget: 'commonjs2',
 				},
 				target: 'node',
