@@ -132,11 +132,6 @@ function check(name) {
 		exit()
 	}
 
-	if(!exists(cwd + "/node_modules")) {
-		log("You have not installed node modules, run `npm install` first.", "warn")
-		exit()
-	}
-
 	if(name && !has(name)) {
 		log(`You don't have a componout named ${name} now.`, "error")
 		exit()
