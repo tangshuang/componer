@@ -64,7 +64,7 @@
     "webpack": "^1.14.0",
     "webpack-stream": "^3.2.0"
   },
-  "bebel": {
+  "babel": {
       "presets": ["latest"],
   	  "ignore": false
   }
