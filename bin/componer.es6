@@ -281,25 +281,17 @@ commander
 		log("Reset may change componer files in your project directory.")
 		prompt("Are you sure to reset? yes/No  ", choice => {
 			if(choice.toLowerCase() === "yes") {
+				// copy gulp relative files
 				let files = [
 					{
 						from: generator + "/gulp/.",
 						to: cwd + "/gulp/",
 					},
 					{
-						from: generator + "/.babelrc",
-						to: cwd + "/.babelrc",
-					},
-					{
-						from: generator + "/.bowerrc",
-						to: cwd + "/.bowerrc",
-					},
-					{
 						from: generator + "/gulpfile.babel.js",
 						to: cwd + "/gulpfile.babel.js",
 					},
 				]
-
 				files.forEach(item => execute(`rm -rf ${item.to} && cp -rf ${item.from} ${item.to}`))
 
 				// use new package dependencies

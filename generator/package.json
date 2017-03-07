@@ -63,5 +63,9 @@
     "url-loader": "^0.5.7",
     "webpack": "^1.14.0",
     "webpack-stream": "^3.2.0"
+  },
+  "bebel": {
+      "presets": ["latest"],
+  	  "ignore": false
   }
 }
