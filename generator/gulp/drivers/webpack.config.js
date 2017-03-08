@@ -57,6 +57,7 @@ export default function webpack(settings) {
 		new WebPackPluginBower({
 			modulesDirectories: 'bower_components',
 			searchResolveModulesDirectories: false,
+			includes: /.*\.js/,
 		}),
 		new WebPackPluginCMD(),
 	])
