@@ -11,7 +11,7 @@
     "babel-core": "^6.22.1",
     "babel-loader": "^6.2.8",
     "babel-polyfill": "^6.22.0",
-    "babel-preset-latest": "^6.16.0",
+    "babel-preset-env": "^1.2.1",
     "babel-register": "^6.18.0",
     "bower-webpack-plugin": "^0.1.9",
     "browser-sync": "^2.18.8",
@@ -63,9 +63,5 @@
     "url-loader": "^0.5.7",
     "webpack": "^1.14.0",
     "webpack-stream": "^3.2.0"
-  },
-  "babel": {
-      "presets": ["latest"],
-  	  "ignore": false
   }
 }
