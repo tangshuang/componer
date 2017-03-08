@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+import 'babel-register'
+
 import fs from "fs"
 import path from "path"
 import readline from "readline"
