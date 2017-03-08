@@ -4,13 +4,9 @@
   "description": "A components builder tool",
   "main": "index.js",
   "bin": {
-    "componer": "bin/componer.js"
+    "componer": "bin/index.js"
   },
-  "scripts": {
-    "build": "babel bin/componer.es6 -o bin/componer.js",
-    "watch": "npm run build -- --watch",
-    "prepublish": "npm run build"
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/tangshuang/componer.git"
