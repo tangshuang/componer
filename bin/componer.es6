@@ -365,11 +365,16 @@ commander
 commander
 	.command("preview <name>")
 	.description("(gulp) preview a componout")
-	.action(name => {
+	.option('-p, --port [port]', 'use custom port')
+	.action((name, options) => {
 		name = dashline(name)
 		name = fixname(name)
 		check(name)
-		execute(`cd "${cwd}" && gulp preview --name=${name}`)
+
+		let cmd = `cd "${cwd}" && gulp preview --name=${name}`
+		if(options.port) cmd += ` --port=${options.port}`
+
+		execute(cmd)
 	})
 
 commander

@@ -239,7 +239,18 @@ gulp.task('preview', () => {
 		})
 	}
 
+	var port = arg.port || 8000 + parseInt(Math.random() * 1000)
+	var uiport = port + 1
+	var weinreport = port + 2
+
 	app.init({
+		port,
+		ui: {
+			port: uiport,
+			weinre: {
+				port: weinreport
+			}
+		},
 		server: {
 			baseDir: tmpdir,
 		},
