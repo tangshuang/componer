@@ -1,12 +1,16 @@
 {
   "name": "componer",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "A components builder tool",
   "main": "index.js",
   "bin": {
-    "componer": "bin/index.js"
+    "componer": "bin/componer.js"
   },
-  "scripts": {},
+  "scripts": {
+    "build": "babel bin/componer.es6 -o bin/componer.js",
+    "watch": "npm run build -- --watch",
+    "prepublish": "npm run build"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/tangshuang/componer.git"
