@@ -153,7 +153,7 @@ Export an object or an array or a function. Look into browser-sync middleware co
 
 `script` and `style` files will be compiled and be kept in memory, not true local files (though files compiled will be created after page shown). All dependencies will be included in the compiled output content.
 
-### test [name] [-D|--debug] [-b|--browser Chrome|Firefox|PhantomJS]
+### test [name] [-D|--debug] [-b|--browser PhantomJS|Chrome|Firefox|IE|Safari]
 
 Componer use karma and jasmine as framework.
 
@@ -166,6 +166,8 @@ You can use --browser to change to test in different browser. For example, you c
 When you test a node module componout, it is different. You should modify `componer.config.js` `test.browsers` to be `Terminal`. If `test.browsers` = `Terminal`, jasmine-node will be used to test node scripts which can be run only in command line not in browsers. Do as so, `-b` will not work.
 
 If `name` is not given, all componouts will be tested. `-D` will not work, and debug mode will be ignored.
+
+**Notice:** if you want to use PhantomJS, you should install PhantomJS browser first on you compouter, it is a browser.
 
 ### remove <name>
 

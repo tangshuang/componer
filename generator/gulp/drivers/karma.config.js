@@ -49,6 +49,8 @@ export default function(settings) {
         require('karma-phantomjs-launcher'),
         require('karma-chrome-launcher'),
         require('karma-firefox-launcher'),
+        require('karma-ie-launcher'),
+        require('karma-safari-launcher'),
         require('karma-webpack'),
         require('karma-scss-preprocessor'),
         require('karma-sourcemap-loader'),

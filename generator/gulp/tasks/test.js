@@ -27,6 +27,7 @@ gulp.task('test', () => {
 		exit()
 	}
 
+	var rootPath = config.paths.root
 	var componoutPath = path.join(config.paths.componouts, name)
 	var srcPath = path.join(componoutPath, 'src')
 
@@ -101,7 +102,16 @@ gulp.task('test', () => {
 			},
 		}
 
-	return gulp.src(entryfile)
+	var entryfiles = [entryfile]
+	// if use PhantomJS to test, it do not support new functions directly, use babal-polyfill to fix
+	// in fact, lower version of Chrome or Firefox are not support to. however, developer should make sure to use higher version of this browsers
+	let launchers = karmaSettings.browsers
+	if(launchers.indexOf('PhantomJS') > -1 || launchers.indexOf('IE') > -1 || launchers.indexOf('Safari') > -1) {
+		entryfiles.unshift(path.join(rootPath, 'node_modules/babel-polyfill/lib/index.js'))
+		preprocessors[path.join(rootPath, 'node_modules/babel-polyfill/**/*.js')] = ['webpack', 'sourcemap']
+	}
+
+	return gulp.src(entryfiles)
 		.pipe(karma.server(karmaConfig(karmaSettings)))
 		.on('end', () => {
 			log('Reporters ware created in componouts/' + name + '/' + reportersDir, 'help')
