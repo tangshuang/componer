@@ -25,6 +25,9 @@ var generator = path.resolve(__dirname, "../generator")
 var cwd = process.cwd()
 var info = readJSON(__dirname + "/../package.json")
 
+// var gulp = 'glup'
+// var bower = 'bower'
+
 // ----------------------------------
 //         basic functions
 // ----------------------------------
@@ -667,6 +670,8 @@ commander
 	.command("clone <name>")
 	.description("clone a componout from github.com/componer")
 	.option("-u, --url [url]", "use your own registry url")
+	.option('-I, --install', 'whether to run install task after cloned')
+	.option('-L, --link', 'whether to run link task after cloned')
 	.action((name, options) => {
 		name = dashline(name)
 		name = fixname(name)
@@ -683,6 +688,21 @@ commander
 		if(!url) url = `https://github.com/componer/${name}.git`
 
 		execute(`cd "${cwd}" && cd componouts && git clone ${url} ${name}`, () => {
+			// append git ignore
+			let ignores = read(cwd + '/.gitignore')
+			ignores += "\r\n" + 'componouts/' + name + '/'
+			write(cwd + '/.gitignore', ignores)
+
+			// install dependencies
+			if(options.install) {
+				execute(`cd "${cwd}" && componer install ${name}`)
+			}
+
+			// link the package
+			if(options.link) {
+				execute(`cd "${cwd}" && componer link ${name}`)
+			}
+
 			log("Done! Componout has been added to componouts directory.", "done")
 		}, () => {
 			log("Fail! You can enter componouts directory and run `git clone`.", "help")

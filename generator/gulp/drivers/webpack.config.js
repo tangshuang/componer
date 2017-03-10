@@ -18,7 +18,7 @@ export default function webpack(settings) {
     settings.module.loaders = settings.module.loaders.concat([
 		{
 			test: /\.js$/,
-			loader: 'babel?presets[]=latest',
+			loader: 'babel',
 		},
 		{
 			test: /^(?:(?!http).)*\.scss$/,

@@ -232,7 +232,7 @@ module.exports = {
 
 When you run `componer link a-name`, componer will run `npm/bower link` to link your componout. After you run `componer link a-name`, you can use `require('a-name')` in other componouts to use this componout.
 
-### clone <name> [-u|--url your-git-registry-address]
+### clone <name> [-u|--url your-git-registry-address] [-I|--install] [-L|--link]
 
 Clone a compount from http://github.com/componer, by git.
 You can change registries in `.componerrc` with `defaults` options.
@@ -241,11 +241,15 @@ If `-u` options is set, registry will be insteaded by this url.
 You can try:
 
 ```
-componer clone browser-logger
+componer clone class-base
 ```
 
-After that, a componout named `browser-logger` will lay in your componouts directory.
+After that, a componout named `class-base` will lay in your componouts directory.
 You will find this componout to be a git registry.
+And this directory will be appended into your project .gitignore file.
+
+`-I` is to run `componer install` task after this componout cloned to install its dependencies.
+`-L` is to run `componer link` task after it cloned to link it to package directories.
 
 ## Generator
 
