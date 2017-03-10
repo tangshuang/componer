@@ -1,9 +1,3 @@
-var bowerJson = require('./bower.json')
-var packageJson = require('./package.json')
-var deps = Object.keys(bowerJson.dependencies).concat(Object.keys(packageJson.dependencies))
-var externals = {}
-if(deps.length > 0) deps.forEach(dep => externals[dep] = dep)
-
 module.exports = {
 	name: '{{componout-name}}',
 	type: 'bower',
@@ -20,7 +14,7 @@ module.exports = {
 				output: {
 					library: '{{componout-name}}',
 				},
-				externals: externals,
+				externals: getExternals(),
 			},
 		},
 		{
@@ -51,4 +45,13 @@ module.exports = {
 		debug: false,
 		browsers: ['PhantomJS'],
 	},
+}
+
+function getExternals() {
+	var bowerJson = require('./bower.json')
+	var packageJson = require('./package.json')
+	var deps = Object.keys(bowerJson.dependencies).concat(Object.keys(packageJson.dependencies))
+	var externals = {}
+	if(deps.length > 0) deps.forEach(dep => externals[dep] = dep)
+	return externals
 }

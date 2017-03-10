@@ -1,8 +1,3 @@
-var packageJson = require('./package.json')
-var deps = Object.keys(packageJson.dependencies)
-var externals = {}
-if(deps.length > 0) deps.forEach(dep => externals[dep] = dep)
-
 module.exports = {
 	name: '{{componout-name}}',
 	type: 'npm',
@@ -24,7 +19,7 @@ module.exports = {
 					global: false,
 					Buffer: false,
 				},
-				externals: externals,
+				externals: getExternals(),
 			},
 		}
 	],
@@ -32,4 +27,12 @@ module.exports = {
 		entry: 'test/{{componout-name}}.js',
 		browsers: 'Terminal',
 	},
+}
+
+function getExternals() {
+	var packageJson = require('./package.json')
+	var deps = Object.keys(packageJson.dependencies)
+	var externals = {}
+	if(deps.length > 0) deps.forEach(dep => externals[dep] = dep)
+	return externals
 }
