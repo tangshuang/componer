@@ -1,7 +1,7 @@
 {
   "name": "{{componout-name}}",
   "version": "0.0.1",
-  "description": "",
+  "description": "{{componout name}}",
   "main": "dist/js/{{componout-name}}.js",
   "scripts": {},
   "keywords": [],
@@ -15,5 +15,6 @@
   "bugs": {
     "url": "https://github.com/{{author-name}}/{{componout-name}}/issues"
   },
+  "homepage": "https://github.com/{{author-name}}/{{componout-name}}#readme",
   "license": "ISC"
 }

@@ -3,8 +3,8 @@
     "description": "",
     "version": "0.0.1",
     "main": [
-        "dist/js/{{componout-name}}.js",
-        "dist/css/{{componout-name}}.css"
+        "src/script/{{componout-name}}.js",
+        "src/style/{{componout-name}}.css"
     ],
     "moduleType": [
         "umd"
@@ -21,8 +21,6 @@
     "dependencies": {},
     "devDependencies": {},
     "ignore": [
-        "node_modules",
-        "bower_components",
         "preview/",
         "test/",
         "componer.config.js"

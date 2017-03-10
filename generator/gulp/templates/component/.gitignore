@@ -1,4 +1,4 @@
 node_modules/
 bower_components/
 test/reporters/
-.tmp/
+.preview_tmp/
