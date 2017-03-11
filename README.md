@@ -246,7 +246,6 @@ componer clone class-base
 
 After that, a componout named `class-base` will lay in your componouts directory.
 You will find this componout to be a git registry.
-And this directory will be appended into your project .gitignore file.
 
 `-I` is to run `componer install` task after this componout cloned to install its dependencies.
 `-L` is to run `componer link` task after it cloned to link it to package directories.

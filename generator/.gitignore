@@ -1,0 +1,8 @@
+bower_components/
+node_modules/
+npm-debug.log
+.git/
+
+componouts/**/test/reporters/
+componouts/**/.preview_tmp/
+componouts/**/dist/

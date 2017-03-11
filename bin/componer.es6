@@ -297,7 +297,7 @@ commander
 						to: cwd + "/gulpfile.babel.js",
 					},
 				]
-				files.forEach(item => execute(`rm -rf ${item.to} && cp -rf ${item.from} ${item.to}`))
+				files.forEach(item => execute(`rm -rf "${item.to}" && cp -rf "${item.from}" "${item.to}"`))
 
 				// use new package dependencies
 				let pkgJson = cwd + "/package.json"
@@ -689,9 +689,12 @@ commander
 
 		execute(`cd "${cwd}" && cd componouts && git clone ${url} ${name}`, () => {
 			// append git ignore
-			let ignores = read(cwd + '/.gitignore')
-			ignores += "\r\n" + 'componouts/' + name + '/'
-			write(cwd + '/.gitignore', ignores)
+			// let ignores = read(cwd + '/.gitignore')
+			// ignores += "\r\n" + 'componouts/' + name + '/'
+			// write(cwd + '/.gitignore', ignores)
+
+			// delete .git directory
+			// execute(`cd "${cwd}" && cd componouts && cd ${name} && rm -rf .git && rm -f .gitignore`)
 
 			// install dependencies
 			if(options.install) {
