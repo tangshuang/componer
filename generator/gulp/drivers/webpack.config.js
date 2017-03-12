@@ -11,6 +11,13 @@ export default function webpack(settings) {
 			preLoaders: [],
 			loaders: [],
 		},
+		resolve: {
+			modulesDirectories: [
+				'node_modules',
+				'bower_components',
+				'componouts',
+			],
+		},
 		plugins: [],
 	}
 

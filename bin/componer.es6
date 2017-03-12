@@ -564,11 +564,11 @@ commander
 				function bowerInstall() {
 					if(exists(bowerJson)) {
 						let cmd = `cd "${cwd}" && cd componouts && cd ${name} && bower install --config.directory="${cwd}/bower_components" ${pkg}`
-						if(options.save) {
-							cmd += ' --save'
-						}
-						else if(options.savedev) {
+						if(options.savedev) {
 							cmd += ' --save-dev'
+						}
+						else {
+							cmd += ' --save'
 						}
 						execute(cmd)
 					}

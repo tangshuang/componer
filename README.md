@@ -191,7 +191,7 @@ New package will be put into node_modules directory in your project root path. H
 
 npm packages always come first. For example, when you run `componer install my-component jquery`, jquery will be installed by npm into your root node_modules directory, event though there is a bower jquery. On the other hand, if npm run fail, bower packages will be try. eg. `componer install my-component d3`, d3 has only bower package, so npm install will fail and bower install will be run after the error message.
 
-Pass `-S` to save this dependence to package.json or bower.json dependencies option, `-D` is to save to devDependencies. If you do not pass `-S` or `-D`. If you pass neither of them, .json files will not change. `-S` or `-D` is nouseful when there is no `-p`.
+Pass `-S` to save this dependence to package.json or bower.json dependencies option, `-D` is to save to devDependencies. If you do not pass `-S` or `-D`, `-S` will be as default. `-S` or `-D` is nouseful when there is no `-p`.
 
 2) install all packages for a componout
 
@@ -280,11 +280,11 @@ A componout should must contains a componer.config.js file, which provides build
 
 We have three default type of componout:
 
-1) npm: use this type to create a npm package
+1) npm: use this type to create a npm package, which is created for node runtime modules, not for browser-end.
 
-2) component: use this type to create a component
+2) component: use this type to create a component, which is created for browser-end used, not for node runtime.
 
-3) app: use this type to create a website application or a plugin
+3) app: use this type to create a website application, which is NOT used as a node runtime module or browser-end package. So in app template directory, bower.json and package.json only contains (dev)dependencies options.
 
 Normal directory structure:
 
@@ -307,9 +307,12 @@ Normal directory structure:
  `- ...
 ```
 
-You can use componer to create packages, components and applications. The difference amoung this types is componer.config.js, packages of npm always run in node environment, so the test options in componer.config.js is different, and there is no preview options. Applications will contains all dependencies, so there is not externals options in componer.config.js.
+You can use componer to create node runtime packages, browser-end components and applications. The difference amoung this types is componer.config.js, packages of npm always run in node environment, so the test options in componer.config.js is different, and there is no preview options. Applications will contains all dependencies, so there is not externals options in componer.config.js.
 
-In the core idea of componer "组件是素材，不是作品。", I suggest developers to hold up component ideas. You build components, and provide to others to use. A component should follow the idea of **independence**.
+In the core idea of componer "组件是素材，不是作品。", I suggest developers to hold up component ideas.
+You build components, and provide to others to use directly, but in fact, you do NOT need to build, because others developers who use your component will use your components source code to build all by themselves. So you can see in default component template, main option in bower.json and package.json are point to src files, not built files.
+*Keep in mind that components are used as resources of other productions, not as productions.*
+A component should follow the idea of **independence**.
 
 When run build task, components' or packages' dependencies will not be packed by webpack. However, "bower_components" is automaticly considered as modules which can be require in source code, so just use bower component name to import the component.
 
@@ -318,6 +321,12 @@ However, bower components provide style files, such as bootstrap providing sourc
 `dependencies` options in bower.json or package.json will be external modules in built module componout. `devDependencies` in bower.json and package.json are no useful when building, but will be installed when you run `componer install` task.
 
 All dependencies should be install in "bower_components" and "node_modules" directories in your componer root directory, which in your componout directories will be ignore when building. So run `componer install [name]` after you change the dependencies in .json files of componout manually.
+
+**The order of packages loaded by webpack**
+
+In componer, if you use `require('some-module')` or `import 'some-module'` to include a external module, componer will use webpack to build all codes together. However, not all modules lay in node_modules directory, you can use bower_components packages and componouts as modules. The order to find module is `node_modules > bower_components > componouts`, so after you create a component in your componouts directory, you do NOT need to link it to modules dirctory.
+
+But if you want to use `@import 'some-module';` in sass, you MUST link it to modules dirctory. Style files always can be used as bower packages. Just remember this.
 
 **Share project**
 

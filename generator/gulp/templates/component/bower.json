@@ -1,10 +1,10 @@
 {
     "name": "{{componout-name}}",
-    "description": "",
     "version": "0.0.1",
+    "description": "{{componout name}}",
     "main": [
         "src/script/{{componout-name}}.js",
-        "src/style/{{componout-name}}.css"
+        "src/style/{{componout-name}}.scss"
     ],
     "moduleType": [
         "umd"
