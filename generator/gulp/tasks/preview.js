@@ -8,6 +8,7 @@ import browsersync from 'browser-sync'
 import webpack from 'webpack'
 import webpackStream from 'webpack-stream'
 import webpackConfig from '../drivers/webpack.config'
+import webpackVendor from '../drivers/webpack-vendor'
 
 import sass from 'gulp-sass'
 import sassConfig from '../drivers/sass.config'
@@ -71,28 +72,21 @@ gulp.task('preview', () => {
 	if(Array.isArray(info.vendors)) {
 		vendors = vendors.concat(info.vendors)
 	}
-
+	let vendorConfig = {
+		path: tmpdir + `/${name}.vendor.js.json`,
+		name: camelName(name, true) + 'Vendor',
+		context: tmpdir,
+	}
 	if(scriptfile && exists(scriptfile)) {
 		// create vendor bundle
-		if(vendors.length > 0) webpack(webpackConfig({
-			entry: {
-				vendor: vendors,
+		if(vendors.length > 0) webpackVendor({
+			from: vendors,
+			to: path.join(tmpdir, name + '.vendor.js'),
+			settings: vendorConfig,
+			options: {
+				sourcemap: true,
 			},
-			output: {
-				path: tmpdir,
-				filename: name + '.vendor.js',
-				library: camelName(name, true) + 'Vendor',
-				sourceMapFilename: name + '.vendor.js.map',
-			},
-			devtool: 'source-map',
-			plugins: [
-				new webpack.DllPlugin({
-					path: tmpdir + `/${name}.vendor.js.json`,
-					name: camelName(name, true) + 'Vendor',
-					context: tmpdir,
-				}),
-			],
-		})).run((error, handle) => {})
+		})
 	}
 
 
@@ -172,8 +166,8 @@ gulp.task('preview', () => {
 						devtool: 'source-map',
 						plugins: [
 							vendors.length > 0 ? new webpack.DllReferencePlugin({
-								context: tmpdir,
-								manifest: load(tmpdir + `/${name}.vendor.js.json`),
+								context: vendorConfig.context,
+								manifest: load(vendorConfig.path),
 							}) : undefined,
 						],
 					})))

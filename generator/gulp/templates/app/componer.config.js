@@ -1,6 +1,7 @@
 import webpack from 'webpack'
 import fs from 'fs'
 import path from 'path'
+import webpackVendor from '../../gulp/drivers/webpack-vendor' //[ truthy componout relative path ]//
 import webpackConfig from '../../gulp/drivers/webpack.config' //[ truthy componout relative path ]//
 
 module.exports = {
@@ -28,29 +29,17 @@ module.exports = {
 
 					if(vendors.length === 0) return
 					// if there are some vendors, use DllPlugin to created vendors scripts file
-					webpack(webpackConfig({
-						entry: {
-							vendor: vendors,
+					let vendorSettings = webpackVendor({
+						from: vendors,
+						to: path.join(dist, '{{componout-name}}.vendor.js'),
+						options: {
+							sourcemap: true,
 						},
-						output: {
-							path: dist,
-							filename: '{{componout-name}}.vendor.js',
-							library: '{{ComponoutName}}Vendor',
-							sourceMapFilename: '{{componout-name}}.vendor.js.map',
-						},
-						devtool: 'source-map',
-						plugins: [
-							new webpack.DllPlugin({
-								name: '{{ComponoutName}}Vendor',
-								path: dist + '/{{componout-name}}.vendor.js.json',
-								context: dist,
-							}),
-						],
-					})).run((error, handle) => {})
+					})
 					settings.plugins.push(
 						new webpack.DllReferencePlugin({
-							context: dist,
-							manifest: require(dist + '/{{componout-name}}.vendor.js.json'),
+							context: vendorSettings.context,
+							manifest: require(vendorSettings.path),
 						})
 					)
 				},

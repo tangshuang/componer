@@ -6,8 +6,8 @@
  * if sep and capital not passed, camelName will be returned
  */
 export function convertName(name, sep = '', capital = false) {
-	let reg = new RegExp('([ |　|\\s|\\-|\\/|;|\\||_|!|?|~])+', 'g')
-	let tmpSep = '<==>'
+	let reg = new RegExp('([ |　|\\s|\\-|\\/|;|\\||_|!|?|~|\.])+', 'g')
+	let tmpSep = '<@@>'
 
 	// separate sign
 	name = name.replace(reg, tmpSep)

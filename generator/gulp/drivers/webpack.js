@@ -9,10 +9,10 @@ import config from './webpack.config'
 import {camelName} from '../utils/convert-name'
 
 /**
+@param from: entry file absolute path,
+@param to: output file absolute path,
 @param settings: pass to webpack
 @param options: {
-    from: entry file absolute path,
-    to: output file absolute path,
     boolean sourcemap: whether to create a sourcemap file,
     boolean minify: whether to create a minified file,
 }

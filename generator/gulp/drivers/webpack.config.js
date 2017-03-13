@@ -13,8 +13,8 @@ export default function webpack(settings) {
 		},
 		resolve: {
 			modulesDirectories: [
-				'node_modules',
 				'bower_components',
+				'node_modules',
 				'componouts',
 			],
 		},

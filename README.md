@@ -324,7 +324,7 @@ All dependencies should be install in "bower_components" and "node_modules" dire
 
 **The order of packages loaded by webpack**
 
-In componer, if you use `require('some-module')` or `import 'some-module'` to include a external module, componer will use webpack to build all codes together. However, not all modules lay in node_modules directory, you can use bower_components packages and componouts as modules. The order to find module is `node_modules > bower_components > componouts`, so after you create a component in your componouts directory, you do NOT need to link it to modules dirctory.
+In componer, if you use `require('some-module')` or `import 'some-module'` to include a external module, componer will use webpack to build all codes together. However, not all modules lay in node_modules directory, you can use bower_components packages and componouts as modules. The order to find module is `bower_components > node_modules > componouts`, so after you create a component in your componouts directory, you do NOT need to link it to modules dirctory. But if there are three same package in bower_components, node_modules and componouts, which in bower_components will be used as default. However, you can use `componer link` to link a componout to bower_components to improve its priority. (We use a plugin which makes bower components higher then node modules.)
 
 But if you want to use `@import 'some-module';` in sass, you MUST link it to modules dirctory. Style files always can be used as bower packages. Just remember this.
 
