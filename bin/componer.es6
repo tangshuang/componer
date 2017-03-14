@@ -563,6 +563,7 @@ commander
 			else {
 				function bowerInstall() {
 					if(exists(bowerJson)) {
+						pkg = pkg.replace('@', '#')
 						let cmd = `cd "${cwd}" && cd componouts && cd ${name} && bower install --config.directory="${cwd}/bower_components" ${pkg}`
 						if(options.savedev) {
 							cmd += ' --save-dev'
