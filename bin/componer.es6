@@ -209,21 +209,21 @@ commander
 	.action(options => {
 		let update = (info) => {
 			// update .componerrc
-			var componerInfo = readJSON(cwd + "/.componerrc")
+			let componerInfo = readJSON(cwd + "/.componerrc")
 			componerInfo.defaults.registries = info.registries
 			componerInfo.defaults.author = info.author
 			writeJSON(cwd + "/.componerrc", componerInfo)
 			// update package.json
-			var pkgInfo = readJSON(cwd + "/package.json")
+			let pkgInfo = readJSON(cwd + "/package.json")
 			pkgInfo.author = info.author
 			pkgInfo.name = info.project
 			writeJSON(cwd + "/package.json", pkgInfo)
 		}
 
 		let modify = (isEmpty) => {
-			var info = {}
-			var dirname = path.basename(cwd)
-			var gitbase = "http://github.com/componer"
+			let info = {}
+			let dirname = path.basename(cwd)
+			let gitbase = "http://github.com/componer"
 
 			prompt("What is your current project name? (default: " + dirname + ") ", project => {
 				project = !project || project === "" ? dirname : project
@@ -443,48 +443,49 @@ commander
 	.option("-p, --package [package]", "package name to install")
 	.option("-S, --save", "save to .json dependencies (default)")
 	.option("-D, --savedev", "save to .json devDependencies")
+	.option('-F, --force', 'force to install packages if exists in local')
 	.action((name, options) => {
 
-		// check whether the package exists
-		let existsPackage = (pkg, type) => {
-			let pkgName = pkg
-			let pkgVer = null
-			if(pkg.indexOf('@') > -1) {
-				[pkgName, pkgVer] = pkg.split('@')
-			}
-			if(pkg.indexOf('#') > -1) {
-				[pkgName, pkgVer] = pkg.split('#')
-			}
-
-			let npmJson = path.join(cwd, 'node_modules', pkgName, 'package.json')
-			let bowerJson = path.join(cwd, 'bower_components', pkgName, 'bower.json')
-			let jsonFile = null
-
-			switch(type) {
-				case 'npm':
-					jsonFile = exists(npmJson) ? npmJson : null
-					break
-				case 'bower':
-					jsonFile = exists(bowerJson) ? bowerJson : null
-					break
-				default:
-					jsonFile = exists(npmJson) ? npmJson : exists(bowerJson) ? bowerJson : null
-			}
-
-			let isExists = false
-			if(jsonFile && exists(jsonFile)) {
-				isExists = true
-
-				if(pkgVer && readJSON(jsonFile).version !== pkgVer) {
-					isExists = false
+		// get all of local packages
+		let getLocalPackages = () => {
+			let packages = {}
+			fs.readdirSync(cwd + '/node_modules').forEach(item => {
+				let info = readJSON(cwd + '/node_modules/package.json')
+				packages[info.name] = {
+					name: info.name,
+					version: info.version,
+					type: 'npm',
 				}
-			}
+			})
+			fs.readdirSync(cwd + '/bower_components').forEach(item => {
+				let info = readJSON(cwd + '/bower_components/bower.json')
+				packages[info.name] = {
+					name: info.name,
+					version: info.version,
+					type: 'bower',
+				}
+			})
+			return packages
+		}
 
-			return isExists
+		// check whether the package exists, pkg is like `jquery@2.0.1`
+		let existsPackage = pkg => {
+			let [pkgName, pkgVer] = pkg.split(/[#@]/)
+			let allPkgs = getLocalPackages()
+			if(!allPkgs[pkgName]) return false
+			if(allPkgs[pkgName].version !== pkgVer) return false
+			return true
+		}
+
+		// get version from version string such as `~1.3.0`, `^2.0.1`, >=6.2.1
+		let getVersion = ver => {
+			let i = ver.search(/\d/)
+			if(i === -1) return ver // for '*' and 'latest'
+			return ver.substr(i)
 		}
 
 		/**
-		 * comoner install
+		 * `comoner install`
 		 * install all dependencies of all componouts
 		 */
 		if(name === undefined) {
@@ -493,24 +494,28 @@ commander
 			let componoutsPath = path.join(cwd, "componouts")
 			let bowerComponents = {}
 			let npmPackages = {}
-			let conflictPackages = {}
+			let finalPackages = {}
 
-			let setDeps = (to, deps, conflicts) => {
-				let names = Object.keys(deps)
+			// find out which are the final packages being installed
+			let setDeps = (to, from, final) => {
+				let names = Object.keys(from)
 				names.forEach(name => {
-					// if conflict
-					if(to[name]) {
-						if(deps[name] > to[name]) {
-							to[name] = deps[name]
+					from[name] = getVersion(from[name])
+					to[name] = getVersion(to[name])
+
+					if(to[name]) { // if exists in different componouts
+						if(from[name] > to[name]) {
+							to[name] = from[name]
 						}
-						conflicts[name] = to[name]
+						final[name] = to[name]
 					}
 					else {
-						to[name] = deps[name]
+						to[name] = from[name]
 					}
 				})
 			}
 
+			// find out packages from json files
 			fs.readdirSync(componoutsPath).forEach(item => {
 				let componoutPath = path.join(componoutsPath, item)
 				let bowerJson = path.join(componoutPath, "bower.json")
@@ -521,8 +526,8 @@ commander
 					let deps = info.dependencies
 					let devdeps = info.devDependencies
 
-					setDeps(npmPackages, deps, conflictPackages)
-					setDeps(npmPackages, devdeps, conflictPackages)
+					setDeps(npmPackages, deps, finalPackages)
+					setDeps(npmPackages, devdeps, finalPackages)
 				}
 
 				if(exists(bowerJson)) {
@@ -530,37 +535,48 @@ commander
 					let deps = info.dependencies
 					let devdeps = info.devDependencies
 
-					setDeps(bowerComponents, deps, conflictPackages)
-					setDeps(bowerComponents, devdeps, conflictPackages)
+					setDeps(bowerComponents, deps, finalPackages)
+					setDeps(bowerComponents, devdeps, finalPackages)
 				}
 			})
 
+			// install npm packages
 			let npmPackageNames = Object.keys(npmPackages)
 			if(npmPackageNames.length > 0) {
-				let packages = npmPackageNames.filter(name => !existsPackage(name, 'npm')).map(name => name + '@' + npmPackages[name])
+				let packages = npmPackageNames.map(name => name + '@' + npmPackages[name])
+				if(!options.force) {
+					packages = packages.filter(pkg => !existsPackage(pkg))
+				}
 				execute(`cd "${cwd}" && npm install ` + packages.join(" "))
 			}
 
+			// install bower packages
 			let bowerComponentNames = Object.keys(bowerComponents)
 			if(bowerComponentNames.length > 0) {
-				let bowers = bowerComponentNames.filter(name => existsPackage(name, 'bower')).map(name => name + '@' + bowerComponents[name])
-				execute(`cd "${cwd}" && bower install ` + bowers.join(" "))
+				let packages = bowerComponentNames.map(name => name + '#' + bowerComponents[name])
+				if(!options.force) {
+					packages = packages.filter(pkg => !existsPackage(pkg))
+				}
+				execute(`cd "${cwd}" && bower install ` + packages.join(" "))
 			}
 
-			let conflictPackageNames = Object.keys(conflictPackages)
-			if(conflictPackageNames.length > 0) {
-				let conflicts = conflictPackageNames.map(name => name + '@' + conflictPackages[name])
-				log('Conflicts appear. You should check your componouts, and fix them by manual. Componer finally use:')
+			// console show which packages have been installed
+			let finalPackageNames = Object.keys(finalPackages)
+			if(finalPackageNames.length > 0) {
+				let conflicts = finalPackageNames.map(name => name + '@' + conflictPackages[name])
+				log('Dependencies version conflicts appear. You should check your componouts, and fix their dependencies version by manual. Componer finally use:', 'warn')
 				log(conflicts.join(' '))
 			}
 
 			return
 		}
 
+
 		/**
-		 * componer install {{name}}
-		 * install all packages of a componout, or install only one package by using -p option
+		 * install all packages of a componout
+		 * or install only one package for one componout by using -p option
 		 */
+
 		name = dashline(name)
 		name = fixname(name)
 		check(name)
@@ -570,20 +586,21 @@ commander
 		let bowerJson = `${cwd}/componouts/${name}/bower.json`
 
 		/**
-		 * if install all packages of a componout
+		 * `componer install {{name}}`
+		 * install all packages of a componout
 		 */
 		if(!pkg) {
 			let getDeps = (pkgfile, sep) => {
-				var info = readJSON(pkgfile)
-				var deps = info.dependencies
-				var devdeps = info.devDependencies
-				var names = Object.keys(deps).concat(Object.keys(devdeps))
+				let info = readJSON(pkgfile)
+				let deps = info.dependencies
+				let devdeps = info.devDependencies
+				let names = Object.keys(deps).concat(Object.keys(devdeps))
 				names = names.filter((value, index, self) => self.indexOf(value) === index)
 				names = names.map(name => {
 					if(deps[name]) {
-						return name + sep + deps[name]
+						return name + sep + getVersion(deps[name])
 					}
-					return name + sep + devdeps[name]
+					return name + sep + getVersion(devdeps[name])
 				})
 				return names
 			}
@@ -591,14 +608,18 @@ commander
 			if(exists(npmJson)) {
 				let npmDeps = getDeps(npmJson, '@')
 				if(npmDeps.length > 0) {
-					npmDeps = npmDeps.filter(name => !existsPackage(name, 'npm'))
+					if(!options.force) {
+						npmDeps = npmDeps.filter(pkg => !existsPackage(pkg, 'npm'))
+					}
 					execute(`cd "${cwd}" && npm install ` + npmDeps.join(" "))
 				}
 			}
 			if(exists(bowerJson)) {
 				let bowerDeps = getDeps(bowerJson, '#')
 				if(bowerDeps.length > 0) {
-					bowerDeps = bowerDeps.filter(name => !existsPackage(name, 'bower'))
+					if(!options.force) {
+						bowerDeps = bowerDeps.filter(pkg => !existsPackage(pkg, 'bower'))
+					}
 					execute(`cd "${cwd}" && bower install ` + bowerDeps.join(" "))
 				}
 			}
@@ -607,14 +628,15 @@ commander
 		}
 
 		/**
-		 * if install only one package by using -p option
+		 * `componer install {{name}} -p {{package}}`
+		 * install only one package for one componout by using -p option
 		 */
 		let bowerInstall = () => {
  			if(exists(bowerJson)) {
  				pkg = pkg.replace('@', '#')
 
 				// if package exists, just update bower.json
-				if(existsPackage(pkg, 'bower')) {
+				if(!options.force && existsPackage(pkg, 'bower')) {
 					let bowerInfo = readJSON(bowerJson)
 					let [pkgName, pkgVer] = pkg.split('#')
 					if(!pkgVer) {
@@ -622,10 +644,10 @@ commander
 					}
 
 					if(options.savedev) {
-						bowerInfo.devDependencies[pkgName] = pkgVer
+						bowerInfo.devDependencies[pkgName] = getVersion(pkgVer)
 					}
 					else {
-						bowerInfo.dependencies[pkgName] = pkgVer
+						bowerInfo.dependencies[pkgName] = getVersion(pkgVer)
 					}
 
 					writeJSON(bowerJson, bowerInfo)
@@ -633,7 +655,7 @@ commander
 					return
 				}
 
- 				let cmd = `cd "${cwd}" && cd componouts && cd ${name} && bower install --config.directory="${cwd}/bower_components" ${pkg}`
+ 				let cmd = `cd "${cwd}" && cd componouts && cd ${name} && bower install ${pkg} --config.directory="${cwd}/bower_components"`
  				if(options.savedev) {
  					cmd += ' --save-dev'
  				}
@@ -645,6 +667,8 @@ commander
  		}
 
  		if(exists(npmJson)) {
+			pkg = pkg.replace('#', '@')
+
 			let updateVersion = () => {
  				// add dependencies into package.json of componout
 				let npmPkgInfo = readJSON(npmJson)
@@ -654,21 +678,25 @@ commander
 				}
 
 				if(options.savedev) {
- 					npmPkgInfo.devDependencies[pkgName] = pkgVer
+ 					npmPkgInfo.devDependencies[pkgName] = getVersion(pkgVer)
  				}
 				else {
-					npmPkgInfo.dependencies[pkgName] = pkgVer
+					npmPkgInfo.dependencies[pkgName] = getVersion(pkgVer)
 				}
 
 				writeJSON(npmJson, npmPkgInfo)
  			}
-			if(existsPackage(pkg, 'npm')) {
+
+			if(!options.force && existsPackage(pkg, 'npm')) {
 				updateVersion()
 				return
 			}
- 			execute(`cd "${cwd}" && npm install ${pkg}`, updateVersion, bowerInstall)
+
+			execute(`cd "${cwd}" && npm install ${pkg}`, updateVersion, bowerInstall)
  		}
- 		else bowerInstall()
+ 		else {
+			bowerInstall()
+		}
 	})
 
 commander
