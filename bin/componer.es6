@@ -450,15 +450,17 @@ commander
 		let getLocalPackages = () => {
 			let packages = {}
 			fs.readdirSync(cwd + '/node_modules').forEach(item => {
-				let info = readJSON(cwd + '/node_modules/package.json')
+				if(item.substr(0, 1) === '.') return
+				let info = readJSON(cwd + '/node_modules/' + item + '/package.json')
 				packages[info.name] = {
 					name: info.name,
 					version: info.version,
 					type: 'npm',
 				}
 			})
-			fs.readdirSync(cwd + '/bower_components').forEach(item => {
-				let info = readJSON(cwd + '/bower_components/bower.json')
+			if(exists(cwd + '/bower_components')) fs.readdirSync(cwd + '/bower_components').forEach(item => {
+				if(item.substr(0, 1) === '.') return
+				let info = readJSON(cwd + '/bower_components/' + item + '/bower.json')
 				packages[info.name] = {
 					name: info.name,
 					version: info.version,
@@ -473,7 +475,7 @@ commander
 			let [pkgName, pkgVer] = pkg.split(/[#@]/)
 			let allPkgs = getLocalPackages()
 			if(!allPkgs[pkgName]) return false
-			if(allPkgs[pkgName].version !== pkgVer) return false
+			if(pkgVer && allPkgs[pkgName].version !== pkgVer) return false
 			return true
 		}
 
@@ -501,7 +503,7 @@ commander
 				let names = Object.keys(from)
 				names.forEach(name => {
 					from[name] = getVersion(from[name])
-					to[name] = getVersion(to[name])
+					to[name] = to[name] ? getVersion(to[name]) : '0.0.0'
 
 					if(to[name]) { // if exists in different componouts
 						if(from[name] > to[name]) {
@@ -547,7 +549,9 @@ commander
 				if(!options.force) {
 					packages = packages.filter(pkg => !existsPackage(pkg))
 				}
-				execute(`cd "${cwd}" && npm install ` + packages.join(" "))
+				if(packages.length > 0) {
+					execute(`cd "${cwd}" && npm install ` + packages.join(" "))
+				}
 			}
 
 			// install bower packages
@@ -557,14 +561,16 @@ commander
 				if(!options.force) {
 					packages = packages.filter(pkg => !existsPackage(pkg))
 				}
-				execute(`cd "${cwd}" && bower install ` + packages.join(" "))
+				if(packages.length > 0) {
+					execute(`cd "${cwd}" && bower install ` + packages.join(" "))
+				}
 			}
 
 			// console show which packages have been installed
 			let finalPackageNames = Object.keys(finalPackages)
 			if(finalPackageNames.length > 0) {
-				let conflicts = finalPackageNames.map(name => name + '@' + conflictPackages[name])
-				log('Dependencies version conflicts appear. You should check your componouts, and fix their dependencies version by manual. Componer finally use:', 'warn')
+				let conflicts = finalPackageNames.map(name => name + '@' + finalPackages[name])
+				log('Componer does not install repetitive dependencies, use `-f` or `--force`. installed version:', 'warn')
 				log(conflicts.join(' '))
 			}
 
@@ -607,19 +613,20 @@ commander
 
 			if(exists(npmJson)) {
 				let npmDeps = getDeps(npmJson, '@')
+				if(!options.force) {
+					npmDeps = npmDeps.filter(pkg => !existsPackage(pkg, 'npm'))
+				}
 				if(npmDeps.length > 0) {
-					if(!options.force) {
-						npmDeps = npmDeps.filter(pkg => !existsPackage(pkg, 'npm'))
-					}
+					console.log(npmDeps)
 					execute(`cd "${cwd}" && npm install ` + npmDeps.join(" "))
 				}
 			}
 			if(exists(bowerJson)) {
 				let bowerDeps = getDeps(bowerJson, '#')
+				if(!options.force) {
+					bowerDeps = bowerDeps.filter(pkg => !existsPackage(pkg, 'bower'))
+				}
 				if(bowerDeps.length > 0) {
-					if(!options.force) {
-						bowerDeps = bowerDeps.filter(pkg => !existsPackage(pkg, 'bower'))
-					}
 					execute(`cd "${cwd}" && bower install ` + bowerDeps.join(" "))
 				}
 			}
