@@ -570,8 +570,8 @@ commander
 			let finalPackageNames = Object.keys(finalPackages)
 			if(finalPackageNames.length > 0) {
 				let conflicts = finalPackageNames.map(name => name + '@' + finalPackages[name])
-				log('Componer does not install repetitive dependencies, use `-f` or `--force`. installed version:', 'warn')
-				log(conflicts.join(' '))
+				log('Packages be installed:', 'help')
+				log(conflicts.join(' '), 'help')
 			}
 
 			return
