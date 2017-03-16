@@ -1,7 +1,9 @@
 bower_components/
 node_modules/
 npm-debug.log
+
 .git/
+.tmp/
 
 componouts/**/test/reporters/
 componouts/**/.preview_tmp/

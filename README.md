@@ -177,7 +177,7 @@ Remove the named componout, run `unlink` command if possible.
 
 List all componouts information.
 
-### install [name] [-p|--package package-name] [-S|--save|-D|--savedev]
+### install [name] [-p|--package package-name[@version]] [-S|--save|-D|--savedev] [-F|--force]
 
 Install dependencies. If you want to install a package (npm or bower package) for a componout, you can run `componer install componout-name package-name`.
 
@@ -187,9 +187,10 @@ Install dependencies. If you want to install a package (npm or bower package) fo
 componer install componout-name -p package-name
 ```
 
-New package will be put into node_modules directory in your project root path. However, a new dependence will be added into your componout `package.json` or `bower.json`.
+New package will be put into node_modules/bower_components directory in your project root path. However, a new dependence will be added into your componout `package.json` or `bower.json`.
 
-npm packages always come first. For example, when you run `componer install my-component jquery`, jquery will be installed by npm into your root node_modules directory, event though there is a bower jquery. On the other hand, if npm run fail, bower packages will be try. eg. `componer install my-component d3`, d3 has only bower package, so npm install will fail and bower install will be run after the error message.
+npm packages always come first. For example, when you run `componer install my-component jquery`, jquery will be installed by npm into your root node_modules directory, event though there is a bower jquery.
+On the other hand, if npm run fail, bower packages will be try. Just for example, `componer install my-component -p d3`, if d3 has only bower package, npm install will fail and bower install will be run after the error message.
 
 Pass `-S` to save this dependence to package.json or bower.json dependencies option, `-D` is to save to devDependencies. If you do not pass `-S` or `-D`, `-S` will be as default. `-S` or `-D` is nouseful when there is no `-p`.
 
@@ -199,7 +200,7 @@ Pass `-S` to save this dependence to package.json or bower.json dependencies opt
 componer install componout-name
 ```
 
-Without a package name following componout name, all of the componout packages based on its .json files, including npm packages and bower packages, will be installed.
+Without a package name following componout name, all of the componout packages based on its .json files, including npm packages and bower packages, will be installed. `-S|-D` are nouse in this method.
 
 3) install all packages for all componouts
 
@@ -207,11 +208,29 @@ Without a package name following componout name, all of the componout packages b
 componer install
 ```
 
-All npm packages and bower packages will be install in your project root path. `-p` and `-S` and `-D` is nouseful in this method.
+All npm packages and bower packages will be install in your project root path. `-p|-S|-D` are nouse in this method.
 
-**dependencies version**
+**virtual cache**
+
+If a package exists in local, no matter in bower_components or node_modules, it will not be installed again.
+
+If you want to force install a new version, you can pass version, like `jquery@2.1.1`. Or you can use `-F|--force` to install. These two way are all supported to install for remote.
+
+But force install may cause version conflicts. For example, one of your componouts dependents on jquery@1.12.0, but you try `jquery --force`, the latest version of jquery will be download, and old verison will be covered. So you should have to update your componout to support higher version jquery manually.
+
+**version**
 
 When you run install task, you should know that compner will not help you to resolve your dependencies version problems. Then bebind versions will cover the previous ones and conflicts will be show and the end.
+
+For example, you run `componer install` to install all dependencies of your componouts. Different dependence packages may have different versions. Only the last version componer meets will be installed.
+
+However, virtual cache works, if you install all dependencies packages, if a dependence package exists in local, it will not be installed again. Use `--force` to install all dependencies if you want to reinstall all dependencies.
+
+**download directory**
+
+Componer keep only one same name package in local, for example, jquery will only be installed in node_modules, even there is a bower.json contains jqeury dependence.
+
+Especially, if you install from a git/http url, it will be installed in bower_components. Not be worry about use with `require`, componer use bower_components first before node_modules. So if you install a package in bower_components, it will come before the same name one in node_modules.
 
 ### link <name>
 
