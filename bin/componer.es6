@@ -1,7 +1,5 @@
 #!/usr/bin/env node
 
-import 'babel-register'
-
 import fs from "fs"
 import path from "path"
 import readline from "readline"
@@ -676,11 +674,11 @@ commander
 		let Link = (name) => {
 			let npmJson = `${cwd}/componouts/${name}/package.json`
 			let bowerJson = `${cwd}/componouts/${name}/bower.json`
-			if(exists(bowerJson) && readJSON(bowerJson).name) {
+			if(exists(bowerJson) && readJSON(bowerJson).keywords.indexOf('componer')) {
 				execute(`cd "${cwd}" && cd componouts && cd ${name} && bower link`)
 				execute(`cd "${cwd}" && bower link ${name}`)
 			}
-			else if(exists(npmJson) && readJSON(npmJson).name) {
+			else if(exists(npmJson) && readJSON(npmJson).keywords.indexOf('componer')) {
 				execute(`cd "${cwd}" && cd componouts && cd ${name} && npm link`)
 				execute(`cd "${cwd}" && npm link ${name}`)
 			}

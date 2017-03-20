@@ -17,7 +17,9 @@
         "type": "git",
         "url": "git://github.com/{{author-name}}/{{componout-name}}.git"
     },
-    "keywords": [],
+    "keywords": [
+        "componer"
+    ],
     "dependencies": {},
     "devDependencies": {},
     "ignore": [

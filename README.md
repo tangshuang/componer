@@ -236,20 +236,29 @@ Especially, if you install from a git/http url, it will be installed in bower_co
 
 Link componout as package/component into node_modules/bower_components. Now only npm and bower supported.
 
-In componer, components follow rules with bower components. So if you want to link your component as a bower component, you should pass `bower` to type option in componer.config.js:
+In componer, components follow rules with bower components. So if you want to link your component as a bower component, you should create your componout as a bower component with bower.json.
+
+If there is a bower.json in your componout, it will be linked as a bower component. Or, with a package.json, it will be linked as a node module.
+However, .json files must have keywords option which has a keyword `componer`. e.g.
 
 ```
-module.exports = {
-	name: 'componout-name',
-	type: 'bower', // only npm and bower supported link task, other types will be ignored.
-	build: [
-		{
-...
+{
+	"name": "your-package",
+	...
+	"keywords": ["componer"],
+	"dependencies": {},
+	...
+}
 ```
+
+`bower.json` with keyword `componer` will be linked as bower component, `package.json` with keyword `componer` will be linked as node module, and bower comes first if both found.
+Without a `componer` keyword, it will be ignored when running link task.
 
 `bower` and `npm` are supported, other types will be ignore.
 
 When you run `componer link a-name`, componer will run `npm/bower link` to link your componout. After you run `componer link a-name`, you can use `require('a-name')` in other componouts to use this componout.
+
+There is not a `unlink` task. It means you should have to unlink your packages by manual. However, when you remove componouts, unlink will be automaticly run by componer.
 
 ### clone <name> [-u|--url your-git-registry-address] [-I|--install] [-L|--link]
 

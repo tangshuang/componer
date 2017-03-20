@@ -1,6 +1,6 @@
 {
   "name": "componer",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "A components builder tool",
   "main": "index.js",
   "bin": {
@@ -26,14 +26,14 @@
   },
   "homepage": "https://github.com/tangshuang/componer#readme",
   "dependencies": {
-    "babel-core": "^6.21.0",
-    "babel-preset-env": "^1.2.1",
-    "babel-register": "^6.23.0",
     "commander": "^2.9.0",
     "process.logger": "^1.1.2",
     "shelljs": "^0.7.5"
   },
   "devDependencies": {
-      "babel-cli": "^6.18.0"
+      "babel-cli": "^6.18.0",
+      "babel-core": "^6.21.0",
+      "babel-preset-env": "^1.2.1",
+      "babel-register": "^6.23.0"
   }
 }
