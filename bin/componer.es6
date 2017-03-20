@@ -46,12 +46,12 @@ function readJSON(file) {
 	return JSON.parse(read(file))
 }
 
-function write(file, content, charset = "utf8") {
-	return fs.writeFile(file, content, charset)
+function write(file, content) {
+	fs.writeFileSync(file, content)
 }
 
-function writeJSON(file, json, charset = "utf8") {
-	return write(file, JSON.stringify(json, null, 4), charset)
+function writeJSON(file, json) {
+	write(file, JSON.stringify(json, null, 4))
 }
 
 function dashline(name) {

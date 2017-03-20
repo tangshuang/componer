@@ -91,12 +91,12 @@ function readJSON(file, charset = 'utf8') {
 	return JSON.parse(read(file, charset))
 }
 
-function write(file, content, charset = 'utf8') {
-	fs.writeFile(file, content, charset)
+function write(file, content) {
+	fs.writeFileSync(file, content)
 }
 
-function writeJSON(file, json, charset = 'utf8') {
-	write(file, JSON.stringify(json, null, 4), charset)
+function writeJSON(file, json) {
+	write(file, JSON.stringify(json, null, 4))
 }
 
 function scandir(dir) {
@@ -116,7 +116,7 @@ function mkdir(dir) {
 
 function rename(file, newfile) {
 	if(!exists(file)) return
-	fs.rename(file, newfile)
+	fs.renameSync(file, newfile)
 }
 
 function load(file, useDefault = true) {

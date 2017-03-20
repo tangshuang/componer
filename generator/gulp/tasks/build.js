@@ -1,4 +1,4 @@
-import {gulp, fs, path, args, log, config, exit, exists, scandir, load, readJSON, writeJSON} from '../loader'
+import {gulp, fs, path, args, log, config, exit, exists, scandir, load, readJSON} from '../loader'
 import {hasComponout, dashName, run} from '../utils'
 
 import concat from 'pipe-concat'
