@@ -1,6 +1,5 @@
 module.exports = {
 	name: '{{componout-name}}',
-	type: 'bower',
 	build: [
 		{
 			from: 'src/script/{{componout-name}}.js',

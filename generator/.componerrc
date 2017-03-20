@@ -4,6 +4,7 @@
 	"prefix": "",
 	"defaults": {
 		"template": "component",
-		"registries": "http://github.com/componer"
-	}
+		"registries": "https://github.com/componer"
+	},
+	"dependencies": {}
 }

@@ -6,7 +6,6 @@ import webpackConfig from '../../gulp/drivers/webpack.config' //[ truthy compono
 
 module.exports = {
 	name: '{{componout-name}}',
-	type: 'app',
 	build: [
 		{
 			from: 'src/script/{{componout-name}}.js',

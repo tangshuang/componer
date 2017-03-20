@@ -1,4 +1,28 @@
 {
+    "name": "{{componout-name}}",
+    "version": "0.0.1",
+    "description": "{{componout name}}",
+    "main": [
+        "src/script/{{componout-name}}.js",
+        "src/style/{{componout-name}}.scss"
+    ],
+    "moduleType": [
+        "umd"
+    ],
+    "authors": [
+        "{{author name}}"
+    ],
+    "homepage": "https://github.com/{{author-name}}/{{componout-name}}",
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/{{author-name}}/{{componout-name}}.git"
+    },
+    "keywords": [],
     "dependencies": {},
-    "devDependencies": {}
+    "devDependencies": {},
+    "ignore": [
+        "preview/",
+        "test/",
+        "componer.config.js"
+    ]
 }

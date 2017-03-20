@@ -30,8 +30,8 @@ var info = readJSON(__dirname + "/../package.json")
 //         basic functions
 // ----------------------------------
 
-function exit() {
-	process.exit(0)
+function exit(code = 1) {
+	process.exit(code)
 }
 
 function exists(file) {
@@ -162,7 +162,6 @@ function execute(cmd, done, fail) {
 	}
 	else {
 		typeof fail === "function" && fail(result.stderr)
-		exit()
 	}
 }
 
@@ -261,7 +260,7 @@ commander
 		// or do init task
 		if(fs.readdirSync(cwd).length > 0) {
 			log("Current directory is not empty, you should begin in a new directory.", "error")
-			exit()
+			return
 		}
 
 		log("copying files...")
@@ -333,16 +332,16 @@ commander
 
 		if(!template || template === "") {
 			log("You must input a template name, use `-h` to read more.", "error")
-			exit()
+			return
 		}
 		if(!author) {
 			log("Componout author needed, use `-h` to read more.", "error")
-			exit()
+			return
 		}
 
 		if(!exists(`${cwd}/gulp/templates/${template}`)) {
 			log("This type of componout is not available.", "warn")
-			exit()
+			return
 		}
 
 		execute(`cd "${cwd}" && gulp add --name=${name} --template=${template} --author=${author}`)
@@ -463,51 +462,71 @@ commander
 		// get version from version string such as `~1.3.0`, `^2.0.1`, >=6.2.1
 		let getVersion = ver => {
 			let i = ver.search(/\d/)
-			if(i < 3) return ver.substr(i)
+			if(i > -1 && i < 3) return ver.substr(i)
 			return ver
 		}
 
+		// get suitable item from a list
+		let getSuitable = list => {
+			return list[0]
+		}
+
 		// get packages not repetitive/unique
-		let getPackages = (objects) => {
+		let getPackages = objs => {
+			let _ = {}
 			let packages = {}
-			let add = (object) => {
-				let names = Object.keys(object)
+
+			_.add = (obj, info = null) => {
+				let names = Object.keys(obj)
 				names.forEach(name => {
 					if(!packages[name]) {
 						packages[name] = []
 					}
-					packages[name].push(object[name])
+					let item = obj[name]
+					packages[name].push({
+						name: name,
+						version: obj[name],
+						info,
+					})
 				})
-				return getPackages
+				return _
 			}
-			objects.forEach(set)
-			let get = (name) => {
+			_.get = (name) => {
 				if(name === undefined) {
 					return packages
 				}
 				return packages[name]
 			}
-			let use = () => {
+			_.use = () => {
 				let names = Object.keys(packages)
+				let results = {}
 				names.forEach(name => {
-					packages[name] = packages[name][0] // TODO: find out the most suitable version
+					let items = _.get(name)
+					let item = getSuitable(items) // TODO: find out the most suitable version
+					results[name] = item.version
 				})
-				return packages
+				return results
 			}
-			return {
-				get,
-				add,
-				use,
+
+			if(Array.isArray(objs)) {
+				objs.forEach(_.add)
 			}
+
+			return _
 		}
 
-		let installPackages = (pkgs) => {
+		let installPackages = (Packages) => {
+			let pkgs = Packages.use()
 			let names = Object.keys(pkgs)
 			let localPkgs = getLocalPackages()
 			let install = (name, version) => {
 				// version is a url or path
 				if(version.indexOf('/') > -1) {
-					execute(`cd "${cwd}" && bower install ${version}`)
+					let items = Packages.get(name)
+					let item = getSuitable(items)
+					let type = item.info
+					if(!type) return
+					execute(`cd "${cwd}" && ${type} install ${version}`)
 					return
 				}
 				// install by npm and bower when fail
@@ -518,11 +537,14 @@ commander
 
 			names.forEach(name => {
 				let version = getVersion(pkgs[name])
+				let localPkgVer = localPkgs[name]
 
 				// if exists this package in local, do not install it
-				let localPkgVer = localPkgs[name]
 				if(localPkgVer) {
-					if(localPkgVer > version) return
+					// if get it by git or path
+					if(version.indexOf('/') > -1) return
+					// if local version is bigger then wanted
+					if(localPkgVer >= version) return
 				}
 
 				install(name, version)
@@ -545,20 +567,20 @@ commander
 					let info = readJSON(bowerJson)
 					let deps = info.dependencies
 					let devdeps = info.devDependencies
-					Packages.add(deps).add(devdeps)
+					Packages.add(deps, 'bower').add(devdeps, 'bower')
 				}
 				if(exists(npmJson)) {
 					let info = readJSON(npmJson)
 					let deps = info.dependencies
 					let devdeps = info.devDependencies
-					Packages.add(deps).add(devdeps)
+					Packages.add(deps, 'npm').add(devdeps, 'npm')
 				}
 			})
 
 			// install npm packages
-			let pkgs = Packages.use()
-			installPackages(pkgs)
+			installPackages(Packages)
 
+			log('All packages have been installed.', 'done')
 			return
 		}
 
@@ -586,18 +608,18 @@ commander
 				let info = readJSON(bowerJson)
 				let deps = info.dependencies
 				let devdeps = info.devDependencies
-				Packages.add(deps).add(devdeps)
+				Packages.add(deps, 'bower').add(devdeps, 'bower')
 			}
 			if(exists(npmJson)) {
 				let info = readJSON(npmJson)
 				let deps = info.dependencies
 				let devdeps = info.devDependencies
-				Packages.add(deps).add(devdeps)
+				Packages.add(deps, 'npm').add(devdeps, 'npm')
 			}
 			// install npm packages
-			let pkgs = Packages.use()
-			installPackages(pkgs)
+			installPackages(Packages)
 
+			log('All packages have been installed.', 'done')
 			return
 		}
 
@@ -608,7 +630,7 @@ commander
 		let [pkgName, pkgVer] = pkg.split(/[#@]/)
 		let existsPackage = name => {
 			let localPkgs = getLocalPackages()
-			return localPkgs[name]
+			return !!localPkgs[name]
 		}
 		let updateVersion = (file, name, version = null, dev = false) => {
  			// add dependencies into package.json of componout
@@ -651,6 +673,8 @@ commander
  		if(exists(npmJson)) {
 			if(!options.force && !pkgVer && existsPackage(pkgName)) {
 				updateVersion(npmJson, pkgName, false, options.savedev)
+
+				log('Package has been installed.', 'done')
 				return
 			}
 
@@ -665,6 +689,9 @@ commander
  		else {
 			bowerInstall(pkgName, pkgVer)
 		}
+
+		log('Package has been installed.', 'done')
+		return
 	})
 
 commander
@@ -674,16 +701,13 @@ commander
 		let Link = (name) => {
 			let npmJson = `${cwd}/componouts/${name}/package.json`
 			let bowerJson = `${cwd}/componouts/${name}/bower.json`
-			if(exists(bowerJson) && readJSON(bowerJson).keywords.indexOf('componer')) {
+			if(exists(bowerJson) && readJSON(bowerJson).keywords.indexOf('componer') > -1) {
 				execute(`cd "${cwd}" && cd componouts && cd ${name} && bower link`)
 				execute(`cd "${cwd}" && bower link ${name}`)
 			}
-			else if(exists(npmJson) && readJSON(npmJson).keywords.indexOf('componer')) {
+			else if(exists(npmJson) && readJSON(npmJson).keywords.indexOf('componer') > -1) {
 				execute(`cd "${cwd}" && cd componouts && cd ${name} && npm link`)
 				execute(`cd "${cwd}" && npm link ${name}`)
-			}
-			else {
-				log(name + ' does not support link.', 'warn')
 			}
 		}
 
@@ -727,20 +751,30 @@ commander
 // ----------------------------------------------------
 
 commander
-	.command("clone <name>")
+	.command("clone [name]")
 	.description("clone a componout from github.com/componer")
 	.option("-u, --url [url]", "use your own registry url")
 	.option('-I, --install', 'whether to run install task after cloned')
 	.option('-L, --link', 'whether to run link task after cloned')
 	.action((name, options) => {
+		check()
+
+		if(name === undefined) {
+			let deps = config('dependencies')
+			let items = Object.keys(deps)
+			if(items.length > 0) {
+				items.forEach(item => execute(`componer clone ${item} -u ${deps[item]}`))
+			}
+			return
+		}
+
 		name = dashline(name)
 		name = fixname(name)
-		check()
 		options = merge(options)
 
 		if(has(name)) {
 			log(`${name} has been in your componouts`)
-			exit()
+			return
 		}
 
 		let url = options.url

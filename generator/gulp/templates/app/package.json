@@ -1,4 +1,20 @@
 {
-    "dependencies": {},
-    "devDependencies": {}
+  "name": "{{componout-name}}",
+  "version": "0.0.1",
+  "description": "{{componout name}}",
+  "main": "src/script/{{componout-name}}.js",
+  "scripts": {},
+  "keywords": [],
+  "author": "{{author name}}",
+  "dependencies": {},
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/{{author-name}}/{{componout-name}}.git"
+  },
+  "bugs": {
+    "url": "https://github.com/{{author-name}}/{{componout-name}}/issues"
+  },
+  "homepage": "https://github.com/{{author-name}}/{{componout-name}}#readme",
+  "license": "ISC"
 }

@@ -230,7 +230,7 @@ However, virtual cache works, if you install all dependencies packages, if a dep
 
 Componer keep only one same name package in local, for example, jquery will only be installed in node_modules, even there is a bower.json contains jqeury dependence.
 
-Especially, if you install from a git/http url, it will be installed in bower_components. Not be worry about use with `require`, componer use bower_components first before node_modules. So if you install a package in bower_components, it will come before the same name one in node_modules.
+Especially, if you install from a git/http url, it will be installed in bower_components or node_modules based on which file it lays, bower.json or pacakges.json. Not be worry about use with `require`, componer use bower_components first before node_modules. So if you install a bower package which contains a bower.json in bower_components, it will come before the same name one in node_modules.
 
 ### link <name>
 
@@ -260,7 +260,7 @@ When you run `componer link a-name`, componer will run `npm/bower link` to link 
 
 There is not a `unlink` task. It means you should have to unlink your packages by manual. However, when you remove componouts, unlink will be automaticly run by componer.
 
-### clone <name> [-u|--url your-git-registry-address] [-I|--install] [-L|--link]
+### clone [name] [-u|--url your-git-registry-address] [-I|--install] [-L|--link]
 
 Clone a compount from http://github.com/componer, by git.
 You can change registries in `.componerrc` with `defaults` options.
@@ -277,6 +277,8 @@ You will find this componout to be a git registry.
 
 `-I` is to run `componer install` task after this componout cloned to install its dependencies.
 `-L` is to run `componer link` task after it cloned to link it to package directories.
+
+If you do not pass a name to the cli, all of `dependencies` in .componerrc will be download into componouts directories. *Notice, dependencies in .componerrc are different from ones in bower.json or pacakge.json, they are only use for clone, not for package dependencies.* So after you clone from git, you should run componer install to install their dependencies.
 
 ## Generator
 
