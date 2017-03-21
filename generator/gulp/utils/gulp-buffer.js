@@ -4,15 +4,17 @@ export default function(factory) {
 	return through.obj(function(file, endcoding, callback) {
 		if(file.isNull()) {
 			this.push(file)
-			return callback()
+			callback()
+			return
 		}
 
 		if(file.isStream()) {
-			console.log('streaming not supported', 'error')
-			return callback()
+			console.log('streaming not supported')
+			callback()
+			return
 		}
 
-		var content = file.contents
+		var content = file.contents.toString()
 		content = factory(content, file, this) || content
 
 		file.contents = new Buffer(content)

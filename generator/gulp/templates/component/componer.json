@@ -1,0 +1,44 @@
+{
+	"name": "{{componout-name}}",
+	"version": "0.0.1",
+	"dependencies": {},
+	"build": [
+		{
+			"from": "src/script/{{componout-name}}.js",
+			"to": "dist/js/{{componout-name}}.js",
+			"options": {
+				"minify": true,
+				"sourcemap": true,
+				"externals": false
+			},
+			"settings": {}
+		},
+		{
+			"from": "src/style/{{componout-name}}.scss",
+			"to": "dist/css/{{componout-name}}.css",
+			"options": {
+				"minify": true,
+				"sourcemap": true
+			},
+			"settings": {}
+		}
+	],
+	"preview": {
+		"index": "preview/index.html",
+		"script": "preview/{{componout-name}}.js",
+		"style": "preview/{{componout-name}}.scss",
+		"server": "preview/server.js",
+		"watchFiles": [
+			"preview/index.html",
+			"preview/{{componout-name}}.js",
+			"preview/{{componout-name}}.scss",
+			"src/**/*"
+		]
+	},
+	"test": {
+		"entry": "test/specs/{{componout-name}}.js",
+		"reporters": "test/reporters",
+		"debug": false,
+		"browsers": ["PhantomJS"]
+	}
+}

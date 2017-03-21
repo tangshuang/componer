@@ -1,76 +1,79 @@
-import path from 'path'
-import gulp from 'gulp'
-import webpack from 'webpack-stream'
+import webpackVendor from './webpack-vendor'
+import webpackStream from './webpack-stream'
 import concat from 'pipe-concat'
-import extend from 'extend'
-
-import config from './webpack.config'
-
+import path from 'path'
 import {camelName} from '../utils/convert-name'
+import extend from 'extend'
+import fs from 'fs'
 
 /**
-@param from: entry file absolute path,
-@param to: output file absolute path,
-@param settings: pass to webpack
-@param options: {
-    boolean sourcemap: whether to create a sourcemap file,
-    boolean minify: whether to create a minified file,
+@desc build js by webpack
+@param string from: entry file absolute path
+@param string to: output file absolute path
+@param object options: {
+    boolean sourcemap: whether to use sourcemap,
+    boolean minify: whether to minify code, the minify codes are in another .min file
 }
-**/
+@param object settings: webpack settings
+@return streaming
+*/
 
-export default function({from, to, settings  = {}, options = {}}) {
+export default function(from, to, options = {}, settings  = {}) {
     var outputdir = path.dirname(to)
     var filename = path.basename(to)
-    var basename = path.basename(to, '.js')
+    var name = path.basename(to, '.js')
+    var streams = []
 
-    settings = config(settings)
-    var outputSettings = settings.output
-
-    outputSettings.filename = outputSettings.filename || filename
-    outputSettings.library = outputSettings.library || camelName(basename, true)
-
-    // sourcemap
-    if(options.sourcemap === 'inline') {
-        settings.devtool = 'inline-source-map'
-    }
-    else if(options.sourcemap) {
-        settings.devtool = 'source-map'
-        outputSettings.sourceMapFilename = outputSettings.sourceMapFilename || filename + '.map'
+    if(options.externals === false) {
+        settings.externals = getExternals()
     }
 
-    // do something before build
-    if(typeof options.before === 'function') {
-        options.before(settings)
+    var opts = extend(true, {}, options, {
+        minify: false,
+    })
+    var sets = {
+        name: camelName(name, true) + 'Vendors',
     }
 
-    var stream1 = gulp.src(from)
-        .pipe(webpack(settings))
-        .pipe(gulp.dest(outputdir))
+    var vendors = options.vendors || []
 
-    if(!options.minify) {
-        return stream1
+    if(vendors.length > 0) {
+        opts.vendors = webpackVendor(vendors, outputdir + '/' + name + '.vendors.js', opts, sets)
+    }
+    var stream1 = webpackStream(form, to, opts, settings)
+    streams.push(stream1)
+
+    if(options.minify) {
+        opts.minify = true
+        if(vendors.length > 0) {
+            opts.vendors = webpackVendor(vendors, outputdir + '/' + name + '.vendors.min.js', opts, sets)
+        }
+        let stream2 = webpackStream(form, outputdir + '/' + name + '.min.js', opts, settings)
+        streams.push(stream2)
     }
 
-    // minify
-    settings = extend(true, {}, settings)
-    outputSettings = settings.output
-    filename = outputSettings.filename
-    filename = path.basename(filename, '.js') + '.min.js'
-    outputSettings.filename = filename
-    if(outputSettings.sourceMapFilename) outputSettings.sourceMapFilename = filename + '.map'
-    settings.plugins.push(
-        new webpack.webpack.optimize.UglifyJsPlugin({
-            minimize: true,
-        })
-    )
+    return concat(streams)
+}
 
-    var stream2 = gulp.src(from)
-        .pipe(webpack(settings))
-        .pipe(gulp.dest(outputdir))
+function getExternals() {
+    let packages = {}
+    let add = name => {
+        if(name.indexOf('.') === 0) return
+        packages[name] = name
+    }
 
-    return concat(stream1, stream2).on('end', () => {
-        if(typeof options.after === 'function') {
-            options.after()
+    let node_modules = __dirname + '/../../node_modules'
+    fs.readdirSync(node_modules).forEach(add)
+
+    let bower_components = __dirname + '/../../bower_components'
+    if(fs.existsSync(bower_components)) fs.readdirSync(bower_components).forEach(add)
+
+    let componouts = __dirname + '/../../componouts'
+    fs.readdirSync(componouts).forEach(name => {
+        if(fs.existsSync(componouts + '/' + name + '/package.json')) {
+            add(name)
         }
     })
+
+    return packages
 }
