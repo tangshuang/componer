@@ -1,5 +1,0 @@
-export * from './componout'
-export * from './file-ext'
-export * from './convert-name'
-export * from './run-task'
-export * from './str-pad'
