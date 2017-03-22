@@ -51,7 +51,7 @@ export default function(from, to, options = {}, settings  = {}) {
 
     if(options.vendors) {
         settings.plugins.push(
-            new webpack.DllReferencePlugin({
+            new webpack.webpack.DllReferencePlugin({
                 context: options.vendors.context,
                 manifest: require(options.vendors.path),
             })
@@ -66,8 +66,9 @@ export default function(from, to, options = {}, settings  = {}) {
         .pipe(webpack(settings))
         .pipe(bufferify((content, file, context) => {
             if(typeof options.process === 'function') {
-                options.process(content, file, context)
+                content = options.process(content, file, context)
             }
+            return content
         }))
         .pipe(gulp.dest(outputdir))
         .on('end', () => {

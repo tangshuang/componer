@@ -75,38 +75,38 @@ When you run build task, componer will compile your ES6 code to ES5 code and com
 
 At the same time, scss files will be compiled to css files, minified by cssmin, and be put in `dist` directory too.
 
-However, `componer.config.js` is a special file which has information used for compiling.
+However, `componer.json` is a special file which has information used for compiling.
 
 ```
 build: [
+	// compile and bundle javascript
 	{
-		from: "src/script/bar-chart.js", // entry file to build with
-		to: "dist/js/bar-chart.js", // output file after be built
-		driver: "webpack", // driver to use, only webpack supported for javascript
-		options: { // minify and sourcemap options
-			minify: true,
-			sourcemap: "file", // true (same as "file"), "inline"
-			before: function(settings) {}, // execute before build
-			after: function() {}, // execute after build finished
+		"from": "src/script/bar-chart.js", // entry file to build with
+		"to": "dist/js/bar-chart.js", // output file after be built
+		"options": {
+			"minify": true, // create a .min.js file
+			"sourcemap": true, // create sourcemap file
+			"externals": true, // whether to include externals in built file
+			"vendors": [] // vendors to be separated into a .vendors.js file
 		},
-		settings: {}, // settings passed to webpack, look into webpack config
+		"settings": {} // settings for webpack-stream
 	},
+	// compile scss to css
 	{
-		from: "src/style/bar-chart.scss",
-		to: "dist/css/bar-chart.css",
-		driver: "sass", // only sass supported for scss
-		options: {
-			minify: true,
-			sourcemap: "file",
+		"from": "src/style/bar-chart.scss",
+		"to": "dist/css/bar-chart.css",
+		"options": {
+			"minify": true,
+			"sourcemap": true
 		},
-		settings: {
-			sass: {}, // settings for node-sass
-			postcss: {}, // settings for postcss
-			nextcss: {}, // settings for nextcss
-			assets: {}, // settings for gulp-css-copy-assets
-		},
-	},
-],
+		"settings": {
+			"sass": {}, // settings for node-sass
+			"postcss": {}, // settings for postcss
+			"nextcss": {}, // settings for nextcss
+			"assets": {} // settings for gulp-css-copy-assets
+		}
+	}
+]
 ```
 
 If `name` is not given, all componouts will be built one by one.
@@ -121,7 +121,7 @@ If `name` is not given, all componouts's `src` will be being watched.
 
 ### preview <name>
 
-Open browser to preview your code. `browser-sync` is used. preview options in `componer.config.js` make sense.
+Open browser to preview your code. `browser-sync` is used. preview options in `componer.json` make sense.
 
 ```
 preview: {
@@ -163,7 +163,7 @@ When use --debug mode, browser will be open, you can debug testing code in brows
 
 You can use --browser to change to test in different browser. For example, you can use Firefox. Only "Chrome" or "Firefox" or "PhantomJS" can be used. "PhantomJS" is default.
 
-When you test a node module componout, it is different. You should modify `componer.config.js` `test.browsers` to be `Terminal`. If `test.browsers` = `Terminal`, jasmine-node will be used to test node scripts which can be run only in command line not in browsers. Do as so, `-b` will not work.
+When you test a node module componout, it is different. You should modify `componer.json` `test.browsers` to be `Terminal`. If `test.browsers` = `Terminal`, jasmine-node will be used to test node scripts which can be run only in command line not in browsers. Do as so, `-b` will not work.
 
 If `name` is not given, all componouts will be tested. `-D` will not work, and debug mode will be ignored.
 
@@ -306,7 +306,7 @@ All files can be modified, but you should follow the rules.
 
 ## Componout
 
-A componout should must contains a componer.config.js file, which provides build, preview, test information.
+A componout should must contains a componer.json file, which provides build, preview, test information.
 
 We have three default type of componout:
 
@@ -337,7 +337,7 @@ Normal directory structure:
  `- ...
 ```
 
-You can use componer to create node runtime packages, browser-end components and applications. The difference amoung this types is componer.config.js, packages of npm always run in node environment, so the test options in componer.config.js is different, and there is no preview options. Applications will contains all dependencies, so there is not externals options in componer.config.js.
+You can use componer to create node runtime packages, browser-end components and applications. The difference amoung this types is componer.json, packages of npm always run in node environment, so the test options in componer.json is different, and there is no preview options. Applications will contains all dependencies, so there is not externals options in componer.json.
 
 In the core idea of componer "组件是素材，不是作品。", I suggest developers to hold up component ideas.
 You build components, and provide to others to use directly, but in fact, you do NOT need to build, because others developers who use your component will use your components source code to build all by themselves. So you can see in default component template, main option in bower.json and package.json are point to src files, not built files.

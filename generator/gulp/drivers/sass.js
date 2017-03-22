@@ -1,97 +1,23 @@
-import path from 'path'
-import gulp from 'gulp'
-import sass from 'gulp-sass'
-import cssmin from 'gulp-cssmin'
-import postcss from 'gulp-postcss'
-import cssnext from 'postcss-cssnext'
-import rename from 'gulp-rename'
-import sourcemaps from 'gulp-sourcemaps'
-import merge from 'pipe-concat'
+import sassStream from './sass-stream'
 
-import cssCopyAssets from '../utils/gulp-css-copy-assets'
-import sassConfig from './sass.config'
+export default function(from, to, options = {}, settings = {}) {
+    var outputdir = path.dirname(to)
+    var name = path.basename(to, '.js')
+    var streams = []
 
-export default function({from, to, settings = {}, options = {}}) {
-	var outputdir = path.dirname(to)
-    var filename = path.basename(to)
-	var basename = path.basename(to, '.css')
-	var sourcemapdir = options.sourcemap === 'inline' ? undefined : './'
-    var plugins = [
-        cssnext(settings.cssnext),
-	]
-
-    function NoSourceMapNoMinify() {
-		return gulp.src(from)
-			.pipe(sass(sassConfig(settings.sass)))
-			.pipe(postcss(plugins, settings.postcss))
-			.pipe(rename(filename))
-			.pipe(cssCopyAssets(settings.assets))
-			.pipe(gulp.dest(outputdir))
-	}
-
-	function HasSourceMapNoMinify() {
-		return gulp.src(from)
-			.pipe(sourcemaps.init())
-			.pipe(sass(sassConfig(settings.sass)))
-			.pipe(postcss(plugins, settings.postcss))
-			.pipe(rename(filename))
-			.pipe(sourcemaps.write(sourcemapdir))
-			.pipe(cssCopyAssets(settings.assets))
-			.pipe(gulp.dest(outputdir))
-	}
-
-	function NoSourceMapHasMinify() {
-        filename = basename + '.min.css'
-		return gulp.src(from)
-			.pipe(sass(sassConfig(settings.sass)))
-			.pipe(postcss(plugins, settings.postcss))
-			.pipe(cssmin())
-			.pipe(rename(filename))
-			.pipe(cssCopyAssets(settings.assets))
-			.pipe(gulp.dest(outputdir))
-	}
-
-	function HasSourceMapHasMinify() {
-        filename = basename + '.min.css'
-		return gulp.src(from)
-			.pipe(sourcemaps.init())
-			.pipe(sass(sassConfig(settings.sass)))
-			.pipe(postcss(plugins, settings.postcss))
-			.pipe(cssmin())
-			.pipe(rename(filename))
-			.pipe(sourcemaps.write(sourcemapdir))
-			.pipe(cssCopyAssets(settings.assets))
-			.pipe(gulp.dest(outputdir))
-	}
-
-	// do something before build
-	if(typeof options.before === 'function') {
-		options.before(settings)
-	}
-
-	// with sourcemap
-    if(options.sourcemap) {
-		// not minified
-        let stream1 = HasSourceMapNoMinify()
-		if(!options.minify) {
-			return stream1
-		}
-		// minified
-		let stream2 = HasSourceMapHasMinify()
-		return merge(stream1, stream2)
+    var opts = {
+        minify: false,
+        sourcemap: options.sourcemap,
     }
 
-	// without sourcemap
-	// not minified
-    let stream1 = NoSourceMapNoMinify()
-    if(!options.minify) {
-        return stream1
+    var stream1 = sassStream(from, to, opts, settings)
+    streams.push(stream1)
+
+    if(options.minify) {
+        opts.minify = true
+        var stream2 = sassStream(from, outputdir + '/' + name + '.min.css', opts, settings)
+        streams.push(stream2)
     }
-	// minified
-    let stream2 = NoSourceMapHasMinify()
-    return merge(stream1, stream2).on('end', () => {
-        if(typeof options.after === 'function') {
-            options.after()
-        }
-    })
+
+    return concat(streams)
 }

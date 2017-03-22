@@ -8,7 +8,7 @@
 			"options": {
 				"minify": true,
 				"sourcemap": true,
-				"vendors": false
+                "vendors": []
 			},
 			"settings": {}
 		},
@@ -36,7 +36,7 @@
 			"preview/index.html",
 			"preview/{{componout-name}}.js",
 			"preview/{{componout-name}}.scss",
-			"src/**/*.js",
+            "src/**/*.js",
 			"src/**/*.scss"
 		]
 	},
