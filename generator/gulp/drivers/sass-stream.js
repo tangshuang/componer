@@ -8,7 +8,7 @@ import rename from 'gulp-rename'
 import sourcemaps from 'gulp-sourcemaps'
 import concat from 'pipe-concat'
 import bufferify from 'gulp-bufferify'
-import cssCopyAssets from '../utils/gulp-css-copy-assets'
+import cssCopyAssets from 'gulp-css-copy-assets'
 import sassConfig from './sass.config'
 
 /**

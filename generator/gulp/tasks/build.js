@@ -1,6 +1,7 @@
-import {gulp, fs, path, args, log, config, exit, exists, scandir, load, readJSON} from '../loader'
-import {hasComponout, dashName, run} from '../utils'
-
+import {gulp, fs, path, args, log, config, exit, exists, scandir, readJSON} from '../loader'
+import {hasComponout, dashName, run, getFileExt} from '../utils'
+import webpack from '../drivers/webpack'
+import sass from '../drivers/sass'
 import concat from 'pipe-concat'
 import Stream from 'stream'
 
@@ -24,8 +25,8 @@ gulp.task('build', () => {
 
 	var componoutPath = path.join(config.paths.componouts, name)
 
-	if(!exists(componoutPath + '/componer.config.js')) {
-		log('componer.config.js not exists.', 'error')
+	if(!exists(componoutPath + '/componer.json')) {
+		log('componer.json not exists.', 'error')
 		exit()
 	}
 
@@ -33,10 +34,10 @@ gulp.task('build', () => {
 	 * begin to compress build settings
 	 */
 
-	var info = load(componoutPath + '/componer.config.js')
+	var info = readJSON(componoutPath + '/componer.json')
 	var files = info.build
 	if(!files) {
-		log('build option in componer.config.js not found.', 'error')
+		log('build option in componer.json not found.', 'error')
 		exit()
 	}
 
@@ -44,18 +45,16 @@ gulp.task('build', () => {
 	files.forEach(file => {
 		let from = path.join(componoutPath, file.from)
 		let to = path.join(componoutPath, file.to)
-		let driver = file.driver
 		let settings = file.settings
 		let options = file.options
-		let driverfile = path.join(config.paths.drivers, driver + '.js')
+		let ext = getFileExt(from)
 
-		if(!exists(driverfile)) {
-			log('Can NOT found driver ' + driver, 'error')
-			return
+		if(ext === '.js') {
+			streams.push(webpack(from, to, options, settings))
 		}
-
-		driver = load(driverfile)
-		streams.push(driver({from, to, settings, options}))
+		else if(ext === '.scss') {
+			streams.push(sass(from, to, options, settings))
+		}
 	})
 
 	if(streams.length > 0) {

@@ -16,6 +16,12 @@ export default function webpack(settings) {
 				'node_modules',
 				'componouts',
 			],
+			extensions: [
+				'.js',
+				'.jsx',
+				'.coffee',
+				'.ts',
+			],
 		},
 		plugins: [],
 	}
@@ -24,39 +30,39 @@ export default function webpack(settings) {
     settings.module.loaders = settings.module.loaders.concat([
 		{
 			test: /\.js$/,
-			loader: 'babel',
+			loader: 'babel-loader',
 		},
 		{
 			test: /^(?:(?!http).)*\.scss$/,
-			loader: 'style!css!sass',
+			loader: 'style-loader!css-loader!sass-loader',
 		},
 		{
 			test: /^(?:(?!http).)*\.css$/,
-			loader: 'style!css',
+			loader: 'style-loader!css-loader',
 		},
 		{
 			test: /\.jpe?g$|\.gif$|\.png$|\.svg$|\.woff$|\.ttf$|\.wav$|\.mp3$/,
-			loader: 'file',
+			loader: 'file-loader',
 		},
 		{
 			test: /\.svg$/,
-			loader: 'url?limit=15000&mimetype=image/svg+xml',
+			loader: 'url-loader?limit=15000&mimetype=image/svg+xml',
 		},
 		{
 			test: /\.html$/,
-			loader: 'html?attrs=img:src input:src',
+			loader: 'html-loader?attrs=img:src input:src',
 		},
 		{
 			test: /\.jade$/,
-			loader: 'jade',
+			loader: 'jade-loader',
 		},
 		{
 			test: /\.hbs$/,
-			loader: 'handlebars',
+			loader: 'handlebars-loader',
 		},
 		{
 			test: /\.json$/,
-			loader: 'json',
+			loader: 'json-loader',
 		},
 	])
 	settings.plugins = settings.plugins.concat([
