@@ -1,6 +1,6 @@
-import WebPackPluginBase from './webpack-plugin'
+import Bufferify from 'webpack-bufferify'
 
-export default class WebPackPluginCMD extends WebPackPluginBase {
+export default class WebPackPluginCMD extends Bufferify {
     process(content, file, assets, compilation) {
         if(compilation.options.output.libraryTarget === 'umd') {
             content = content

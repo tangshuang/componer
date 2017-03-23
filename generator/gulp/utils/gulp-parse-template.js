@@ -1,13 +1,13 @@
-import GulpBuffer from './gulp-buffer'
+import bufferify from 'gulp-bufferify'
 import {camelName, dashName, spaceName} from './convert-name'
 
-export default function(pairs) {
-	return GulpBuffer(content => {
-		if(pairs && typeof pairs === 'object') {
+export default function(parsers) {
+	return bufferify(content => {
+		if(parsers && typeof parsers === 'object') {
 			content = content.toString()
-			let keys = Object.keys(pairs)
+			let keys = Object.keys(parsers)
 			keys.forEach(key => {
-				let value = pairs[key]
+				let value = parsers[key]
 				content = content
 					.replace((new RegExp('{{' + camelName(key) + '}}','g')), camelName(value))
 					.replace((new RegExp('{{' + camelName(key, true) + '}}','g')), camelName(value, true))

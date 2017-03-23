@@ -5,6 +5,21 @@ export function exists(file) {
 	return fs.existsSync(file)
 }
 
+export function isFile(file) {
+	if(!exists(file)) return
+	return fs.lstatSync(file).isFile()
+}
+
+export function isDir(dir) {
+	if(!exists(dir)) return
+	return fs.lstatSync(dir).isDirectory()
+}
+
+export function isSymLink(file) {
+	if(!exists(file)) return
+	return fs.lstatSync(file).isSymbolicLink()
+}
+
 export function read(file) {
 	if(!exists(file)) return
 	return fs.readFileSync(file)

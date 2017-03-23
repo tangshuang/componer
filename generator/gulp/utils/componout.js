@@ -1,4 +1,4 @@
-import {config, exists, scandir, load, readJSON} from '../loader'
+import {config, exists, scandir, readJSON} from '../loader'
 import {dashName} from './convert-name'
 
 export function hasComponout(name) {
@@ -15,8 +15,8 @@ export function getComponout(name) {
 		return false
 	}
 
-	var infofile = dir + '/componer.config.js'
-	var info = exists(infofile) ? load(infofile) : {
+	var infofile = dir + '/componer.json'
+	var info = exists(infofile) ? readJSON(infofile) : {
 		type: 'config file not found!',
 	}
 
