@@ -27,8 +27,7 @@ export default function(from, to, options = {}, settings  = {}) {
     var outputdir = path.dirname(to)
     var filename = path.basename(to)
     var name = path.basename(to, '.js')
-
-    var default = {
+    var defaults = {
         output: {
             filename: filename,
             library: camelName(name, true),

@@ -44,6 +44,11 @@ export function readTMPL(file, parsers) {
 	return content
 }
 
+export function readJSONTMPL(file, parsers) {
+	if(!exists(file)) return
+	return JSON.parse(readTMPL(file, parsers))
+}
+
 export function write(file, content) {
 	fs.writeFileSync(file, content)
 }

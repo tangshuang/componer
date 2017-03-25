@@ -1,5 +1,4 @@
-import {gulp, path, fs, args, log, config, read, scandir} from '../loader'
-import {hasComponout, dashName, run} from '../utils'
+import {gulp, path, fs, args, log, config, read, scandir, hasComponout, dashName, run} from '../loader'
 
 gulp.task('watch', () => {
 	var arg = args.watch

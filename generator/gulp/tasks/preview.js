@@ -1,22 +1,13 @@
-import {gulp, path, fs, args, log, config, exit, exists, clear, load, read, readJSON} from '../loader'
-import {hasComponout, dashName, camelName, getFileExt} from '../utils'
-import GulpBuffer from '../utils/gulp-buffer'
+import {gulp, path, fs, args, log, config, exit, exists, clear, load, read, readJSONTMPL, hasComponout, dashName, camelName, getFileExt} from '../loader'
 
-import glob from 'glob'
 import browsersync from 'browser-sync'
 
-import webpack from 'webpack'
-import webpackStream from 'webpack-stream'
-import webpackConfig from '../drivers/webpack.config'
-import webpackVendor from '../drivers/webpack-vendor'
+import bufferify from 'gulp-bufferify'
+import glob from 'glob'
 
-import sass from 'gulp-sass'
-import sassConfig from '../drivers/sass.config'
-import sourcemap from 'gulp-sourcemaps'
-import cssCopyAssets from '../utils/gulp-css-copy-assets'
-import postcss from 'gulp-postcss'
-import cssnext from 'postcss-cssnext'
-import rename from 'gulp-rename'
+import webpackVendor from '../drivers/webpack-vendor'
+import webpackStream from 'webpack-stream'
+import sassStream from '../drivers/sass-stream'
 
 gulp.task('preview', () => {
 	let arg = args.preview
@@ -30,16 +21,21 @@ gulp.task('preview', () => {
 	let componoutPath = path.join(config.paths.componouts, name)
 	let srcPath = path.join(componoutPath, 'src')
 
-	if(!exists(componoutPath + '/componer.config.js')) {
-		log('componer.config.js not exists.', 'error')
+	if(!exists(componoutPath + '/componer.json')) {
+		log('componer.json not exists.', 'error')
 		exit()
 	}
 
-	let info = load(componoutPath + '/componer.config.js').preview
+	var info = readJSONTMPL(componoutPath + '/componer.json', {
+		'[root]': config.paths.root,
+		'[path]': componoutPath,
+		'[name]': name,
+	})
 	if(!info) {
-		log('preview option in componer.config.js not found.', 'error')
+		log('preview option in componer.json not found.', 'error')
 		exit()
 	}
+	info = info.preview
 
 	let indexfile = path.join(componoutPath, info.index)
 	let scriptfile = info.script ? path.join(componoutPath, info.script) : false
@@ -72,19 +68,19 @@ gulp.task('preview', () => {
 	if(Array.isArray(info.vendors)) {
 		vendors = vendors.concat(info.vendors)
 	}
-	let vendorConfig = {
-		path: tmpdir + `/${name}.vendor.js.json`,
-		name: camelName(name, true) + 'Vendor',
-		context: tmpdir,
-	}
-	if(scriptfile && exists(scriptfile)) {
-		// create vendor bundle
-		if(vendors.length > 0) webpackVendor({
-			from: vendors,
-			to: path.join(tmpdir, name + '.vendor.js'),
-			settings: vendorConfig,
+	let vendorsSettings = null
+	if(scriptfile && exists(scriptfile) && vendors.length > 0) {
+		vendorsSettings = webpackVendor({
+			vendors,
+			to: `${tmpdir}/${name}.vendors.js`,
 			options: {
 				sourcemap: true,
+				minify: true,
+			},
+			settings: {
+				path: `${tmpdir}/${name}.vendors.js.json`,
+				name: camelName(name, true) + 'Vendor',
+				context: tmpdir,
 			},
 		})
 	}
@@ -95,14 +91,15 @@ gulp.task('preview', () => {
 	 */
 
 	let app = browsersync.create()
+
+	// modify index.html
 	let middlewares = [
 		{
 			route: '/',
 			handle: function (req, res, next) {
 				res.setHeader('content-type', 'text/html')
 				gulp.src(indexfile)
-					.pipe(GulpBuffer(html => {
-						html = html.toString()
+					.pipe(bufferify(html => {
 						if(stylefile && exists(stylefile)) {
 							html = html.replace('<!--styles-->', `<link rel="stylesheet" href="${name}.css">`)
 						}
@@ -119,68 +116,63 @@ gulp.task('preview', () => {
 			},
 		},
 	]
+
+	// create css
 	if(stylefile && exists(stylefile)) {
 		middlewares.unshift({
 			route: `/${name}.css`,
 			handle: function (req, res, next) {
+				// for hot reload
 				if(req.originalUrl !== `/${name}.css` && req.originalUrl.indexOf(`/${name}.css?`) === -1) {
 					next()
 					return
 				}
+				// http response
 				res.setHeader('content-type', 'text/css')
-				gulp.src(stylefile)
-					.pipe(sourcemap.init())
-					.pipe(sass(sassConfig()))
-					.pipe(postcss([cssnext()]))
-					.pipe(rename(`/${name}.css`))
-					.pipe(sourcemap.write('.'))
-					.pipe(cssCopyAssets({
-						srcdirs: glob.sync(path.join(componoutPath, '**/')),
-					}))
-					.pipe(GulpBuffer((content, file) => {
+				sassStream(stylefile, `${tmpdir}/${name}.css`, {
+					sourcemap: true,
+					minify: true,
+					process(content) {
 						if(getFileExt(file.path) === '.css') {
-							content = content.toString()
 							res.end(content)
 						}
-					}))
-					.pipe(gulp.dest(tmpdir))
+					},
+				}, {
+					assets: {
+						srcdirs: glob.sync(path.join(componoutPath, '**/')),
+					}
+				})
 			},
 		})
 	}
+
+	// create js
 	if(scriptfile && exists(scriptfile)) {
 		middlewares.unshift({
 			route: `/${name}.js`,
 			handle: function (req, res, next) {
+				// for hot reload
 				if(req.originalUrl !== `/${name}.js` && req.originalUrl.indexOf(`/${name}.js?`) === -1) {
 					next()
 					return
 				}
+				// http response
 				res.setHeader('content-type', 'application/javascript')
-				gulp.src(scriptfile)
-					.pipe(webpackStream(webpackConfig({
-						output: {
-							filename: name + '.js',
-							library: name,
-							sourceMapFilename: name + '.js.map',
-						},
-						devtool: 'source-map',
-						plugins: [
-							vendors.length > 0 ? new webpack.DllReferencePlugin({
-								context: vendorConfig.context,
-								manifest: load(vendorConfig.path),
-							}) : undefined,
-						],
-					})))
-					.pipe(GulpBuffer((content, file) => {
+				webpackStream(scriptfile, `${tmpdir}/${name}.js`, {
+					sourcemap: true,
+					minify: true,
+					vendors: vendorsSettings,
+					process(content) {
 						if(getFileExt(file.path) === '.js') {
-							content = content.toString()
 							res.end(content)
 						}
-					}))
-					.pipe(gulp.dest(tmpdir))
+					},
+				})
 			},
 		})
 	}
+
+	// build server
 	if(serverfile && exists(serverfile)) {
 		let serverware = load(serverfile)
 		if(serverware instanceof Array) {
@@ -191,6 +183,7 @@ gulp.task('preview', () => {
 		}
 	}
 
+	// watch files
 	let watchFiles = info.watchFiles
 	if(typeof watchFiles === 'string') {
 		watchFiles = [path.join(componoutPath, watchFiles)]
@@ -233,6 +226,7 @@ gulp.task('preview', () => {
 		})
 	}
 
+	// setup server
 	var port = arg.port || 8000 + parseInt(Math.random() * 1000)
 	var uiport = port + 1
 	var weinreport = port + 2

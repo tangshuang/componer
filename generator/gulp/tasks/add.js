@@ -1,5 +1,5 @@
 import {gulp, fs, path, args, log, config, exit, exists, mkdir, rename, dashName} from '../loader'
-import PaserTemplate from '../utils/gulp-paser-template'
+import PaserTemplate from '../utils/gulp-parse-template'
 
 gulp.task('add', () => {
 	var arg = args.add

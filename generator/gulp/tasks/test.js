@@ -1,9 +1,8 @@
-import {gulp, path, fs, args, log, config, exit, exists, scandir, mkdir, load} from '../loader'
-import {hasComponout, dashName, run} from '../utils'
+import {gulp, path, fs, args, log, config, exit, exists, scandir, mkdir, load, hasComponout, dashName, run} from '../loader'
 
+import karmaConfig from '../drivers/karma.config'
 import karma from 'gulp-karma-runner'
 import jasmine from 'gulp-jasmine-node'
-import karmaConfig from '../drivers/karma.config'
 
 gulp.task('test', () => {
 	var arg = args.test
@@ -31,19 +30,24 @@ gulp.task('test', () => {
 	var componoutPath = path.join(config.paths.componouts, name)
 	var srcPath = path.join(componoutPath, 'src')
 
-	if(!exists(componoutPath + '/componer.config.js')) {
-		log('componer.config.js not exists.', 'error')
+	if(!exists(componoutPath + '/componer.json')) {
+		log('componer.json not exists.', 'error')
 		exit()
 	}
 
-	var info = load(componoutPath + '/componer.config.js').test
+	var info = readJSONTMPL(componoutPath + '/componer.json', {
+		'[root]': config.paths.root,
+		'[path]': componoutPath,
+		'[name]': name,
+	})
 	if(!info) {
-		log('test option in componer.config.js not found.', 'error')
+		log('test option in componer.json not found.', 'error')
 		exit()
 	}
+	info = info.test
 
 	if(!info.entry) {
-		log('test.entry option in componer.config.js not found.', 'error')
+		log('test.entry option in componer.json not found.', 'error')
 		exit()
 	}
 	var entryfile = path.join(componoutPath, info.entry)

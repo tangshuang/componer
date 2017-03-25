@@ -3,6 +3,7 @@ import fs from 'fs'
 import path from 'path'
 
 import processArgs from 'process.args'
+import extend from 'extend'
 
 export * from './utils/file'
 export * from './utils/process'
