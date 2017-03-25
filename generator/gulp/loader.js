@@ -1,11 +1,16 @@
 import gulp from 'gulp'
 import fs from 'fs'
 import path from 'path'
-import logger from 'process.logger'
+
 import processArgs from 'process.args'
-import shell from 'shelljs'
-import extend from 'extend'
-import requireload from 'require-reload'
+
+export * from './utils/file'
+export * from './utils/process'
+export * from './utils/str-pad'
+export * from './utils/convert-name'
+export * from './utils/componout'
+
+// -------------------------------------
 
 const args = processArgs()
 
@@ -42,98 +47,6 @@ const config = {
 }
 
 // -------------------------------------
-//             functions
-// -------------------------------------
-
-/**
- * process relative functions
- */
-
-function exit() {
-	process.exit(0)
-}
-
-function execute(cmd, done, fail) {
-	var result = shell.exec(cmd)
-	if(result.code === 0) {
-		if(typeof done === 'function') done()
-	}
-	else {
-		if(typeof fail === 'function') fail(result.stderr)
-		exit()
-	}
-}
-
-function log(content, level) {
-	if(process.argv.indexOf('--color') && logger[level]) {
-		logger[level](content)
-	}
-	else {
-		console.log(content)
-	}
-}
-
-/**
- * file relative functions
- */
-
-function exists(file) {
-	return fs.existsSync(file)
-}
-
-function read(file, charset = 'utf8') {
-	if(!exists(file)) return
-	return fs.readFileSync(file, charset)
-}
-
-function readJSON(file, charset = 'utf8') {
-	if(!exists(file)) return
-	return JSON.parse(read(file, charset))
-}
-
-function write(file, content) {
-	fs.writeFileSync(file, content)
-}
-
-function writeJSON(file, json) {
-	write(file, JSON.stringify(json, null, 4))
-}
-
-function scandir(dir) {
-	if(!exists(dir)) return
-	return fs.readdirSync(dir)
-}
-
-function clear(dir) {
-	if(!exists(dir)) return
-	execute('cd ' + dir + ' && rm -rf * && rm -rf .??*')
-}
-
-function mkdir(dir) {
-	if(exists(dir)) return
-	fs.mkdir(dir)
-}
-
-function rename(file, newfile) {
-	if(!exists(file)) return
-	fs.renameSync(file, newfile)
-}
-
-function load(file, useDefault = true) {
-	if(!exists(file)) return
-	var rs = requireload(file)
-	if(typeof rs === 'object') {
-		if(useDefault && rs.default) return rs.default
-		else return rs
-	}
-	return rs
-}
-
-function copy(from, to) {
-	execute(`cp -rf "${from}" "${to}"`)
-}
-
-// -------------------------------------
 //             exports
 // -------------------------------------
 
@@ -145,20 +58,4 @@ export {
 
     config,
     args,
-
-    exists,
-    read,
-	write,
-    readJSON,
-    writeJSON,
-	mkdir,
-	scandir,
-	clear,
-	rename,
-	copy,
-	load,
-
-    execute,
-    log,
-	exit,
 }

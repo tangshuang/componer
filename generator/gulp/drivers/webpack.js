@@ -1,9 +1,11 @@
+import fs from 'fs'
+import path from 'path'
 import webpackVendor from './webpack-vendor'
 import webpackStream from './webpack-stream'
-import concat from 'pipe-concat'
-import path from 'path'
 import {camelName} from '../utils/convert-name'
-import fs from 'fs'
+
+import concat from 'pipe-concat'
+
 
 /**
 @desc build js by webpack
@@ -68,7 +70,9 @@ function getExternals() {
     fs.readdirSync(node_modules).forEach(add)
 
     let bower_components = __dirname + '/../../bower_components'
-    if(fs.existsSync(bower_components)) fs.readdirSync(bower_components).forEach(add)
+    if(fs.existsSync(bower_components)) {
+        fs.readdirSync(bower_components).forEach(add)
+    }
 
     let componouts = __dirname + '/../../componouts'
     fs.readdirSync(componouts).forEach(name => {

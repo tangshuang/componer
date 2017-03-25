@@ -1,5 +1,6 @@
 import fs from 'fs'
 import shell from 'shelljs'
+import requireload from 'require-reload'
 
 export function exists(file) {
 	return fs.existsSync(file)
@@ -51,6 +52,10 @@ export function writeJSON(file, json) {
 	write(file, JSON.stringify(json, null, 4))
 }
 
+export function symLink(file, target) {
+	fs.symlinkSync(target, file, isDir(file) ? 'dir' : 'file')
+}
+
 export function scandir(dir) {
 	if(!exists(dir)) return
 	return fs.readdirSync(dir)
@@ -77,6 +82,16 @@ export function rename(file, newfile) {
 
 export function copy(from, to) {
 	execute(`cp -rf "${from}" "${to}"`)
+}
+
+function load(file, useDefault = true) {
+	if(!exists(file)) return
+	var rs = requireload(file)
+	if(typeof rs === 'object') {
+		if(useDefault && rs.default) return rs.default
+		else return rs
+	}
+	return rs
 }
 
 export function getFileExt(file) {

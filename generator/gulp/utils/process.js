@@ -2,7 +2,7 @@ import shell from 'shelljs'
 import logger from 'process.logger'
 
 export function exit() {
-	process.exit(1)
+	process.exit()
 }
 
 export function execute(cmd, done, fail) {

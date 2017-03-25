@@ -1,4 +1,5 @@
-import {config, exists, scandir, readJSON} from '../loader'
+import {config} from '../loader'
+import {exists, scandir, readJSON} from './file'
 import {dashName} from './convert-name'
 
 export function hasComponout(name) {
@@ -26,7 +27,6 @@ export function getComponout(name) {
 		path: dir,
 		info,
 	}
-
 }
 
 export function getComponouts() {

@@ -17,14 +17,12 @@
         "type": "git",
         "url": "git://github.com/{{author-name}}/{{componout-name}}.git"
     },
-    "keywords": [
-        "componer"
-    ],
+    "keywords": [],
     "dependencies": {},
     "devDependencies": {},
     "ignore": [
         "preview/",
         "test/",
-        "componer.config.js"
+        "componer.json"
     ]
 }

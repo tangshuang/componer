@@ -23,6 +23,6 @@
     "ignore": [
         "preview/",
         "test/",
-        "componer.config.js"
+        "componer.json"
     ]
 }

@@ -4,9 +4,7 @@
   "description": "{{componout name}}",
   "main": "dist/js/{{componout-name}}.js",
   "scripts": {},
-  "keywords": [
-      "componer"
-  ],
+  "keywords": [],
   "author": "{{author name}}",
   "dependencies": {},
   "devDependencies": {},

@@ -2,7 +2,7 @@ import extend from 'extend'
 import WebPackPluginBower from 'bower-webpack-plugin'
 import WebPackPluginCMD from '../utils/webpack-plugin-cmd'
 
-export default function webpack(settings) {
+export default function(settings) {
 	var defaults = {
 		output: {
 			libraryTarget: 'umd',

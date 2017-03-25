@@ -1,5 +1,4 @@
-import {gulp, fs, path, args, log, config, exit, exists, mkdir, rename} from '../loader'
-import {dashName} from '../utils'
+import {gulp, fs, path, args, log, config, exit, exists, mkdir, rename, dashName} from '../loader'
 import PaserTemplate from '../utils/gulp-paser-template'
 
 gulp.task('add', () => {
@@ -20,11 +19,10 @@ gulp.task('add', () => {
 		log(`Error: ${name} exists, delete ${config.dirs.componouts}/${name} before you add.`, 'error')
 		exit()
 	}
-	else {
-		mkdir(componoutPath)
-	}
 
-	return gulp.src([templatesPath + '/**/*', templatesPath + '/.*'])
+	mkdir(componoutPath)
+
+	return gulp.src([templatesPath + '/**/*', templatesPath + '/**/.*'])
 		.pipe(PaserTemplate({
 			componoutName: name,
 			authorName: author,

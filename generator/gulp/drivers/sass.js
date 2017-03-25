@@ -1,4 +1,5 @@
 import sassStream from './sass-stream'
+import concat from 'pipe-concat'
 
 export default function(from, to, options = {}, settings = {}) {
     var outputdir = path.dirname(to)

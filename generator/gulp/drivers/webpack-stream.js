@@ -1,10 +1,12 @@
 import path from 'path'
+import webpackConfig from './webpack.config'
+import {camelName} from '../utils/convert-name'
+
 import gulp from 'gulp'
 import extend from 'extend'
 import webpack from 'webpack-stream'
 import bufferify from 'gulp-bufferify'
-import webpackConfig from './webpack.config'
-import {camelName} from '../utils/convert-name'
+
 
 /**
 @param from: entry file absolute path,

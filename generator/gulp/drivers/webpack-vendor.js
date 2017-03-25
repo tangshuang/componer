@@ -1,8 +1,10 @@
 import path from 'path'
-import extend from 'extend'
-import webpack from 'webpack'
 import webpackConfig from './webpack.config'
 import {camelName} from '../utils/convert-name'
+
+import extend from 'extend'
+import webpack from 'webpack'
+
 
 /**
 * build vendors
