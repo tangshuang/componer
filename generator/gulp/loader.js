@@ -4,7 +4,6 @@ import path from 'path'
 
 import processArgs from 'process.args'
 import extend from 'extend'
-import requireload from 'require-reload'
 
 export * from './utils/file'
 export * from './utils/process'
@@ -12,7 +11,7 @@ export * from './utils/str-pad'
 export * from './utils/convert-name'
 export * from './utils/componout'
 
-import {exists, readJSON} from './utils/file'
+import {readJSON} from './utils/file'
 
 // -------------------------------------
 
@@ -56,22 +55,11 @@ const config = {
 //             exports
 // -------------------------------------
 
-function load(file, useDefault = true) {
-	if(!exists(file)) return
-	var rs = requireload(file)
-	if(typeof rs === 'object') {
-		if(useDefault && rs.default) return rs.default
-		else return rs
-	}
-	return rs
-}
-
 export {
     gulp,
     fs,
     path,
     extend,
-	load,
 
     config,
     args,

@@ -4,12 +4,12 @@
   "description": "A components builder tool",
   "main": "index.js",
   "bin": {
-    "componer": "bin/componer.js"
+    "componer": ".bin/componer.js",
+    "componer-build": ".bin/componer-build.js",
+    "componer-test": ".bin/componer-test.js"
   },
   "scripts": {
-    "build": "babel bin/componer.es6 -o bin/componer.js",
-    "watch": "npm run build -- --watch",
-    "prepublish": "npm run build"
+    "build": "gulp build"
   },
   "repository": {
     "type": "git",
@@ -31,9 +31,11 @@
     "shelljs": "^0.7.5"
   },
   "devDependencies": {
-      "babel-cli": "^6.18.0",
-      "babel-core": "^6.21.0",
-      "babel-preset-env": "^1.2.1",
-      "babel-register": "^6.23.0"
+    "babel-core": "^6.21.0",
+    "babel-preset-env": "^1.2.1",
+    "babel-register": "^6.18.0",
+    "gulp": "^3.9.1",
+    "gulp-babel": "^6.1.2",
+    "gulp-cli": "^1.2.2"
   }
 }
