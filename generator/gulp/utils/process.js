@@ -11,12 +11,16 @@ export function execute(cmd, done, fail) {
 		if(typeof done === 'function') {
             done()
         }
+		return true
 	}
 	else {
 		if(typeof fail === 'function') {
             fail(result.stderr)
         }
-		exit()
+		if(typeof done === 'boolean' && done === true) {
+			exit()
+		}
+		return false
 	}
 }
 
@@ -30,7 +34,7 @@ export function log(content, level) {
 }
 
 export function run(task, args) {
-	var cmd = 'gulp ' + task
+	var cmd = 'npm run gulp -- ' + task
 
 	if(args) {
 		for(let key in args) {

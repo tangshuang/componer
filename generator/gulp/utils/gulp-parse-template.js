@@ -1,5 +1,6 @@
-import bufferify from 'gulp-bufferify'
 import {camelName, dashName, spaceName} from './convert-name'
+
+import bufferify from 'gulp-bufferify'
 
 export default function(parsers) {
 	return bufferify(content => {

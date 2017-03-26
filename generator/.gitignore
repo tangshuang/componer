@@ -5,6 +5,6 @@ npm-debug.log
 .git/
 .tmp/
 
-componouts/**/test/reporters/
-componouts/**/.preview_tmp/
-componouts/**/dist/
+componouts/*/test/reporters/
+componouts/*/.preview_tmp/
+componouts/*/dist/

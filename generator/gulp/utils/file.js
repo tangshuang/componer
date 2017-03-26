@@ -1,6 +1,5 @@
 import fs from 'fs'
 import shell from 'shelljs'
-import requireload from 'require-reload'
 
 export function exists(file) {
 	return fs.existsSync(file)
@@ -38,7 +37,7 @@ export function readTMPL(file, parsers) {
 	var keys = Object.keys(parsers)
 	keys.forEach(key => {
 		let value = parsers[key]
-		let reg = new RegExp(key, 'g')
+		let reg = new RegExp('\\\[' + key + '\\\]', 'g')
 		content = content.replace(reg, value)
 	})
 	return content
@@ -87,16 +86,6 @@ export function rename(file, newfile) {
 
 export function copy(from, to) {
 	execute(`cp -rf "${from}" "${to}"`)
-}
-
-function load(file, useDefault = true) {
-	if(!exists(file)) return
-	var rs = requireload(file)
-	if(typeof rs === 'object') {
-		if(useDefault && rs.default) return rs.default
-		else return rs
-	}
-	return rs
 }
 
 export function getFileExt(file) {

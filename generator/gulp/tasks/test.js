@@ -1,4 +1,4 @@
-import {gulp, path, fs, args, log, config, exit, exists, scandir, mkdir, load, hasComponout, dashName, run} from '../loader'
+import {gulp, path, fs, args, log, config, exit, exists, scandir, mkdir, load, hasComponout, getComponoutConfig, dashName, run} from '../loader'
 
 import karmaConfig from '../drivers/karma.config'
 import karma from 'gulp-karma-runner'
@@ -35,11 +35,7 @@ gulp.task('test', () => {
 		exit()
 	}
 
-	var info = readJSONTMPL(componoutPath + '/componer.json', {
-		'[root]': config.paths.root,
-		'[path]': componoutPath,
-		'[name]': name,
-	})
+	var info = getComponoutConfig(name)
 	if(!info) {
 		log('test option in componer.json not found.', 'error')
 		exit()

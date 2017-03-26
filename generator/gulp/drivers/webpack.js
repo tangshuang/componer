@@ -36,15 +36,15 @@ export default function(from, to, options = {}, settings  = {}) {
         name: camelName(name, true) + 'Vendors',
     }
 
-    // if externals is false, all of externals will not be included in output code
+    // if vendors is false, all of vendors will not be included in output code
     if(vendors === false) {
-        settings.externals = getExternals()
+        settings.externals = getVendors()
     }
 
     if(hasVendors) {
         opts.vendors = webpackVendor(vendors, outputdir + '/' + name + '.vendors.js', opts, sets)
     }
-    var stream1 = webpackStream(form, to, opts, settings)
+    var stream1 = webpackStream(from, to, opts, settings)
     streams.push(stream1)
 
     if(options.minify) {
@@ -52,14 +52,14 @@ export default function(from, to, options = {}, settings  = {}) {
         if(hasVendors) {
             opts.vendors = webpackVendor(vendors, outputdir + '/' + name + '.vendors.min.js', opts, sets)
         }
-        let stream2 = webpackStream(form, outputdir + '/' + name + '.min.js', opts, settings)
+        let stream2 = webpackStream(from, outputdir + '/' + name + '.min.js', opts, settings)
         streams.push(stream2)
     }
 
     return concat(streams)
 }
 
-function getExternals() {
+function getVendors() {
     let packages = {}
     let add = name => {
         if(name.indexOf('.') === 0) return
@@ -73,13 +73,6 @@ function getExternals() {
     if(fs.existsSync(bower_components)) {
         fs.readdirSync(bower_components).forEach(add)
     }
-
-    let componouts = __dirname + '/../../componouts'
-    fs.readdirSync(componouts).forEach(name => {
-        if(fs.existsSync(componouts + '/' + name + '/package.json')) {
-            add(name)
-        }
-    })
 
     return packages
 }

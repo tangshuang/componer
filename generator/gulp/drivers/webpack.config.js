@@ -16,12 +16,6 @@ export default function(settings) {
 				'node_modules',
 				'componouts',
 			],
-			extensions: [
-				'.js',
-				'.jsx',
-				'.coffee',
-				'.ts',
-			],
 		},
 		plugins: [],
 	}

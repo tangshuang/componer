@@ -1,4 +1,4 @@
-import {gulp, path, fs, args, log, config, exit, exists, clear, load, read, readJSONTMPL, hasComponout, dashName, camelName, getFileExt} from '../loader'
+import {gulp, path, fs, args, log, config, exit, exists, clear, load, read, readJSONTMPL, hasComponout, getComponoutConfig, dashName, camelName, getFileExt} from '../loader'
 
 import browsersync from 'browser-sync'
 
@@ -26,11 +26,7 @@ gulp.task('preview', () => {
 		exit()
 	}
 
-	var info = readJSONTMPL(componoutPath + '/componer.json', {
-		'[root]': config.paths.root,
-		'[path]': componoutPath,
-		'[name]': name,
-	})
+	var info = getComponoutConfig(name)
 	if(!info) {
 		log('preview option in componer.json not found.', 'error')
 		exit()

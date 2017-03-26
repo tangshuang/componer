@@ -1,5 +1,5 @@
 import Stream from 'stream'
-import {gulp, fs, path, args, log, config, exit, exists, scandir, readJSONTMPL, hasComponout, dashName, run, getFileExt} from '../loader'
+import {gulp, fs, path, args, log, config, exit, exists, scandir, readJSONTMPL, hasComponout, getComponoutConfig, dashName, run, getFileExt} from '../loader'
 import webpack from '../drivers/webpack'
 import sass from '../drivers/sass'
 
@@ -34,11 +34,7 @@ gulp.task('build', () => {
 	 * begin to compress build settings
 	 */
 
-	var info = readJSONTMPL(componoutPath + '/componer.json', {
-		'[root]': config.paths.root,
-		'[path]': componoutPath,
-		'[name]': name,
-	})
+	var info = getComponoutConfig(name)
 	var files = info.build
 	if(!files) {
 		log('build option in componer.json not found.', 'error')

@@ -2,7 +2,7 @@
   "name": "{{componout-name}}",
   "version": "0.0.1",
   "description": "{{componout name}}",
-  "main": "dist/js/{{componout-name}}.js",
+  "main": "dist/{{componout-name}}.js",
   "scripts": {},
   "keywords": [],
   "author": "{{author name}}",

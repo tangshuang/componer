@@ -1,6 +1,4 @@
-import {config} from '../loader'
-import {exists, scandir, readJSON} from './file'
-import {dashName} from './convert-name'
+import {config, exists, scandir, readJSON, readJSONTMPL, dashName} from '../loader'
 
 export function hasComponout(name) {
 	if(!exists(config.paths.componouts + '/' + name)) {
@@ -27,6 +25,16 @@ export function getComponout(name) {
 		path: dir,
 		info,
 	}
+}
+
+export function getComponoutConfig(name) {
+	var componoutPath = config.paths.componouts + '/' + name
+	var data = readJSONTMPL(componoutPath + '/componer.json', {
+		'root': config.paths.root,
+		'path': componoutPath,
+		'name': name,
+	})
+	return data
 }
 
 export function getComponouts() {
