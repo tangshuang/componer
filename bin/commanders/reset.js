@@ -5,7 +5,10 @@ import {readJSON, writeJSON} from '../libs/file'
 export default function(commander) {
     let cwd = root()
     let generator = path.resolve(__dirname, '../../generator')
-    let action = () => {
+
+    commander.command("reset")
+	.description("reset componer and curent project componer program")
+    .action(() => {
         check()
         log("Reset may change componer files in your project directory.")
         prompt('Are you sure to reset? yes/No ', answer => {
@@ -27,9 +30,5 @@ export default function(commander) {
             execute('cd ' + cwd + ' && npm install')
             exit()
         })
-    }
-
-    commander.command("reset")
-    	.description("reset componer and curent project componer program")
-        .action(action)
+    })
 }

@@ -47,25 +47,24 @@ export default function(commander) {
             }) //
         }) //
     }
-    let action = () => {
-        // if this directory is a componer directory, just modify files
-        if(is(cwd)) {
-            confirm()
-            return
-        }
-
-        if(scandir(cwd).length > 0) {
-            log('Current directory is not empty.', 'error')
-            return
-        }
-
-        log('copying files...')
-        execute('cp -rf ' + generator + '/. ' + cwd + '/', true)
-        execute('cd ' + cwd + ' && mkdir componouts', true)
-        confirm()
-    }
 
     commander.command('init')
-       .description('create a componer workflow frame instance')
-       .action(action)
+   .description('create a componer workflow frame instance')
+   .action(() => {
+       // if this directory is a componer directory, just modify files
+       if(is(cwd)) {
+           confirm()
+           return
+       }
+
+       if(scandir(cwd).length > 0) {
+           log('Current directory is not empty.', 'error')
+           return
+       }
+
+       log('copying files...')
+       execute('cp -rf ' + generator + '/. ' + cwd + '/', true)
+       execute('cd ' + cwd + ' && mkdir componouts', true)
+       confirm()
+   })
 }
