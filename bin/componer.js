@@ -2,7 +2,7 @@
 
 import fs from 'fs'
 import {exit, execute, log} from './libs/process'
-import {scandir, load} from './libs/file'
+import {readJSON, scandir, load} from './libs/file'
 
 import commander from 'commander'
 
@@ -12,6 +12,7 @@ if(argvs.length <= 2) {
 	exit()
 }
 
+var info = readJSON(__dirname + '/../package.json')
 commander
 	.version(info.version)
 	.usage("<task> [options] [name] [param...]")
@@ -23,9 +24,9 @@ commander
 		log("Not found `" + cmd + "` command, use `componer -h` to read more.", "warn")
 	})
 
-var commanders = scandir('./commanders')
+var commanders = scandir(__dirname + '/commanders')
 commanders.forEach(file => {
-    load('./commanders/' + file)(commander)
+    load(__dirname + '/commanders/' + file)(commander)
 })
 
 commander.parse(argvs)

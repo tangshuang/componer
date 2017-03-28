@@ -15,6 +15,24 @@ export function readJSON(file) {
 	return JSON.parse(read(file).toString())
 }
 
+export function readTMPL(file, parsers) {
+	if(!exists(file)) return
+	var content = read(file)
+	content = content.toString()
+	var keys = Object.keys(parsers)
+	keys.forEach(key => {
+		let value = parsers[key]
+		let reg = new RegExp('\\\[' + key + '\\\]', 'g')
+		content = content.replace(reg, value)
+	})
+	return content
+}
+
+export function readJSONTMPL(file, parsers) {
+	if(!exists(file)) return
+	return JSON.parse(readTMPL(file, parsers))
+}
+
 export function write(file, content) {
     fs.writeFileSync(file, content)
 }

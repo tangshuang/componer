@@ -1,15 +1,18 @@
 {
   "name": "componer",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "description": "A components builder tool",
   "main": "index.js",
   "bin": {
     "componer": ".bin/componer.js",
-    "componer-build": ".bin/componer-build.js",
-    "componer-test": ".bin/componer-test.js"
+    "componer:build": ".bin/componer-build.js",
+    "componer:watch": ".bin/componer-watch.js",
+    "componer:preview": ".bin/componer-preview.js",
+    "componer:test": ".bin/componer-test.js"
   },
   "scripts": {
-    "build": "gulp build"
+    "build": "gulp build",
+    "watch": "gulp watch"
   },
   "repository": {
     "type": "git",
@@ -26,15 +29,52 @@
   },
   "homepage": "https://github.com/tangshuang/componer#readme",
   "dependencies": {
+    "babel-core": "^6.21.0",
+    "babel-loader": "^6.4.1",
+    "babel-preset-env": "^1.2.1",
+    "bower-webpack-plugin": "^0.1.9",
     "commander": "^2.9.0",
+    "css-loader": "^0.27.3",
+    "extend": "^3.0.0",
+    "file-loader": "^0.10.1",
+    "gulp": "^3.9.1",
+    "gulp-bufferify": "0.0.4",
+    "gulp-css-copy-assets": "0.0.2",
+    "gulp-cssmin": "^0.1.7",
+    "gulp-postcss": "^6.4.0",
+    "gulp-rename": "^1.2.2",
+    "gulp-sass": "^3.1.0",
+    "gulp-sourcemaps": "^2.4.1",
+    "handlebars-loader": "^1.4.0",
+    "html-loader": "^0.4.5",
+    "jade-loader": "^0.8.0",
+    "json-loader": "^0.5.4",
+    "karma-chrome-launcher": "^2.0.0",
+    "karma-coverage": "^1.1.1",
+    "karma-firefox-launcher": "^1.0.1",
+    "karma-html-reporter": "^0.2.7",
+    "karma-ie-launcher": "^1.0.0",
+    "karma-jasmine": "^1.1.0",
+    "karma-phantomjs-launcher": "^1.0.4",
+    "karma-safari-launcher": "^1.0.0",
+    "karma-scss-preprocessor": "^2.0.0",
+    "karma-sourcemap-loader": "^0.3.7",
+    "karma-verbose-reporter": "0.0.6",
+    "karma-webpack": "^2.0.3",
+    "pipe-concat": "0.0.3",
+    "postcss-cssnext": "^2.10.0",
     "process.logger": "^1.1.2",
-    "shelljs": "^0.7.5"
+    "sass-loader": "^6.0.3",
+    "sass-module-importer": "^1.4.0",
+    "shelljs": "^0.7.5",
+    "style-loader": "^0.16.0",
+    "url-loader": "^0.5.8",
+    "webpack": "^1.14.0",
+    "webpack-bufferify": "0.0.2",
+    "webpack-stream": "^3.2.0"
   },
   "devDependencies": {
-    "babel-core": "^6.21.0",
-    "babel-preset-env": "^1.2.1",
     "babel-register": "^6.18.0",
-    "gulp": "^3.9.1",
     "gulp-babel": "^6.1.2",
     "gulp-cli": "^1.2.2"
   }

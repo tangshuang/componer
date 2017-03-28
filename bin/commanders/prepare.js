@@ -27,7 +27,7 @@ export default function(commander) {
 					let info = readJSON(bowerJson)
 					let deps = info.dependencies
 					let devdeps = info.devDependencies
-					picker.add(deps, bower).add(devdeps, bower)
+					picker.add(deps, 'bower').add(devdeps, 'bower')
 				}
 				if(exists(npmJson)) {
 					let info = readJSON(npmJson)

@@ -1,6 +1,7 @@
 import {root, check} from '../libs/componer'
 import {log, prompt, exit, execute} from '../libs/process'
 import {readJSON, writeJSON} from '../libs/file'
+import path from 'path'
 
 export default function(commander) {
     let cwd = root()
@@ -16,7 +17,7 @@ export default function(commander) {
             execute('rm -rf "' + cwd + '/gulp"', true)
             execute('rm -f "' + cwd + '/gulpfile.babel.js"', true)
             execute('cp -rf "' + generator + '/gulp/." "' + cwd + '/gulp/"', true)
-            execute('cp -f "' + generator + '/gulpfile.babel.js" "' + cwd + '/gulp/"', true)
+            execute('cp -f "' + generator + '/gulpfile.babel.js" "' + cwd + '/"', true)
 
             // use new package dependencies
             let pkgJson = cwd + "/package.json"

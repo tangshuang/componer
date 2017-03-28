@@ -6,3 +6,7 @@ gulp.task('build', () => {
         .pipe(babel())
         .pipe(gulp.dest('./.bin'))
 })
+
+gulp.task('watch', ['build'], () => {
+    gulp.watch('./bin/**/*', ['build'])
+})

@@ -1,8 +1,11 @@
 import {dash} from '../libs/convert'
-import {fixname, check, config} from '../libs/componer'
-import {execute} from '../libs/process'
+import {fixname, check, config, root} from '../libs/componer'
+import {execute, log} from '../libs/process'
+import {exists} from '../libs/file'
 
 export default function(commander) {
+    var cwd = root()
+
     commander
 	.command('add <name>')
 	.description('create a componout')
@@ -13,6 +16,7 @@ export default function(commander) {
 		name = fixname(name)
         check()
 
+        let gulp = root() + '/node_modules/.bin/gulp'
 		let configs = config()
 		let template = options.template || configs.defaults.template
 		let author = options.author || configs.project.author
@@ -31,7 +35,7 @@ export default function(commander) {
 			return
 		}
 
-		execute(`cd "${cwd}" && npm run gulp -- add --name=${name} --template=${template} --author=${author}`)
+		execute(`cd "${cwd}" && "${gulp}" add --name=${name} --template=${template} --author=${author}`)
 	})
 
     commander
@@ -40,7 +44,7 @@ export default function(commander) {
 	.action(name => {
 		if(name === undefined) {
 			check()
-			execute(`cd "${cwd}" && npm run gulp -- build`)
+			execute(`cd "${cwd}" && "${gulp}" build`)
             return
 		}
 
@@ -48,7 +52,7 @@ export default function(commander) {
         name = fixname(name)
         check(name)
 
-        execute(`cd "${cwd}" && npm run gulp -- build --name=${name}`)
+        execute(`cd "${cwd}" && "${gulp}" build --name=${name}`)
 	})
 
     commander
@@ -60,7 +64,7 @@ export default function(commander) {
 		name = fixname(name)
 		check(name)
 
-		let cmd = `cd "${cwd}" && npm run gulp -- preview --name=${name}`
+		let cmd = `cd "${cwd}" && "${gulp}" preview --name=${name}`
 		if(options.port) cmd += ` --port=${options.port}`
 		execute(cmd)
 	})
@@ -71,7 +75,7 @@ export default function(commander) {
 	.option('-D, --debug', 'whether to use browser to debug code')
 	.option('-b, --browser [browser]', 'which browser to use select one from [PhantomJS|Chrome|Firefox]')
 	.action((name, options) => {
-		let cmd = `cd "${cwd}" && npm run gulp -- test`
+		let cmd = `cd "${cwd}" && "${gulp}" test`
 
 		if(name === undefined) {
 			check()
@@ -100,13 +104,13 @@ export default function(commander) {
 	.action(name => {
 		if(name === undefined) {
 			check()
-			execute(`cd "${cwd}" && npm run gulp -- watch`)
+			execute(`cd "${cwd}" && "${gulp}" watch`)
 		}
 		else {
 			name = dash(name)
 			name = fixname(name)
 			check(name)
-			execute(`cd "${cwd}" && npm run gulp -- watch --name=${name}`)
+			execute(`cd "${cwd}" && "${gulp}" watch --name=${name}`)
 		}
 	})
 
@@ -116,6 +120,6 @@ export default function(commander) {
 	.description('list all componouts')
 	.action(() => {
 		check()
-		execute(`cd "${cwd}" && npm run gulp -- list`)
+		execute(`cd "${cwd}" && "${gulp}" list`)
 	})
 }
