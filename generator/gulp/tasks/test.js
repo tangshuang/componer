@@ -23,7 +23,7 @@ gulp.task('test', () => {
 	var name = dashName(arg.name)
 	if(!hasComponout(name)) {
 		log(`${name} not exists.`, 'error')
-		exit()
+		return
 	}
 
 	var rootPath = config.paths.root
@@ -32,24 +32,24 @@ gulp.task('test', () => {
 
 	if(!exists(componoutPath + '/componer.json')) {
 		log('componer.json not exists.', 'error')
-		exit()
+		return
 	}
 
 	var info = getComponoutConfig(name)
 	if(!info) {
 		log('test option in componer.json not found.', 'error')
-		exit()
+		return
 	}
 	info = info.test
 
 	if(!info.entry) {
 		log('test.entry option in componer.json not found.', 'error')
-		exit()
+		return
 	}
 	var entryfile = path.join(componoutPath, info.entry)
 	if(!exists(entryfile)) {
 		log(`test entry file not found.`, 'error')
-		exit()
+		return
 	}
 
 
@@ -72,7 +72,7 @@ gulp.task('test', () => {
 	var reportersDir = info.reporters
 	if(!reportersDir) {
 		log(`test.reporters option is not correct in your componer.json.`, 'error')
-		exit()
+		return
 	}
 
 	var reportersPath = path.join(componoutPath, reportersDir)

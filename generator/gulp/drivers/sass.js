@@ -1,3 +1,5 @@
+import path from 'path'
+
 import sassStream from './sass-stream'
 import concat from 'pipe-concat'
 

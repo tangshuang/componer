@@ -1,4 +1,4 @@
-import {gulp, path, fs, args, log, config, exit, exists, clear, load, read, readJSONTMPL, hasComponout, getComponoutConfig, dashName, camelName, getFileExt} from '../loader'
+import {gulp, path, fs, args, log, config, exit, exists, clear, load, read, readJSON, hasComponout, getComponoutConfig, dashName, camelName, getFileExt} from '../loader'
 
 import browsersync from 'browser-sync'
 
@@ -6,7 +6,7 @@ import bufferify from 'gulp-bufferify'
 import glob from 'glob'
 
 import webpackVendor from '../drivers/webpack-vendor'
-import webpackStream from 'webpack-stream'
+import webpackStream from '../drivers/webpack-stream'
 import sassStream from '../drivers/sass-stream'
 
 gulp.task('preview', () => {
@@ -71,7 +71,7 @@ gulp.task('preview', () => {
 			to: `${tmpdir}/${name}.vendors.js`,
 			options: {
 				sourcemap: true,
-				minify: true,
+				minify: false,
 			},
 			settings: {
 				path: `${tmpdir}/${name}.vendors.js.json`,
@@ -127,8 +127,8 @@ gulp.task('preview', () => {
 				res.setHeader('content-type', 'text/css')
 				sassStream(stylefile, `${tmpdir}/${name}.css`, {
 					sourcemap: true,
-					minify: true,
-					process(content) {
+					minify: false,
+					process(content, file) {
 						if(getFileExt(file.path) === '.css') {
 							res.end(content)
 						}
@@ -158,7 +158,7 @@ gulp.task('preview', () => {
 					sourcemap: true,
 					minify: true,
 					vendors: vendorsSettings,
-					process(content) {
+					process(content, file) {
 						if(getFileExt(file.path) === '.js') {
 							res.end(content)
 						}

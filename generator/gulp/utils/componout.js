@@ -17,11 +17,13 @@ export function getComponout(name) {
 	var infofile = dir + '/componer.json'
 	var info = exists(infofile) ? readJSON(infofile) : {
 		type: 'config file not found!',
+		version: ''
 	}
 
 	return {
 		name,
 		type: info.type || 'Not defined!',
+		version: info.version,
 		path: dir,
 		info,
 	}

@@ -1,5 +1,5 @@
 import {PackagesPicker, installPackages} from '../libs/package'
-import {check, fixname} from '../libs/componer'
+import {check, fixname, root} from '../libs/componer'
 import {scandir, exists, readJSON} from '../libs/file'
 import {dash} from '../libs/convert'
 import {log} from '../libs/process'
@@ -11,6 +11,7 @@ export default function(commander) {
 	.option('-F, --force', 'force to install packages if exists in local')
 	.action((name, options) => {
 		let picker = PackagesPicker()
+        let cwd = root()
 
 		/**
 		 * `comoner install`
@@ -20,7 +21,7 @@ export default function(commander) {
 			check()
 
 			// find out packages from json files
-			scandir(componoutsPath).forEach(name => {
+			scandir(cwd + '/componouts').forEach(name => {
 				let npmJson = `${cwd}/componouts/${name}/package.json`
 				let bowerJson = `${cwd}/componouts/${name}/bower.json`
 				if(exists(bowerJson)) {
@@ -59,7 +60,7 @@ export default function(commander) {
 					let info = readJSON(bowerJson)
 					let deps = info.dependencies
 					let devdeps = info.devDependencies
-					picker.add(deps, bower).add(devdeps, bower)
+					picker.add(deps, 'bower').add(devdeps, 'bower')
 				}
 				if(exists(npmJson)) {
 					let info = readJSON(npmJson)
@@ -73,7 +74,6 @@ export default function(commander) {
 		// install npm packages
 		installPackages(picker.use())
 
-		log('Package has been installed.', 'done')
-		return
+		log('All (dev)dependencies have been installed.', 'done')
 	})
 }

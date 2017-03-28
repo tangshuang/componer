@@ -2,7 +2,7 @@ import shell from 'shelljs'
 import logger from 'process.logger'
 
 export function exit() {
-	process.exit()
+	process.exit(0)
 }
 
 export function execute(cmd, done, fail) {
@@ -34,7 +34,7 @@ export function log(content, level) {
 }
 
 export function run(task, args) {
-	var cmd = 'npm run gulp -- ' + task
+	var cmd = '"' + __dirname + '/../../node_modules/.bin/gulp" ' + task
 
 	if(args) {
 		for(let key in args) {

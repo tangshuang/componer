@@ -1,22 +1,22 @@
 import readline from 'readline'
-import {config} from './componer'
+import {config, root} from './componer'
 
 import shell from 'shelljs'
 import logger from 'process.logger'
 
 export function exit() {
-    process.exit()
+    process.exit(0)
 }
 
 export function execute(cmd, done, fail) {
     var settings = config()
-    var gulp = 'npm run gulp --'
+    var gulp = root() + '/node_modules/.bin/gulp'
 
-    if(cmd.indexOf(gulp) === 0 || cmd.indexOf(' ' + gulp + ' ') > 0) {
+    if(cmd.indexOf(gulp) === 0 || cmd.indexOf(' "' + gulp + '" ') > 0) {
 		if(settings.color) {
 			cmd += ' --color'
 		}
-		if(!settings.slient) {
+		if(settings.slient) {
 			cmd += ' --silent'
 		}
 	}

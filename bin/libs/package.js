@@ -88,19 +88,20 @@ export function PackagesPicker() {
 }
 
 export function installPackages(pkgs) {
+    var cwd = root()
 	var localBowerPkgs = getLocalPackagesByType('bower')
 	var localNpmPkgs = getLocalPackagesByType('npm')
-	var install = (name, version, driver) => {
-        if(driver === 'bower') {
-            driver = root() + '/node_modules/.bin/bower'
+    var allPkgs = {
+        npm: [],
+        bower: [],
+    }
+	var add = (name, version, driver) => {
+        let pkg = driver === 'bower' ? name + '#' + version : name + '@' + version
+        // version is a url or path
+        if(version.indexOf('/') > -1) {
+            pkg = version
         }
-		// version is a url or path
-		if(version.indexOf('/') > -1) {
-			execute(`cd "${cwd}" && "${driver}" install ${version}`)
-			return
-		}
-		// install by npm and bower when fail
-		execute(`cd "${cwd}" && "${driver}" install ${name}@${version}`)
+        allPkgs[driver] && pkgs[driver].push(pkg)
 	}
 
 	pkgs.forEach(pkg => {
@@ -118,6 +119,15 @@ export function installPackages(pkgs) {
 			if(localPkgVer >= version) return
 		}
 
-		install(name, version, driver)
+		add(name, version, driver)
 	})
+    if(allPkgs.bower.length > 0) {
+        let bower = root() + '/node_modules/.bin/bower'
+        let bowerPkgs = allPkgs.bower.join(' ')
+        execute(`cd "${cwd}" && "${bower}" install ${bowerPkgs}`)
+    }
+    if(allPkgs.npm.length > 0) {
+        let npmPkgs = allPkgs.npm.join(' ')
+        execute(`cd "${cwd}" && npm install ${npmPkgs}`)
+    }
 }

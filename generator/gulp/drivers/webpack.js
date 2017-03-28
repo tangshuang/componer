@@ -37,7 +37,7 @@ export default function(from, to, options = {}, settings  = {}) {
     }
 
     // if vendors is false, all of vendors will not be included in output code
-    if(vendors === false) {
+    if(vendors === false || vendors === null) {
         settings.externals = getVendors()
     }
 

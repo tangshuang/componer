@@ -27,8 +27,8 @@ export default function(commander) {
             pkgInfo.devDependencies = newPkgInfo.devDependencies
             writeJSON(pkgJson, pkgInfo)
 
-            log("npm install...")
-            execute('cd ' + cwd + ' && npm install')
+            log("npm install...", 'help')
+            execute(`cd "${cwd}" && npm install`)
             exit()
         })
     })

@@ -5,10 +5,10 @@
   "main": "index.js",
   "bin": {
     "componer": ".bin/componer.js",
-    "componer:build": ".bin/componer-build.js",
-    "componer:watch": ".bin/componer-watch.js",
-    "componer:preview": ".bin/componer-preview.js",
-    "componer:test": ".bin/componer-test.js"
+    "componer-build": ".bin/componer-build.js",
+    "componer-watch": ".bin/componer-watch.js",
+    "componer-preview": ".bin/componer-preview.js",
+    "componer-test": ".bin/componer-test.js"
   },
   "scripts": {
     "build": "gulp build",
@@ -39,7 +39,7 @@
     "file-loader": "^0.10.1",
     "gulp": "^3.9.1",
     "gulp-bufferify": "0.0.4",
-    "gulp-css-copy-assets": "0.0.2",
+    "gulp-css-copy-assets": "0.0.3",
     "gulp-cssmin": "^0.1.7",
     "gulp-postcss": "^6.4.0",
     "gulp-rename": "^1.2.2",

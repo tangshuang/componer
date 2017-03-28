@@ -7,7 +7,7 @@ gulp.task('add', () => {
 
 	if(!name.substr(0, 1).match(/[a-z]/)) {
 		log('Error: component name\'s first letter must be in [a-z].', 'error')
-		exit()
+		return
 	}
 
 	var template = arg.template || config.componer.defaults.template
@@ -17,7 +17,7 @@ gulp.task('add', () => {
 
 	if(exists(componoutPath)) {
 		log(`Error: ${name} exists, delete ${config.dirs.componouts}/${name} before you add.`, 'error')
-		exit()
+		return
 	}
 
 	mkdir(componoutPath)

@@ -6,15 +6,18 @@ import {getLocalPackagesByType} from '../libs/package'
 
 export default function(commander) {
     commander
-    .command('install <pkg> to <name>')
+    .command('install <pkg> [to] <name>')
     .description('install a pacakge to a componout')
 	.option('-S, --save', 'save to .json dependencies (default)')
 	.option('-D, --savedev', 'save to .json devDependencies')
 	.option('-F, --force', 'force to install packages if exists in local')
-    .action((pkg, name, options) => {
+    .action((pkg, to, name, options) => {
 		name = dash(name)
 		name = fixname(name)
 		check(name)
+
+        let cwd = root()
+        let bower = cwd + '/node_modules/.bin/bower'
 
 		let updateVersion = (file, name, version = null, dev = false) => {
  			// add dependencies into package.json of componout
@@ -42,7 +45,7 @@ export default function(commander) {
 		let localNpmPkgs = getLocalPackagesByType('npm')
 		let npmJson = `${cwd}/componouts/${name}/package.json`
 		let bowerJson = `${cwd}/componouts/${name}/bower.json`
-        let bower = root() + '/node_modules/.bin/bower'
+
 		let bowerInstall = (pkg, version) => {
  			if(!exists(bowerJson)) return
 
@@ -60,15 +63,13 @@ export default function(commander) {
 			if(!exists(npmJson)) return
 
 			if(!options.force && !version && localNpmPkgs[pkg]) {
-				updateVersion(npmJson, pkg, localNpmPkgs[pkg].version, options.savedev)
+				updateVersion(npmJson, pkg, '^' + localNpmPkgs[pkg].version, options.savedev)
 				return
 			}
 
 			let cmd = `cd "${cwd}" && npm install ${pkg}`
 			cmd += version ? `@${version}` : ''
-			return execute(cmd, () => {
-				updateVersion(npmJson, pkg, version, options.savedev)
-			})
+			return execute(cmd, () => updateVersion(npmJson, pkg, '^' + version, options.savedev))
 		}
 
 		let [pkgName, pkgVer] = pkg.split(/[#@]/)
@@ -78,8 +79,11 @@ export default function(commander) {
 		else if(exists(npmJson)) {
 			npmInstall(pkgName, pkgVer)
 		}
+        else {
+            log('Your componout type is not bower or npm.', 'warn')
+            return
+        }
 
 		log('Package has been installed.', 'done')
-		return
 	})
 }

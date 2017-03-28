@@ -1,6 +1,7 @@
 import {dash} from '../libs/convert'
-import {fixname, check} from '../libs/componer'
-import {execute, prompt} from '../libs/process'
+import {fixname, check, root} from '../libs/componer'
+import {execute, prompt, log, exit} from '../libs/process'
+import {exists, remove} from '../libs/file'
 
 export default function(commander) {
     commander
@@ -14,14 +15,11 @@ export default function(commander) {
 
 		prompt('Are you sure to remove ' + name + ' componout? yes/No  ', choice => {
 			if(choice === 'yes') {
+                let cwd = root()
 				let componoutPath = `${cwd}/componouts/${name}`
-				if(exists(`${cwd}/bower_components/${name}`)) {
-					remove(`${cwd}/bower_components/${name}`)
-				}
-				if(exists(`${cwd}/node_modules/${name}`)) {
-					remove(`${cwd}/node_modules/${name}`)
-				}
-				execute(`cd '${cwd}' && cd componouts && rm -rf ${name}`, true)
+                remove(`${cwd}/bower_components/${name}`)
+                remove(`${cwd}/node_modules/${name}`)
+				execute(`cd "${cwd}" && cd componouts && rm -rf ${name}`, true)
 				log('Done! ' + name + ' has been deleted.', 'done')
 			}
 			exit()

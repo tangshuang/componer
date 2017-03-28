@@ -27,7 +27,7 @@
     "gulp-bufferify": "0.0.4",
     "gulp-cli": "^1.2.2",
     "gulp-concat": "^2.6.1",
-    "gulp-css-copy-assets": "0.0.2",
+    "gulp-css-copy-assets": "0.0.3",
     "gulp-cssmin": "^0.1.7",
     "gulp-jasmine-node": "^1.0.7",
     "gulp-karma-runner": "^1.2.0",

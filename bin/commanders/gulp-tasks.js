@@ -3,6 +3,9 @@ import {fixname, check, config, root} from '../libs/componer'
 import {execute, log} from '../libs/process'
 import {exists} from '../libs/file'
 
+let cwd = root()
+let gulp = cwd + '/node_modules/.bin/gulp'
+
 export default function(commander) {
     var cwd = root()
 
@@ -16,7 +19,6 @@ export default function(commander) {
 		name = fixname(name)
         check()
 
-        let gulp = root() + '/node_modules/.bin/gulp'
 		let configs = config()
 		let template = options.template || configs.defaults.template
 		let author = options.author || configs.project.author

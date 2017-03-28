@@ -5,6 +5,21 @@ export function exists(file) {
     return fs.existsSync(file)
 }
 
+export function isFile(file) {
+	if(!exists(file)) return
+	return fs.lstatSync(file).isFile()
+}
+
+export function isDir(dir) {
+	if(!exists(dir)) return
+	return fs.lstatSync(dir).isDirectory()
+}
+
+export function isSymLink(file) {
+	if(!exists(file)) return
+	return fs.lstatSync(file).isSymbolicLink()
+}
+
 export function read(file) {
     if(!exists(file)) return
     return fs.readFileSync(file)
@@ -46,24 +61,19 @@ export function scandir(dir) {
 	return fs.readdirSync(dir)
 }
 
-export function link(file, target) {
-    if(!exists(file)) return
-    fs.symlinkSync(target, file, fs.lstatSync(file).isDirectory() ? 'dir' : 'file')
+export function link(from, to) {
+    if(!exists(from)) return
+    fs.symlinkSync(from, to, fs.lstatSync(from).isDirectory() ? 'dir' : 'file')
 }
 
 export function remove(file) {
     if(!exists(file)) return
-	fs.unlinkSync(file)
+	shell.exec(`rm -rf "${file}"`)
 }
 
 export function clear(dir) {
     if(!exists(dir)) return
 	shell.exec(`cd "${dir}" && rm -rf * && rm -rf .??*`)
-}
-
-export function rmdir(dir) {
-    if(!exists(dir)) return
-	shell.exec(`rm -rf "${dir}"`)
 }
 
 export function load(file, useDefault = true) {

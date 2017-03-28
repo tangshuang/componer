@@ -20,14 +20,14 @@ gulp.task('build', () => {
 	var name = dashName(arg.name)
 	if(!hasComponout(name)) {
 		log(`${name} not exists.`, 'error')
-		exit()
+		return
 	}
 
 	var componoutPath = path.join(config.paths.componouts, name)
 
 	if(!exists(componoutPath + '/componer.json')) {
 		log('componer.json not exists.', 'error')
-		exit()
+		return
 	}
 
 	/**
@@ -38,7 +38,7 @@ gulp.task('build', () => {
 	var files = info.build
 	if(!files) {
 		log('build option in componer.json not found.', 'error')
-		exit()
+		return
 	}
 
 	var streams = []
@@ -63,6 +63,4 @@ gulp.task('build', () => {
 
 	// build fail
 	log('Something is wrong. Check your componer.json.', 'warn')
-	exit()
-
 })

@@ -90,7 +90,7 @@ export function copy(from, to) {
 	execute(`cp -rf "${from}" "${to}"`)
 }
 
-function load(file, useDefault = true) {
+export function load(file, useDefault = true) {
 	if(!exists(file)) return
 	var rs = requireload(file)
 	if(typeof rs === 'object') {

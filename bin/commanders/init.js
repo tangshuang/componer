@@ -40,7 +40,7 @@ export default function(commander) {
                     info.author = dash(author)
 
                     update(info)
-
+                    log('npm install ...', 'help')
                     execute('cd ' + cwd + ' && npm install')
                     exit()
                 }) //
