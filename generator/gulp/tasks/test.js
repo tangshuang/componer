@@ -107,9 +107,9 @@ gulp.task('test', () => {
 	// in fact, lower version of Chrome or Firefox are not support to. however, developer should make sure to use higher version of this browsers
 	let launchers = karmaSettings.browsers
 	if(launchers.indexOf('PhantomJS') > -1 || launchers.indexOf('IE') > -1 || launchers.indexOf('Safari') > -1) {
-		entryfiles.unshift(path.join(rootPath, 'node_modules/babel-polyfill/lib/index.js'))
-		preprocessors[path.join(rootPath, 'node_modules/babel-polyfill/**/*.js')] = ['webpack', 'sourcemap']
+		entryfiles.unshift(path.join(rootPath, 'node_modules/core-js/es6/symbol.js'))
 	}
+
 
 	return gulp.src(entryfiles)
 		.pipe(karma.server(karmaConfig(karmaSettings)))

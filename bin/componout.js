@@ -8,14 +8,14 @@ import commander from 'commander'
 
 var argvs = process.argv
 if(argvs.length <= 2) {
-	execute('componer -h')
+	execute('componout -h')
 	exit()
 }
 
 var info = readJSON(__dirname + '/../package.json')
 commander
 	.version(info.version)
-	.usage("<task> [options] [name] [param...]")
+	.usage("<task> [options]")
 	.option("-v, --version", "same as `-V`")
 
 commander
@@ -24,9 +24,9 @@ commander
 		log("Not found `" + cmd + "` command, use `componer -h` to read more.", "warn")
 	})
 
-var commanders = scandir(__dirname + '/commanders')
+var commanders = scandir(__dirname + '/tasks')
 commanders.forEach(file => {
-    load(__dirname + '/commanders/' + file)(commander)
+    load(__dirname + '/tasks/' + file)(commander)
 })
 
 commander.parse(argvs)

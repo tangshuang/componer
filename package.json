@@ -5,10 +5,7 @@
   "main": "index.js",
   "bin": {
     "componer": ".bin/componer.js",
-    "componer-build": ".bin/componer-build.js",
-    "componer-watch": ".bin/componer-watch.js",
-    "componer-preview": ".bin/componer-preview.js",
-    "componer-test": ".bin/componer-test.js"
+    "componout": ".bin/componout.js"
   },
   "scripts": {
     "build": "gulp build",
