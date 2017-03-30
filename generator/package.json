@@ -71,7 +71,7 @@
     "through2": "^2.0.3",
     "url-loader": "^0.5.7",
     "webpack": "^1.14.0",
-    "webpack-bufferify": "0.0.2",
+    "webpack-bufferify": "^0.0.3",
     "webpack-stream": "^3.2.0"
   }
 }
