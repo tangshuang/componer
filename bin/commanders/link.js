@@ -1,7 +1,7 @@
-import {exists, link, readJSON, scandir, remove} from '../libs/file'
-import {check, fixname, root} from '../libs/componer'
-import {dash} from '../libs/convert'
-import {execute} from '../libs/process'
+import {exists, link, readJSON, scandir, remove} from '../utils/file'
+import {check, fixname, root} from '../utils/componer'
+import {dash} from '../utils/convert'
+import {execute} from '../utils/process'
 
 export default function(commander) {
     commander

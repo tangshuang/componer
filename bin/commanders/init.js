@@ -1,8 +1,8 @@
 import path from 'path'
-import {scandir, readJSON, writeJSON} from '../libs/file'
-import {is, root} from '../libs/componer'
-import {log, execute, prompt, exit} from '../libs/process'
-import {dash} from '../libs/convert'
+import {scandir, readJSON, writeJSON} from '../utils/file'
+import {is, root} from '../utils/componer'
+import {log, execute, prompt, exit} from '../utils/process'
+import {dash} from '../utils/convert'
 
 export default function(commander) {
     let cwd = process.cwd()

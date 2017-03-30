@@ -1,6 +1,6 @@
-import {root, check} from '../libs/componer'
-import {log, prompt, exit, execute} from '../libs/process'
-import {readJSON, writeJSON} from '../libs/file'
+import {root, check} from '../utils/componer'
+import {log, prompt, exit, execute} from '../utils/process'
+import {readJSON, writeJSON} from '../utils/file'
 import path from 'path'
 
 export default function(commander) {

@@ -18,7 +18,9 @@
 				"target": "node",
 				"node": {
 					"global": false,
-					"Buffer": false
+					"Buffer": false,
+			        "__dirname": false,
+			        "__filename": false,
 				}
             }
 		}

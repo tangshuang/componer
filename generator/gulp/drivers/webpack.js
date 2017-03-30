@@ -38,7 +38,15 @@ export default function(from, to, options = {}, settings  = {}) {
 
     // if vendors is false, all of vendors will not be included in output code
     if(vendors === false || vendors === null) {
-        settings.externals = getVendors()
+        let externals = settings.externals || []
+        settings.externals = externals.concat([
+            (context, request, callback) => {
+                if(request.indexOf('.') !== 0 || request.indexOf('/') !== 0) {
+                    return callback(null, request)
+                }
+                callback()
+            }
+        ])
     }
 
     if(hasVendors) {
@@ -57,33 +65,4 @@ export default function(from, to, options = {}, settings  = {}) {
     }
 
     return concat(streams)
-}
-
-function getVendors() {
-    let packages = []
-    let add = name => {
-        if(name.indexOf('.') === 0) return
-        packages.push(name)
-    }
-
-    let node_modules = __dirname + '/../../node_modules'
-    fs.readdirSync(node_modules).forEach(add)
-
-    let bower_components = __dirname + '/../../bower_components'
-    if(fs.existsSync(bower_components)) {
-        fs.readdirSync(bower_components).forEach(add)
-    }
-
-    let factory = (context, request, callback) => {
-        if(request.indexOf('.') !== 0 && request.indexOf('/') > -1) {
-            let pkg = request.substr(0, request.indexOf('/'))
-            if(packages.indexOf(pkg) > -1) {
-                return callback(null, request)
-            }
-        }
-        callback()
-    }
-    packages.push(factory)
-
-    return packages
 }

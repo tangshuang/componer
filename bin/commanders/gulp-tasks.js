@@ -1,7 +1,7 @@
-import {dash} from '../libs/convert'
-import {fixname, check, config, root} from '../libs/componer'
-import {execute, log} from '../libs/process'
-import {exists} from '../libs/file'
+import {dash} from '../utils/convert'
+import {fixname, check, config, root} from '../utils/componer'
+import {execute, log} from '../utils/process'
+import {exists} from '../utils/file'
 
 let cwd = root()
 let gulp = cwd + '/node_modules/.bin/gulp'

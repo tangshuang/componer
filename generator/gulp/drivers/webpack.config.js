@@ -17,6 +17,7 @@ export default function(settings) {
 				'componouts',
 			],
 		},
+		externals: [],
 		plugins: [],
 	}
 

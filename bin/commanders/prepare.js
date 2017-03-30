@@ -1,8 +1,8 @@
-import {PackagesPicker, installPackages} from '../libs/package'
-import {check, fixname, root} from '../libs/componer'
-import {scandir, exists, readJSON} from '../libs/file'
-import {dash} from '../libs/convert'
-import {log} from '../libs/process'
+import {PackagesPicker, installPackages} from '../utils/package'
+import {check, fixname, root} from '../utils/componer'
+import {scandir, exists, readJSON} from '../utils/file'
+import {dash} from '../utils/convert'
+import {log} from '../utils/process'
 
 export default function(commander) {
     commander

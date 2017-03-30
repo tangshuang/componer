@@ -75,13 +75,3 @@ export function clear(dir) {
     if(!exists(dir)) return
 	shell.exec(`cd "${dir}" && rm -rf * && rm -rf .??*`)
 }
-
-export function load(file, useDefault = true) {
-	if(!exists(file)) return
-	var rs = require(file)
-	if(typeof rs === 'object') {
-		if(useDefault && rs.default) return rs.default
-		else return rs
-	}
-	return rs
-}

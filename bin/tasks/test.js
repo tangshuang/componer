@@ -1,6 +1,6 @@
 import path from 'path'
-import {log} from '../libs/process'
-import {exists, readJSONTMPL, getFileExt, mkdir} from '../libs/file'
+import {log} from '../utils/process'
+import {exists, readJSONTMPL, getFileExt, mkdir} from '../utils/file'
 
 import karmaConfig from '../drivers/karma.config'
 import karma from 'gulp-karma-runner'

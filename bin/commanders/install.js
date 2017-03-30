@@ -1,8 +1,8 @@
-import {dash} from '../libs/convert'
-import {check, fixname, root} from '../libs/componer'
-import {log, execute} from '../libs/process'
-import {exists, readJSON, writeJSON} from '../libs/file'
-import {getLocalPackagesByType} from '../libs/package'
+import {dash} from '../utils/convert'
+import {check, fixname, root} from '../utils/componer'
+import {log, execute} from '../utils/process'
+import {exists, readJSON, writeJSON} from '../utils/file'
+import {getLocalPackagesByType} from '../utils/package'
 
 export default function(commander) {
     commander

@@ -1,6 +1,6 @@
-import {dash} from '../libs/convert'
-import {check, fixname, config, has, root} from '../libs/componer'
-import {log, execute, exit} from '../libs/process'
+import {dash} from '../utils/convert'
+import {check, fixname, config, has, root} from '../utils/componer'
+import {log, execute, exit} from '../utils/process'
 
 export default function(commander) {
     commander

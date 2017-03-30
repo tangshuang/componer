@@ -1,6 +1,6 @@
 import path from 'path'
 import webpackConfig from './webpack.config'
-import {camel} from '../libs/convert'
+import {camel} from '../utils/convert'
 
 import extend from 'extend'
 import webpack from 'webpack'

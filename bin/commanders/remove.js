@@ -1,7 +1,7 @@
-import {dash} from '../libs/convert'
-import {fixname, check, root} from '../libs/componer'
-import {execute, prompt, log, exit} from '../libs/process'
-import {exists, remove} from '../libs/file'
+import {dash} from '../utils/convert'
+import {fixname, check, root} from '../utils/componer'
+import {execute, prompt, log, exit} from '../utils/process'
+import {exists, remove} from '../utils/file'
 
 export default function(commander) {
     commander

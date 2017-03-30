@@ -1,6 +1,6 @@
 import path from 'path'
-import {log} from '../libs/process'
-import {exists, readJSONTMPL, getFileExt} from '../libs/file'
+import {log} from '../utils/process'
+import {exists, readJSONTMPL, getFileExt} from '../utils/file'
 import webpack from '../drivers/webpack'
 import sass from '../drivers/sass'
 

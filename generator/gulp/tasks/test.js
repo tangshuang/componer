@@ -1,4 +1,4 @@
-import {gulp, path, fs, args, log, config, exit, exists, scandir, mkdir, load, hasComponout, getComponoutConfig, dashName, run} from '../loader'
+import {gulp, path, fs, args, log, config, exit, exists, scandir, mkdir, hasComponout, getComponoutConfig, dashName, run} from '../loader'
 
 import karmaConfig from '../drivers/karma.config'
 import karma from 'gulp-karma-runner'

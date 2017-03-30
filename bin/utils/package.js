@@ -1,4 +1,4 @@
-import {exists, readJSON, scandir} from './file'
+import {exists, readJSON, scandir} from '../../generator/gulp/utils/file'
 import {root} from './componer'
 import {execute} from './process'
 

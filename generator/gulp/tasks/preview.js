@@ -1,4 +1,4 @@
-import {gulp, path, fs, args, log, config, exit, exists, clear, load, read, readJSON, hasComponout, getComponoutConfig, dashName, camelName, getFileExt} from '../loader'
+import {gulp, path, fs, args, log, config, exit, exists, clear, read, readJSON, hasComponout, getComponoutConfig, dashName, camelName, getFileExt} from '../loader'
 
 import browsersync from 'browser-sync'
 
@@ -170,7 +170,7 @@ gulp.task('preview', () => {
 
 	// build server
 	if(serverfile && exists(serverfile)) {
-		let serverware = load(serverfile)
+		let serverware = require(serverfile)
 		if(serverware instanceof Array) {
 			middlewares = middlewares.concat(serverware)
 		}
