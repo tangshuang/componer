@@ -4,7 +4,7 @@ import 'babel-register'
 
 import fs from 'fs'
 import {exit, execute, log} from './utils/process'
-import {readJSON, scandir} from './utils/file'
+import {readJSON, scandir, load} from './utils/file'
 
 import commander from 'commander'
 
@@ -28,7 +28,7 @@ commander
 
 var commanders = scandir(__dirname + '/tasks')
 commanders.forEach(file => {
-    require(__dirname + '/tasks/' + file)(commander)
+    load(__dirname + '/tasks/' + file)(commander)
 })
 
 commander.parse(argvs)

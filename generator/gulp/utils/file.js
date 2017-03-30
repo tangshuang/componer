@@ -89,6 +89,16 @@ export function copy(from, to) {
 	execute(`cp -rf "${from}" "${to}"`)
 }
 
+export function load(file, useDefault = true) {
+	if(!exists(file)) return
+	var rs = require(file)
+	if(typeof rs === 'object') {
+		if(useDefault && rs.default) return rs.default
+		else return rs
+	}
+	return rs
+}
+
 export function getFileExt(file) {
 	return file.substr(file.lastIndexOf('.'))
 }
