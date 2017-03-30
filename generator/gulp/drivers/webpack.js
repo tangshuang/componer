@@ -78,12 +78,12 @@ function getVendors() {
         if(request.indexOf('.') !== 0 && request.indexOf('/') > -1) {
             let pkg = request.substr(0, request.indexOf('/'))
             if(packages.indexOf(pkg) > -1) {
-                return callback(null, pkg)
+                return callback(null, request)
             }
         }
         callback()
     }
-    pacakges.push(factory)
+    packages.push(factory)
 
     return packages
 }
