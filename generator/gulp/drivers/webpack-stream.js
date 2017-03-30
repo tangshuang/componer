@@ -1,6 +1,5 @@
 import path from 'path'
 import webpackConfig from './webpack.config'
-import {camelName} from '../utils/convert-name'
 
 import gulp from 'gulp'
 import extend from 'extend'
@@ -30,7 +29,7 @@ export default function(from, to, options = {}, settings  = {}) {
     var defaults = {
         output: {
             filename: filename,
-            library: camelName(name, true),
+            library: name,
             sourceMapFilename: filename + '.map',
         },
         plugins: [],

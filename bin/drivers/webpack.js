@@ -60,20 +60,30 @@ export default function(from, to, options = {}, settings  = {}) {
 }
 
 function getVendors() {
-    let cwd = process.cwd()
-    let packages = {}
+    let packages = []
     let add = name => {
         if(name.indexOf('.') === 0) return
-        packages[name] = name
+        packages.push(name)
     }
 
-    let node_modules = cwd + '/node_modules'
+    let node_modules = __dirname + '/../../node_modules'
     fs.readdirSync(node_modules).forEach(add)
 
-    let bower_components = cwd + '/bower_components'
+    let bower_components = __dirname + '/../../bower_components'
     if(fs.existsSync(bower_components)) {
         fs.readdirSync(bower_components).forEach(add)
     }
+
+    let factory = (context, request, callback) => {
+        if(request.indexOf('.') !== 0 && request.indexOf('/') > -1) {
+            let pkg = request.substr(0, request.indexOf('/'))
+            if(packages.indexOf(pkg) > -1) {
+                return callback(null, pkg)
+            }
+        }
+        callback()
+    }
+    pacakges.push(factory)
 
     return packages
 }
