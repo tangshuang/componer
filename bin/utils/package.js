@@ -16,7 +16,8 @@ export function getLocalPackages() {
         })
     })
     scandir(cwd + '/node_modules').forEach(item => {
-        if(item.substr(0, 1) === '.') return
+        let firstLetter = item.substr(0, 1)
+        if(firstLetter === '.' || firstLetter === '@') return
         let info = readJSON(cwd + '/node_modules/' + item + '/package.json')
         packages.push({
             name: item,
@@ -101,7 +102,7 @@ export function installPackages(pkgs) {
         if(version.indexOf('/') > -1) {
             pkg = version
         }
-        allPkgs[driver] && pkgs[driver].push(pkg)
+        allPkgs[driver] && allPkgs[driver].push(pkg)
 	}
 
 	pkgs.forEach(pkg => {
@@ -121,6 +122,7 @@ export function installPackages(pkgs) {
 
 		add(name, version, driver)
 	})
+
     if(allPkgs.bower.length > 0) {
         let bower = root() + '/node_modules/.bin/bower'
         let bowerPkgs = allPkgs.bower.join(' ')
