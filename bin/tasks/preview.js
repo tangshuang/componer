@@ -252,4 +252,4 @@ export default function(commander) {
     		middleware: middlewares,
     	})
     })
-})
+}
