@@ -1,5 +1,6 @@
 import gulp from 'gulp'
 import babel from 'gulp-babel'
+import shell from 'shelljs'
 
 gulp.task('build', () => {
     gulp.src('./bin/**/*')
