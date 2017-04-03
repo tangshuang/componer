@@ -1,7 +1,5 @@
 #!/usr/bin/env node
 
-import 'babel-register'
-
 import fs from 'fs'
 import {exit, execute, log} from './utils/process'
 import {readJSON, scandir, load} from './utils/file'

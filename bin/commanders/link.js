@@ -1,4 +1,4 @@
-import {exists, link, readJSON, scandir, remove} from '../utils/file'
+import {exists, link, readJSON, scandir, remove, isSymLink} from '../utils/file'
 import {check, fixname, root} from '../utils/componer'
 import {dash} from '../utils/convert'
 import {execute, log} from '../utils/process'
@@ -7,8 +7,11 @@ export default function(commander) {
     commander
     .command('link [name]')
 	.description('link local componout as package')
+    .option('-F, --force', 'force use bower/npm link to symbolic link')
 	.action(name => {
         let cwd = root()
+        let bower = cwd + '/node_modules/.bin/bower'
+
 		let LinkPkg = name => {
             let jsonfile = `${cwd}/componouts/${name}/componer.json`
             if(!exists(jsonfile)) {
@@ -20,11 +23,19 @@ export default function(commander) {
 			if(type === 'bower' && exists(`${cwd}/componouts/${name}/bower.json`)) {
                 remove(`${cwd}/bower_components/${name}`)
 				link(`${cwd}/componouts/${name}`, `${cwd}/bower_components/${name}`)
+                if(!isSymLink(`${cwd}/bower_components/${name}`) && options.force) {
+                    execute(`cd "${cwd}/componouts/${name}" && "${bower}" link`)
+                    execute(`cd "${cwd}" && "${bower}" link ${name}`)
+                }
                 log(name + ' is linked as bower component.', 'done')
 			}
 			else if(type === 'npm' && exists(`${cwd}/componouts/${name}/package.json`)) {
                 remove(`${cwd}/node_modules/${name}`)
 				link(`${cwd}/componouts/${name}`, `${cwd}/node_modules/${name}`)
+                if(!isSymLink(`${cwd}/bower_components/${name}`) && options.force) {
+                    execute(`cd "${cwd}/componouts/${name}" && npm link`)
+                    execute(`cd "${cwd}" && npm link ${name}`)
+                }
                 log(name + ' is linked as npm package.', 'done')
 			}
             else {

@@ -6,7 +6,7 @@ import {getLocalPackagesByType} from '../utils/package'
 
 export default function(commander) {
     commander
-    .command('install <pkg> [to] <name>')
+    .command('install <pkg> <to> <name>')
     .description('install a pacakge to a componout')
 	.option('-S, --save', 'save to .json dependencies (default)')
 	.option('-D, --savedev', 'save to .json devDependencies')

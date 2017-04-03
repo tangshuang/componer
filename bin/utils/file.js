@@ -63,7 +63,7 @@ export function scandir(dir) {
 
 export function link(from, to) {
     if(!exists(from)) return
-    fs.symlinkSync(from, to, fs.lstatSync(from).isDirectory() ? 'dir' : 'file')
+    execute(`ln -s "${from}" "${to}"`)
 }
 
 export function remove(file) {

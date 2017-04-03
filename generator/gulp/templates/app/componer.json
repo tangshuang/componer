@@ -34,7 +34,8 @@
 		"style": "preview/{{componout-name}}.scss",
 		"server": "preview/server.js",
         "tmpdir": ".preview_tmp",
-		"watchFiles": [
+		"vendors": [],
+		"watch": [
 			"preview/index.html",
 			"preview/{{componout-name}}.js",
 			"preview/{{componout-name}}.scss",

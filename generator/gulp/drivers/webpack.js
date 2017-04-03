@@ -14,7 +14,11 @@ import concat from 'pipe-concat'
 @param object options: {
     boolean sourcemap: whether to use sourcemap,
     boolean minify: whether to minify code, the minify codes are in another .min file
-    array|boolean vendors: vendors to be seperated from output built file, if false, ignore all externals packages
+    array|boolean vendors:
+        if array, seperated them from output built file to be in a single bundle file,
+        if true, use dependencies as vendors,
+        if false, ignore all externals packages, ignore means without vendors bundle,
+    string cwd: absolute path of json files path, for example: componer.json
 }
 @param object settings: webpack settings
 @return streaming
@@ -25,7 +29,8 @@ export default function(from, to, options = {}, settings  = {}) {
     var filename = path.basename(to)
     var name = path.basename(to, '.js')
     var vendors = options.vendors
-    var hasVendors = Array.isArray(vendors) && vendors.length > 0
+    var hasVendors = () => Array.isArray(vendors) && vendors.length > 0
+    var cwd = options.cwd
     var streams = []
 
     var opts = {
@@ -48,16 +53,29 @@ export default function(from, to, options = {}, settings  = {}) {
             }
         ])
     }
+    // if true, use all dependencies as vendors
+    else if(vendors === true) {
+        let bowerJson = path.join(cwd, 'bower.json')
+        let pkgJson = path.join(cwd, 'package.json')
+        let getDeps = function(pkgfile) {
+            if(!exists(pkgfile)) {
+                return []
+            }
+            let info = readJSON(pkgfile)
+            return Object.keys(info.dependencies).concat(Object.keys(info.devDependencies))
+        }
+        vendors = getDeps(bowerJson).concat(getDeps(pkgJson))
+    }
 
-    if(hasVendors) {
+    if(hasVendors()) {
         opts.vendors = webpackVendor(vendors, outputdir + '/' + name + '.vendors.js', opts, sets)
     }
-    var stream1 = webpackStream(from, to, opts, settings)
+    let stream1 = webpackStream(from, to, opts, settings)
     streams.push(stream1)
 
     if(options.minify) {
         opts.minify = true
-        if(hasVendors) {
+        if(hasVendors()) {
             opts.vendors = webpackVendor(vendors, outputdir + '/' + name + '.vendors.min.js', opts, sets)
         }
         let stream2 = webpackStream(from, outputdir + '/' + name + '.min.js', opts, settings)

@@ -9,6 +9,7 @@ export default function(commander) {
 	.command("prepare [name]")
 	.description("install [dev]dependencies of componout(s)")
 	.option('-F, --force', 'force to install packages if exists in local')
+    .option('-R, --resolve', 'install packages one by one if your computer has no enough memory.')
 	.action((name, options) => {
 		let picker = PackagesPicker()
         let cwd = root()
@@ -74,7 +75,7 @@ export default function(commander) {
 		}
 
 		// install npm packages
-		installPackages(picker.use())
+		installPackages(picker.use(), options.resolve)
 
 		log('All (dev)dependencies have been installed.', 'done')
 	})

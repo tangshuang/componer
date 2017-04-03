@@ -177,88 +177,73 @@ Remove the named componout, run `unlink` command if possible.
 
 List all componouts information.
 
-### install [name] [-p|--package package-name[@version]] [-S|--save|-D|--savedev] [-F|--force]
+### prepare [name] [-F|--force] [-R|--resolve]
 
-Install dependencies. If you want to install a package (npm or bower package) for a componout, you can run `componer install componout-name package-name`.
+Install all dependencies for a componout based on its bower.json and pacakge.json.
 
-1) install a package for a componout
+If you do not pass componout name, all componouts' dependencies will be installed. This is always run at the first time after you clone your project.
 
-```
-componer install componout-name -p package-name
-```
+Packages will be put into node_modules/bower_components directory in your project root path. So all packages are shared amoung different componouts.
 
-New package will be put into node_modules/bower_components directory in your project root path. However, a new dependence will be added into your componout `package.json` or `bower.json`.
+**bower always come first**
 
-npm packages always come first. For example, when you run `componer install my-component jquery`, jquery will be installed by npm into your root node_modules directory, event though there is a bower jquery.
-On the other hand, if npm run fail, bower packages will be try. Just for example, `componer install my-component -p d3`, if d3 has only bower package, npm install will fail and bower install will be run after the error message.
-
-Pass `-S` to save this dependence to package.json or bower.json dependencies option, `-D` is to save to devDependencies. If you do not pass `-S` or `-D`, `-S` will be as default. `-S` or `-D` is nouseful when there is no `-p`.
-
-2) install all packages for a componout
-
-```
-componer install componout-name
-```
-
-Without a package name following componout name, all of the componout packages based on its .json files, including npm packages and bower packages, will be installed. `-S|-D` are nouse in this method.
-
-3) install all packages for all componouts
-
-```
-componer install
-```
-
-All npm packages and bower packages will be install in your project root path. `-p|-S|-D` are nouse in this method.
+In componer, bower components always come before npm packages.
+For example, if you install a package which has both bower and npm packages, bower package will be recommanded to install firstly. If you `require` a package, and this package has both bower and npm packages in local directory, bower component will be used firstly.
 
 **virtual cache**
 
 If a package exists in local, no matter in bower_components or node_modules, it will not be installed again.
 
-If you want to force install a new version, you can pass version, like `jquery@2.1.1`. Or you can use `-F|--force` to install. These two way are all supported to install for remote.
-
-But force install may cause version conflicts. For example, one of your componouts dependents on jquery@1.12.0, but you try `jquery --force`, the latest version of jquery will be download, and old verison will be covered. So you should have to update your componout to support higher version jquery manually.
+If you want to force install a new version, you can pass `-F|--force` to install, e.g. `componer prepare xxx -F`. Then no matter what packages there are in local, all xxx dependencies will be install (may cover local pacakges version).
 
 **version**
 
-When you run install task, you should know that compner will not help you to resolve your dependencies version problems. Then bebind versions will cover the previous ones and conflicts will be show and the end.
+When you run `prepare` task, you should know that compner will not help you to resolve your dependencies version problems. Bebind versions will cover the previous ones and conflicts will be show and the end.
 
-For example, you run `componer install` to install all dependencies of your componouts. Different dependence packages may have different versions. Only the last version componer meets will be installed.
+For example, you run `componer prepare` to install all dependencies of your componouts. Different dependence packages may have different versions. Only the last same named package's version componer meets will be installed.
 
 However, virtual cache works, if you install all dependencies packages, if a dependence package exists in local, it will not be installed again. Use `--force` to install all dependencies if you want to reinstall all dependencies.
 
 **download directory**
 
-Componer keep only one same name package in local, for example, jquery will only be installed in node_modules, even there is a bower.json contains jqeury dependence.
+Componer keep only one same name package in local, for example, if there is a jquery installed in bower_components, no matter which version it has, jquery will never be installed again (until you use `-F`).
 
-Especially, if you install from a git/http url, it will be installed in bower_components or node_modules based on which file it lays, bower.json or pacakges.json. Not be worry about use with `require`, componer use bower_components first before node_modules. So if you install a bower package which contains a bower.json in bower_components, it will come before the same name one in node_modules.
+Bower and npm packages are put in different directories. But, only one package will be installed, even if there are two pacakges have the same name and from bower.json and package.json. Remember *bower always come first*.
 
-### link <name>
+### install <package>[@version] to <name> [-S|--save|-D|--savedev] [-F|--force]
 
-Link componout as package/component into node_modules/bower_components. Now only npm and bower supported.
+Install a package for a componout.
+
+```
+componer install jquery to my-componout
+```
+
+New package will be put into node_modules/bower_components directory in your project root path. A new dependence will be added into your componout's `package.json` or `bower.json`.
+
+Bower components always come first. So if your componout has a bower.json, new packages will always be installed by bower. But if a package has only npm package, bower install will fail, when this happens, npm install will be run to install this package.
+
+Pass `-S` to save this dependence to package.json or bower.json dependencies option, `-D` is to save to devDependencies. If you do not pass `-S` or `-D`, `-S` will be as default. `-S` or `-D` is nouseful when there is no `-p`.
+
+`-F` is to install new package ignore local virtual cache.
+
+**version conflicts**
+
+But force install may cause version conflicts. For example, one of your componouts dependents on jquery@1.12.0, but you try `jquery --force`, the latest version of jquery will be download, and old verison will be covered. So you should have to update your componouts to support higher version jquery manually.
+
+### link <name> [-F|--force]
+
+Link (Symbolic link) componout as package/component into node_modules/bower_components.
 
 In componer, components follow rules with bower components. So if you want to link your component as a bower component, you should create your componout as a bower component with bower.json.
 
-If there is a bower.json in your componout, it will be linked as a bower component. Or, with a package.json, it will be linked as a node module.
-However, .json files must have keywords option which has a keyword `componer`. e.g.
+Firstly, `type` option in your componout's componer.json should be set to 'bower' or 'npm'. If type is bower, and there is a bower.json in your componout dirctory, it will be linked as bower component. The same logic, npm package needs type to be 'npm' and there is a package.json in your componout.
 
-```
-{
-	"name": "your-package",
-	...
-	"keywords": ["componer"],
-	"dependencies": {},
-	...
-}
-```
+After you run `componer link a-name`, you can use `require('a-name')` in other componouts to use this componout.
 
-`bower.json` with keyword `componer` will be linked as bower component, `package.json` with keyword `componer` will be linked as node module, and bower comes first if both found.
-Without a `componer` keyword, it will be ignored when running link task.
+There is not a `unlink` task. It means you should have to unlink your packages by manual.
+However, when you remove componouts, unlink will be automaticly run by componer.
 
-`bower` and `npm` are supported, other types will be ignore.
-
-When you run `componer link a-name`, componer will run `npm/bower link` to link your componout. After you run `componer link a-name`, you can use `require('a-name')` in other componouts to use this componout.
-
-There is not a `unlink` task. It means you should have to unlink your packages by manual. However, when you remove componouts, unlink will be automaticly run by componer.
+**Notice:** on windows, it is different. If you have no permission to do `ln`, and you pass `-F`, componer will use `bower/npm link` instead. For this, you have to know about `bower link` and `npm link`. Or componer will copy componout to packages directory, so you have to run `link` again after you update your code.
 
 ### clone [name] [-u|--url your-git-registry-address] [-I|--install] [-L|--link]
 

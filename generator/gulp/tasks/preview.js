@@ -1,4 +1,4 @@
-import {gulp, path, fs, args, log, config, exit, exists, clear, read, readJSON, hasComponout, getComponoutConfig, dashName, camelName, getFileExt} from '../loader'
+import {gulp, path, fs, args, log, config, exit, exists, clear, read, load, readJSON, hasComponout, getComponoutConfig, dashName, camelName, getFileExt} from '../loader'
 
 import browsersync from 'browser-sync'
 
@@ -51,21 +51,24 @@ gulp.task('preview', () => {
 	 * pre build dependencies vendors
 	 */
 
-	let bowerJson = path.join(componoutPath, 'bower.json')
- 	let pkgJson = path.join(componoutPath, 'package.json')
- 	let getDeps = function(pkgfile) {
- 		if(!exists(pkgfile)) {
- 			return []
- 		}
- 		let info = readJSON(pkgfile)
- 		return Object.keys(info.dependencies).concat(Object.keys(info.devDependencies))
- 	}
- 	let vendors = getDeps(bowerJson).concat(getDeps(pkgJson))
-	if(Array.isArray(info.vendors)) {
-		vendors = vendors.concat(info.vendors)
-	}
 	let vendorsSettings = null
-	if(scriptfile && exists(scriptfile) && vendors.length > 0) {
+ 	let vendors = info.vendors
+	let hasVendors = () => Array.isArray(vendors) && vendors.length > 0
+
+	if(vendors === true) {
+		let bowerJson = path.join(componoutPath, 'bower.json')
+	 	let pkgJson = path.join(componoutPath, 'package.json')
+	 	let getDeps = function(pkgfile) {
+	 		if(!exists(pkgfile)) {
+	 			return []
+	 		}
+	 		let info = readJSON(pkgfile)
+	 		return Object.keys(info.dependencies).concat(Object.keys(info.devDependencies))
+	 	}
+	 	vendors = getDeps(bowerJson).concat(getDeps(pkgJson))
+	}
+
+	if(scriptfile && exists(scriptfile) && hasVendors()) {
 		vendorsSettings = webpackVendor({
 			vendors,
 			to: `${tmpdir}/${name}.vendors.js`,
@@ -100,7 +103,7 @@ gulp.task('preview', () => {
 							html = html.replace('<!--styles-->', `<link rel="stylesheet" href="${name}.css">`)
 						}
 						if(scriptfile && exists(scriptfile)) {
-							if(vendors.length > 0) {
+							if(hasVendors()) {
 								html = html.replace('<!--vendors-->', `<script src="${name}.vendor.js"></script>`)
 							}
 							html = html.replace('<!--scripts-->', `<script src="${name}.js"></script>`)
@@ -170,7 +173,7 @@ gulp.task('preview', () => {
 
 	// build server
 	if(serverfile && exists(serverfile)) {
-		let serverware = require(serverfile)
+		let serverware = load(serverfile)
 		if(serverware instanceof Array) {
 			middlewares = middlewares.concat(serverware)
 		}
@@ -180,7 +183,7 @@ gulp.task('preview', () => {
 	}
 
 	// watch files
-	let watchFiles = info.watchFiles
+	let watchFiles = info.watch
 	if(typeof watchFiles === 'string') {
 		watchFiles = [path.join(componoutPath, watchFiles)]
 	}

@@ -4,11 +4,13 @@
   "description": "A components builder tool",
   "main": "index.js",
   "bin": {
-    "componer": "bin/.componer.js",
-    "componout": "bin/.componout.js"
+    "componer": ".bin/componer.js",
+    "componout": ".bin/componout.js"
   },
   "scripts": {
-    "build": "babel bin/componer.js -o bin/.componer.js && babel bin/componout.js -o bin/.componout.js"
+    "bower": "bower --",
+    "gulp": "gulp --",
+    "build": "gulp build --color"
   },
   "repository": {
     "type": "git",
@@ -30,7 +32,6 @@
     "babel-loader": "^6.2.8",
     "babel-polyfill": "^6.22.0",
     "babel-preset-env": "^1.2.1",
-    "babel-register": "^6.18.0",
     "bower": "^1.8.0",
     "bower-webpack-plugin": "^0.1.9",
     "browser-sync": "^2.18.8",
@@ -86,6 +87,8 @@
     "webpack-stream": "^3.2.0"
   },
   "devDependencies": {
-    "babel-cli": "^6.24.0"
+    "babel-register": "^6.18.0",
+    "gulp-babel": "^6.1.2",
+    "gulp-cli": "^1.2.2"
   }
 }

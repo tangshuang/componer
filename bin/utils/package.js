@@ -1,4 +1,4 @@
-import {exists, readJSON, scandir} from '../../generator/gulp/utils/file'
+import {exists, readJSON, scandir} from './file'
 import {root} from './componer'
 import {execute} from './process'
 
@@ -37,15 +37,32 @@ export function getLocalPackagesByType(type) {
 }
 
 // get version from version string such as `~1.3.0`, `^2.0.1`, >=6.2.1
-export function getVersion(ver) {
+function getVersion(ver) {
 	var i = ver.search(/\d/)
 	if(i > -1 && i < 3) return ver.substr(i)
 	return ver
 }
 
 // get suitable item from a list
-export function getSuitable(list) {
-	return list[0]
+function getSuitable(list) {
+    var result
+    list.forEach(item => {
+        // the first one
+        if(!result) {
+            result = item
+            return
+        }
+        // version
+        let version = getVersion(pkg.version)
+        if(result.version < version) {
+            result.version = version
+        }
+        // bower or npm
+        if(item.driver === 'npm' && result.driver === 'bower') {
+            result.driver = 'bower'
+        }
+    })
+	return result
 }
 
 // get packages not repetitive/unique
@@ -68,7 +85,7 @@ export function PackagesPicker() {
 		})
 		return _
 	}
-	_.get = (name) => {
+	_.get = name => {
 		if(name === undefined) {
 			return packages
 		}
@@ -79,7 +96,7 @@ export function PackagesPicker() {
 		let results = []
 		names.forEach(name => {
 			let items = _.get(name)
-			let item = getSuitable(items) // TODO: find out the most suitable version
+			let item = getSuitable(items)
 			results.push(item)
 		})
 		return results
@@ -88,7 +105,12 @@ export function PackagesPicker() {
 	return _
 }
 
-export function installPackages(pkgs) {
+/**
+ @desc install all packages passed in
+ @param array pkgs: {name, version, driver: npm or bower}
+ @param boolean resolve: if your computer memory is too small, pass true to force installing pacakges one by one
+ */
+export function installPackages(pkgs, resolve) {
     var cwd = root()
 	var localBowerPkgs = getLocalPackagesByType('bower')
 	var localNpmPkgs = getLocalPackagesByType('npm')
@@ -107,7 +129,7 @@ export function installPackages(pkgs) {
 
 	pkgs.forEach(pkg => {
 		let name = pkg.name
-		let version = getVersion(pkg.version)
+		let version = pkg.version
 		let driver = pkg.driver
 
 		let localPkgVer = driver === 'bower' ? localBowerPkgs[name] : driver === 'npm' ? localNpmPkgs[name] : null
@@ -125,11 +147,24 @@ export function installPackages(pkgs) {
 
     if(allPkgs.bower.length > 0) {
         let bower = root() + '/node_modules/.bin/bower'
-        let bowerPkgs = allPkgs.bower.join(' ')
-        execute(`cd "${cwd}" && "${bower}" install ${bowerPkgs}`)
+        if(resolve) {
+            let bowerPkgs = allPkgs.bower
+            bowerPkgs.forEach(item => execute(`cd "${cwd}" && "${bower}" install ${item}`))
+        }
+        else {
+            let bowerPkgs = allPkgs.bower.join(' ')
+            execute(`cd "${cwd}" && "${bower}" install ${bowerPkgs}`)
+        }
     }
+
     if(allPkgs.npm.length > 0) {
-        let npmPkgs = allPkgs.npm.join(' ')
-        execute(`cd "${cwd}" && npm install ${npmPkgs}`)
+        if(resolve) {
+            let npmPkgs = allPkgs.npm
+            npmPkgs.forEach(item => execute(`cd "${cwd}" && npm install ${item}`))
+        }
+        else {
+            let npmPkgs = allPkgs.npm.join(' ')
+            execute(`cd "${cwd}" && npm install ${npmPkgs}`)
+        }
     }
 }
