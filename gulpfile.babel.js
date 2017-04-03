@@ -12,13 +12,18 @@ gulp.task('install', () => {
     let info = require('./package.json')
     let deps = info.dependencies
     let devdeps = info.devDependencies
+    let peerdeps = info.peerDependencies
     let install = function(deps) {
         for(let name in deps) {
             let version = deps[name]
-            shell.exec('npm install ' + name + '@' + version)
+            let result = shell.exec('npm install ' + name + '@' + version)
+            if(result && result.code !== 0) {
+                process.exit(result.code)
+            }
         }
     }
 
     install(deps)
     install(devdeps)
+    install(peerdeps)
 })

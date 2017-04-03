@@ -8,6 +8,7 @@
     "componout": ".bin/componout.js"
   },
   "scripts": {
+    "install": "npm install gulp-cli babel-core babel-register babel-preset-env gulp shelljs gulp-babel && npm run gulp install",
     "bower": "bower --",
     "gulp": "gulp --",
     "build": "gulp build --color"
