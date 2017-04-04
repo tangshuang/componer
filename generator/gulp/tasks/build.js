@@ -6,7 +6,7 @@ import sass from '../drivers/sass'
 import concat from 'pipe-concat'
 
 gulp.task('build', () => {
-	var arg = args.build
+	let arg = args.build
 
 	// if there is no name option, build all components
 	if(arg.name === undefined) {
@@ -17,16 +17,15 @@ gulp.task('build', () => {
 	}
 
 	// build named component
-	var name = dashName(arg.name)
-	if(!hasComponout(name)) {
-		log(`${name} not exists.`, 'error')
+	let componout = dashName(arg.name)
+	if(!hasComponout(componout)) {
+		log(`${componout} not exists.`, 'error')
 		return
 	}
 
-	var componoutPath = path.join(config.paths.componouts, name)
-
-	if(!exists(componoutPath + '/componer.json')) {
-		log('componer.json not exists.', 'error')
+	let cwd = path.join(config.paths.componouts, componout)
+	if(!exists(cwd + '/componer.json')) {
+		log(componout + ' componer.json not exists.', 'error')
 		return
 	}
 
@@ -34,17 +33,17 @@ gulp.task('build', () => {
 	 * begin to compress build settings
 	 */
 
-	var info = getComponoutConfig(name)
-	var files = info.build
+	let info = getComponoutConfig(componout)
+	let files = info.build
 	if(!files) {
-		log('build option in componer.json not found.', 'error')
+		log(componout + ' build option in componer.json not found.', 'error')
 		return
 	}
 
-	var streams = []
+	let streams = []
 	files.forEach(file => {
-		let from = path.join(componoutPath, file.from)
-		let to = path.join(componoutPath, file.to)
+		let from = path.join(cwd, file.from)
+		let to = path.join(cwd, file.to)
 		let settings = file.settings
 		let options = file.options
 		let ext = getFileExt(from)
@@ -58,7 +57,7 @@ gulp.task('build', () => {
 	})
 
 	if(streams.length > 0) {
-		return concat(streams).on('end', () => log(`${name} has been completely built.`, 'done'))
+		return concat(streams).on('end', () => log(componout + ' has been completely built.', 'done'))
 	}
 
 	// build fail

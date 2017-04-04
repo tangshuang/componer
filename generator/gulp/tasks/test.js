@@ -5,10 +5,10 @@ import karma from 'gulp-karma-runner'
 import jasmine from 'gulp-jasmine-node'
 
 gulp.task('test', () => {
-	var arg = args.test
-	var debug = arg.debug
-	var browser = arg.browser
-	var componoutsPath = config.paths.componouts
+	let arg = args.test
+	let debug = arg.debug
+	let browser = arg.browser
+	let componoutsPath = config.paths.componouts
 
 	if(arg.name === undefined) {
 		scandir(componoutsPath).forEach(item => {
@@ -20,35 +20,32 @@ gulp.task('test', () => {
 		return
 	}
 
-	var name = dashName(arg.name)
-	if(!hasComponout(name)) {
-		log(`${name} not exists.`, 'error')
+	let componout = dashName(arg.name)
+	if(!hasComponout(componout)) {
+		log(componout + ' not exists.', 'error')
 		return
 	}
 
-	var rootPath = config.paths.root
-	var componoutPath = path.join(config.paths.componouts, name)
-	var srcPath = path.join(componoutPath, 'src')
-
-	if(!exists(componoutPath + '/componer.json')) {
-		log('componer.json not exists.', 'error')
+	let cwd = path.join(config.paths.componouts, componout)
+	if(!exists(cwd + '/componer.json')) {
+		log(componout + ' componer.json not exists.', 'error')
 		return
 	}
 
-	var info = getComponoutConfig(name)
-	if(!info) {
-		log('test option in componer.json not found.', 'error')
+	let info = getComponoutConfig(componout)
+	let settings = info.test
+	if(!settings) {
+		log(componout + ' test option in componer.json not found.', 'error')
 		return
 	}
-	info = info.test
+	if(!settings.entry) {
+		log(componout + ' test.entry option in componer.json not found.', 'error')
+		return
+	}
 
-	if(!info.entry) {
-		log('test.entry option in componer.json not found.', 'error')
-		return
-	}
-	var entryfile = path.join(componoutPath, info.entry)
+	let entryfile = path.join(cwd, settings.entry)
 	if(!exists(entryfile)) {
-		log(`test entry file not found.`, 'error')
+		log(componout + ' test entry file not found.', 'error')
 		return
 	}
 
@@ -56,7 +53,7 @@ gulp.task('test', () => {
 	/**
 	 * if it is a npm package, run test with jasmine-node
 	 */
-	if(info.browsers === 'Terminal') {
+	if(settings.browsers === 'Terminal') {
 		return gulp.src(entryfile).pipe(jasmine({
 			timeout: 10000,
 			includeStackTrace: false,
@@ -69,24 +66,24 @@ gulp.task('test', () => {
 	 * if it is normal package can be run in browser
 	 */
 
-	var reportersDir = info.reporters
+	let reportersDir = settings.reporters
 	if(!reportersDir) {
-		log(`test.reporters option is not correct in your componer.json.`, 'error')
+		log(componout + 'test.reporters option is not correct in your componer.json.', 'error')
 		return
 	}
 
-	var reportersPath = path.join(componoutPath, reportersDir)
+	let reportersPath = path.join(cwd, reportersDir)
 	if(!exists(reportersPath)) {
 		mkdir(reportersPath)
 	}
 
-	var preprocessors = {}
-	preprocessors[componoutPath + '/**/*.js'] = ['webpack', 'sourcemap']
-	preprocessors[componoutPath + '/**/*.scss'] = ['scss']
+	let preprocessors = {}
+	preprocessors[cwd + '/**/*.js'] = ['webpack', 'sourcemap']
+	preprocessors[cwd + '/**/*.scss'] = ['scss']
 
-	var karmaSettings = {
-			singleRun: debug !== undefined ? !debug : !info.debug,
-			browsers: browser ? [browser] : info.browsers,
+	let karmaSettings = {
+			singleRun: debug !== undefined ? !debug : !settings.debug,
+			browsers: browser ? [browser] : settings.browsers,
 			preprocessors: preprocessors,
 			coverageReporter: {
 				reporters: [
@@ -98,23 +95,25 @@ gulp.task('test', () => {
 			},
 			htmlReporter: {
 				outputDir: reportersPath,
-				reportName: name,
+				reportName: componout,
 			},
 		}
 
-	var entryfiles = [entryfile]
+	let entryfiles = [entryfile]
+
 	// if use PhantomJS to test, it do not support new functions directly, use babal-polyfill to fix
 	// in fact, lower version of Chrome or Firefox are not support to. however, developer should make sure to use higher version of this browsers
+	let rootPath = config.paths.root
 	let launchers = karmaSettings.browsers
 	if(launchers.indexOf('PhantomJS') > -1 || launchers.indexOf('IE') > -1 || launchers.indexOf('Safari') > -1) {
 		entryfiles.unshift(path.join(rootPath, 'node_modules/core-js/es6/symbol.js'))
+		preprocessors[path.join(rootPath, 'node_modules/core-js/**/*.js')] = ['webpack']
 	}
-
 
 	return gulp.src(entryfiles)
 		.pipe(karma.server(karmaConfig(karmaSettings)))
 		.on('end', () => {
-			log('Reporters ware created in componouts/' + name + '/' + reportersDir, 'help')
+			log('Reporters ware created in componouts/' + componout + '/' + reportersDir, 'help')
 			exit()
 		})
 

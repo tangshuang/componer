@@ -20,7 +20,7 @@
 					"global": false,
 					"Buffer": false,
 			        "__dirname": false,
-			        "__filename": false,
+			        "__filename": false
 				}
             }
 		}

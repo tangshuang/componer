@@ -1,9 +1,9 @@
-import {gulp, path, fs, args, log, config, read, scandir, hasComponout, dashName, run} from '../loader'
+import {gulp, path, fs, args, log, config, read, hasFileChanged, scandir, hasComponout, dashName, run} from '../loader'
 
 gulp.task('watch', () => {
-	var arg = args.watch
-	var entryfiles = []
-	var componoutsPath = config.paths.componouts
+	let arg = args.watch
+	let entryfiles = []
+	let componoutsPath = config.paths.componouts
 
 	if(arg.name === undefined) {
 		scandir(componoutsPath).forEach(item => {
@@ -12,13 +12,13 @@ gulp.task('watch', () => {
 		})
 	}
 	else {
-		var name = dashName(arg.name)
-		if(!hasComponout(name)) {
-			log(`${name} not exists.`, 'error')
+		let componout = dashName(arg.name)
+		if(!hasComponout(componout)) {
+			log(`${componout} not exists.`, 'error')
 			exit()
 		}
 
-		var srcPath = path.join(componoutsPath, name, 'src')
+		let srcPath = path.join(componoutsPath, componout, 'src')
 		entryfiles.push(srcPath + '/**/*')
 	}
 
@@ -26,15 +26,11 @@ gulp.task('watch', () => {
 
 	let contents = {}
 	gulp.watch(entryfiles, event => {
-		if(event.type !== 'changed') {
-			return
-		}
+		if(event.type !== 'changed') return
 
 		// if file content not changed, do not run build task
 		let file = event.path
-		let content = read(file)
-		if(contents[file] && contents[file] === content) return
-		contents[file] = content
+		if(!hasFileChanged(file)) return
 
 		log(`${event.path} was ${event.type}, building...`, 'help')
 

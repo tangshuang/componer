@@ -46,7 +46,7 @@ export default function(from, to, options = {}, settings  = {}) {
         let externals = settings.externals || []
         settings.externals = externals.concat([
             (context, request, callback) => {
-                if(request !== from && request.indexOf('./') !== -1) { // relative path module
+                if(request !== from && request.indexOf('./') === -1) { // not relative path module
                     callback(null, request)
                     return
                 }

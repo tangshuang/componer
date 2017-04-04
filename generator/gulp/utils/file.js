@@ -117,3 +117,11 @@ export function setFileExt(file, ext, search) {
 	}
 	return file.substr(0, last) + ext
 }
+
+let contents = {}
+export function hasFileChanged(file) {
+	let content = read(file)
+	if(contents[file] && contents[file] === content) return false
+	contents[file] = content
+	return true
+}

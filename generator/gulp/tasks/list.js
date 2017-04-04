@@ -1,7 +1,7 @@
 import {gulp, fs, config, log, getComponouts, strPadRight} from '../loader'
 
 gulp.task('list', () => {
-	var componouts = getComponouts()
+	let componouts = getComponouts()
 	log(strPadRight(`======================= You have ${componouts.length} componouts: `, '=', 70), 'help')
 	log(strPadRight('name', ' ', 40) + strPadRight('type', ' ', 20) + 'version')
 	log('----------------------------------------------------------------------', 'help')
