@@ -84,7 +84,7 @@ export default function(commander) {
      			},
      			settings: {
      				path: `${tmpdir}/${name}.vendors.js.json`,
-     				name: camelName(name, true) + 'Vendor',
+     				name: camel(name, true) + 'Vendor',
      				context: tmpdir,
      			},
      		})

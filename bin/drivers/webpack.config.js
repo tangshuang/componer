@@ -1,3 +1,4 @@
+import path from 'path'
 import extend from 'extend'
 import WebPackPluginBower from 'bower-webpack-plugin'
 import Bufferify from 'webpack-bufferify'
@@ -22,7 +23,14 @@ export default function(settings) {
 			preLoaders: [],
 			loaders: [],
 		},
+        resolveLoader: {
+            root: path.resolve(__dirname, '../../node_modules'),
+        },
 		resolve: {
+            root: [
+                path.resolve(__dirname, '..'),
+                process.cwd(),
+            ],
 			modulesDirectories: [
 				'node_modules',
 				'componouts',

@@ -85,3 +85,7 @@ export function load(file, useDefault = true) {
 	}
 	return rs
 }
+
+export function getFileExt(file) {
+	return file.substr(file.lastIndexOf('.'))
+}

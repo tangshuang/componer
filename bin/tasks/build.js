@@ -3,6 +3,7 @@ import {log} from '../utils/process'
 import {exists, readJSONTMPL, getFileExt} from '../utils/file'
 import webpack from '../drivers/webpack'
 import sass from '../drivers/sass'
+import concat from 'pipe-concat'
 
 export default function(commander) {
     commander
@@ -27,18 +28,20 @@ export default function(commander) {
             return
         }
 
+        let streams = []
+
         items.forEach(item => {
             let from = path.join(cwd, item.from)
             let to = path.join(cwd, item.to)
             let ext = getFileExt(item.from)
             if(ext === '.js') {
-                webpack(from, to, item.options, item.settings)
+                streams.push(webpack(from, to, item.options, item.settings))
             }
             else if(ext === '.scss') {
-                sass(from, to, item.options, item.settings)
+                streams.push(sass(from, to, item.options, item.settings))
             }
         })
 
-        log('Build complete!', 'done')
+        return concat(streams).on('end', () => log('Build complete!', 'done'))
     })
 }

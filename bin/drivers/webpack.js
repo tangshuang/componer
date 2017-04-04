@@ -38,7 +38,7 @@ export default function(from, to, options = {}, settings  = {}) {
         sourcemap: options.sourcemap,
     }
     var sets = {
-        name: camelName(name, true) + 'Vendors',
+        name: camel(name, true) + 'Vendors',
     }
 
     // if vendors is false, all of vendors will not be included in output code
@@ -46,7 +46,7 @@ export default function(from, to, options = {}, settings  = {}) {
         let externals = settings.externals || []
         settings.externals = externals.concat([
             (context, request, callback) => {
-                if(request.indexOf('.') !== 0 || request.indexOf('/') !== 0) {
+                if(request !== from && request.indexOf('./') !== -1) { // relative path module
                     return callback(null, request)
                 }
                 callback()

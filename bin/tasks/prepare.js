@@ -4,7 +4,7 @@ import {exists, readJSON} from '../utils/file'
 
 export default function(commander) {
     commander
-    .command('install')
+    .command('prepare')
 	.description('install dependencies one by one for componout')
 	.action(() => {
         let cwd = process.cwd()
@@ -15,13 +15,14 @@ export default function(commander) {
         let exec = (deps, driver, sep) => {
             if(!deps) return
             let items = Object.keys(deps)
-            for(let name in items) {
+            items.forEach(name => {
                 let version = deps[name]
                 execute(driver + ' install ' + name + sep + version, true)
-            }
+            })
         }
         let install = (jsonfile, driver, sep) => {
             let info = readJSON(jsonfile)
+            if(!info) return
             let deps = info.dependencies
             let devdeps = info.devDependencies
             let peerdeps = info.peerDependencies
