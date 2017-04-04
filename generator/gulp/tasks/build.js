@@ -17,15 +17,15 @@ gulp.task('build', () => {
 	}
 
 	// build named component
-	let componout = dashName(arg.name)
-	if(!hasComponout(componout)) {
-		log(`${componout} not exists.`, 'error')
+	let name = dashName(arg.name)
+	if(!hasComponout(name)) {
+		log(name + ' not exists.', 'error')
 		return
 	}
 
-	let cwd = path.join(config.paths.componouts, componout)
+	let cwd = path.join(config.paths.componouts, name)
 	if(!exists(cwd + '/componer.json')) {
-		log(componout + ' componer.json not exists.', 'error')
+		log(name + ' componer.json not exists.', 'error')
 		return
 	}
 
@@ -33,10 +33,10 @@ gulp.task('build', () => {
 	 * begin to compress build settings
 	 */
 
-	let info = getComponoutConfig(componout)
+	let info = getComponoutConfig(name)
 	let files = info.build
 	if(!files) {
-		log(componout + ' build option in componer.json not found.', 'error')
+		log(name + ' build option in componer.json not found.', 'error')
 		return
 	}
 
@@ -57,7 +57,7 @@ gulp.task('build', () => {
 	})
 
 	if(streams.length > 0) {
-		return concat(streams).on('end', () => log(componout + ' has been completely built.', 'done'))
+		return concat(streams).on('end', () => log(name + ' has been completely built.', 'done'))
 	}
 
 	// build fail

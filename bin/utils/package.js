@@ -2,9 +2,8 @@ import {exists, readJSON, scandir} from './file'
 import {root} from './componer'
 import {execute} from './process'
 
-export function getLocalPackages() {
+export function getLocalPackages(cwd = root()) {
     var packages = []
-	var cwd = root()
 
     if(exists(cwd + '/bower_components')) scandir(cwd + '/bower_components').forEach(item => {
         if(item.substr(0, 1) === '.') return
@@ -28,8 +27,8 @@ export function getLocalPackages() {
     return packages
 }
 
-export function getLocalPackagesByType(type) {
-    var pkgs = getLocalPackages()
+export function getLocalPackagesByType(type, cwd = root()) {
+    var pkgs = getLocalPackages(cwd)
     pkgs = pkgs.filter(pkg => pkg.type === type)
     var results = {}
     if(pkgs.length > 0) pkgs.forEach(pkg => results[pkg.name] = pkg)
@@ -110,10 +109,10 @@ export function PackagesPicker() {
  @param array pkgs: {name, version, driver: npm or bower}
  @param boolean resolve: if your computer memory is too small, pass true to force installing pacakges one by one
  */
-export function installPackages(pkgs, resolve) {
-    var cwd = root()
-	var localBowerPkgs = getLocalPackagesByType('bower')
-	var localNpmPkgs = getLocalPackagesByType('npm')
+export function installPackages(pkgs, options = {}) {
+    var cwd = options.cwd || root()
+	var localBowerPkgs = getLocalPackagesByType('bower', cwd)
+	var localNpmPkgs = getLocalPackagesByType('npm', cwd)
     var allPkgs = {
         npm: [],
         bower: [],
@@ -132,10 +131,9 @@ export function installPackages(pkgs, resolve) {
 		let version = pkg.version
 		let driver = pkg.driver
 
-		let localPkgVer = driver === 'bower' ? localBowerPkgs[name] : driver === 'npm' ? localNpmPkgs[name] : null
-
 		// if exists this package in local, do not install it
-		if(localPkgVer) {
+        let localPkgVer = driver === 'bower' ? localBowerPkgs[name] : driver === 'npm' ? localNpmPkgs[name] : null
+		if(!options.force && localPkgVer) {
 			// if get it by git or path
 			if(version.indexOf('/') > -1) return
 			// if local version is bigger then wanted
@@ -146,8 +144,8 @@ export function installPackages(pkgs, resolve) {
 	})
 
     if(allPkgs.bower.length > 0) {
-        let bower = root() + '/node_modules/.bin/bower'
-        if(resolve) {
+        let bower = __dirname + '/../../node_modules/.bin/bower'
+        if(options.resolve) {
             let bowerPkgs = allPkgs.bower
             bowerPkgs.forEach(item => execute(`cd "${cwd}" && "${bower}" install ${item}`))
         }
@@ -158,7 +156,7 @@ export function installPackages(pkgs, resolve) {
     }
 
     if(allPkgs.npm.length > 0) {
-        if(resolve) {
+        if(options.resolve) {
             let npmPkgs = allPkgs.npm
             npmPkgs.forEach(item => execute(`cd "${cwd}" && npm install ${item}`))
         }

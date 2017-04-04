@@ -9,7 +9,7 @@ gulp.task('build', () => {
 })
 
 gulp.task('watch', ['build'], () => {
-    gulp.watch('./bin/**/*', ['build'])    
+    gulp.watch('./bin/**/*', ['build'])
 })
 
 gulp.task('install', () => {

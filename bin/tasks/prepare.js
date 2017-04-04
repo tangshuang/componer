@@ -1,37 +1,36 @@
 import path from 'path'
 import {log, execute} from '../utils/process'
 import {exists, readJSON} from '../utils/file'
+import {PackagesPicker, installPackages} from '../utils/package'
 
 export default function(commander) {
     commander
     .command('prepare')
 	.description('install dependencies one by one for componout')
-	.action(() => {
+	.option('-F, --force', 'force to install packages if exists in local')
+    .option('-R, --resolve', 'install packages one by one if your computer has no enough memory.')
+	.action(options => {
+        let picker = PackagesPicker()
         let cwd = process.cwd()
-        let bower = path.resolve(__dirname, '../../node_modules/.bin/bower')
         let bowerJson = path.join(cwd, 'bower.json')
         let npmJson = path.join(cwd, 'package.json')
-
-        let exec = (deps, driver, sep) => {
-            if(!deps) return
-            let items = Object.keys(deps)
-            items.forEach(name => {
-                let version = deps[name]
-                execute(driver + ' install ' + name + sep + version, true)
-            })
-        }
-        let install = (jsonfile, driver, sep) => {
-            let info = readJSON(jsonfile)
-            if(!info) return
+        if(exists(npmJson)) {
+            let info = readJSON(npmJson)
             let deps = info.dependencies
             let devdeps = info.devDependencies
             let peerdeps = info.peerDependencies
-            exec(deps, driver, sep)
-            exec(devdeps, driver, sep)
-            exec(peerdeps, driver, sep)
+            picker.add(deps, 'npm').add(devdeps, 'npm').add(peerdeps, 'npm')
+        }
+        if(exists(bowerJson)) {
+            // bower come first, so here bower should come behind to cover npm
+            let info = readJSON(bowerJson)
+            let deps = info.dependencies
+            let devdeps = info.devDependencies
+            picker.add(deps, 'bower').add(devdeps, 'bower')
         }
 
-        install(npmJson, 'npm', '@')
-        install(bowerJson, `"${bower}"`, '#')
+        options.cwd = cwd
+        installPackages(picker.use(), options)
+		log('All (dev)dependencies have been installed.', 'done')
     })
 }

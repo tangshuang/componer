@@ -89,3 +89,11 @@ export function load(file, useDefault = true) {
 export function getFileExt(file) {
 	return file.substr(file.lastIndexOf('.'))
 }
+
+let contents = {}
+export function hasFileChanged(file) {
+	let content = read(file)
+	if(contents[file] && contents[file] === content) return false
+	contents[file] = content
+	return true
+}

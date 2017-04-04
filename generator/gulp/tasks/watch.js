@@ -12,13 +12,13 @@ gulp.task('watch', () => {
 		})
 	}
 	else {
-		let componout = dashName(arg.name)
-		if(!hasComponout(componout)) {
-			log(`${componout} not exists.`, 'error')
+		let name = dashName(arg.name)
+		if(!hasComponout(name)) {
+			log(name + ' not exists.', 'error')
 			exit()
 		}
 
-		let srcPath = path.join(componoutsPath, componout, 'src')
+		let srcPath = path.join(componoutsPath, name, 'src')
 		entryfiles.push(srcPath + '/**/*')
 	}
 

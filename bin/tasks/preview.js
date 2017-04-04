@@ -12,7 +12,7 @@ import webpackStream from '../drivers/webpack-stream'
 import sassStream from '../drivers/sass-stream'
 
 import {log, exit} from '../utils/process'
-import {exists, clear, read, load, readJSON, getFileExt} from '../utils/file'
+import {exists, clear, read, load, readJSON, readJSONTMPL, getFileExt} from '../utils/file'
 import {dash, camel} from '../utils/convert'
 
 export default function(commander) {
@@ -32,63 +32,73 @@ export default function(commander) {
             'path': cwd,
         })
         let settings = info.preview
-
         if(!settings) {
             log('preview option is not found in componer.json.', 'error')
             return
         }
 
-	    let srcPath = path.join(cwd, 'src')
-    	let indexfile = path.join(cwd, info.index)
-    	let scriptfile = info.script ? path.join(cwd, info.script) : false
-    	let stylefile = info.style ? path.join(cwd, info.style) : false
-    	let serverfile = info.server ? path.join(cwd, info.server) : false
-    	let tmpdir = info.tmpdir ? path.join(cwd, info.tmpdir) : path.join(cwd, '.preview_tmp')
+        let name = info.name || path.dirname(cwd)
+        let index = path.join(cwd, settings.index)
+    	let script = settings.script ? path.join(cwd, settings.script) : false
+    	let style = settings.style ? path.join(cwd, settings.style) : false
+    	let server = settings.server ? path.join(cwd, settings.server) : false
+    	let tmpdir = settings.tmpdir ? path.join(cwd, settings.tmpdir) : path.join(cwd, '.preview_tmp')
 
-    	if(!exists(indexfile)) {
-    		log('preview index file is not found.', 'error')
-    		exit()
+    	if(!exists(index)) {
+    		log(name + ' preview index file not found.', 'error')
+    		return
     	}
 
     	// clear tmp dir
     	clear(tmpdir)
 
-
-        /**
+    	/**
     	 * pre build dependencies vendors
     	 */
-        let vendorsSettings = null
-      	let vendors = info.vendors
-     	let hasVendors = () => Array.isArray(vendors) && vendors.length > 0
 
-     	if(vendors === true) {
-     		let bowerJson = path.join(cwd, 'bower.json')
-     	 	let pkgJson = path.join(cwd, 'package.json')
-     	 	let getDeps = function(pkgfile) {
-     	 		if(!exists(pkgfile)) {
-     	 			return []
-     	 		}
-     	 		let info = readJSON(pkgfile)
-     	 		return Object.keys(info.dependencies).concat(Object.keys(info.devDependencies))
-     	 	}
-     	 	vendors = getDeps(bowerJson).concat(getDeps(pkgJson))
+    	let bowerJson = path.join(cwd, 'bower.json')
+     	let pkgJson = path.join(cwd, 'package.json')
+     	let getDeps = function(pkgfile) {
+    		let deps = []
+     		if(!exists(pkgfile)) {
+     			return deps
+     		}
+     		let info = readJSON(pkgfile)
+    		if(info.dependencies) {
+    			deps = Object.keys(info.dependencies)
+    		}
+    		if(info.devDependencies) {
+    			deps = deps.concat(Object.keys(info.devDependencies))
+    		}
+    		if(info.peerDependencies) {
+    			deps = deps.concat(Object.keys(info.peerDependencies))
+    		}
+     		return deps
      	}
 
-     	if(scriptfile && exists(scriptfile) && hasVendors()) {
-     		vendorsSettings = webpackVendor({
-     			vendors,
-     			to: `${tmpdir}/${name}.vendors.js`,
-     			options: {
-     				sourcemap: true,
-     				minify: false,
-     			},
-     			settings: {
-     				path: `${tmpdir}/${name}.vendors.js.json`,
-     				name: camel(name, true) + 'Vendor',
-     				context: tmpdir,
-     			},
-     		})
-     	}
+     	let vendors = getDeps(bowerJson).concat(getDeps(pkgJson))
+    	if(Array.isArray(settings.vendors)) {
+    		vendors = vendors.concat(settings.vendors)
+    	}
+
+    	let vendorsSettings = null
+    	let hasVendors = () => Array.isArray(vendors) && vendors.length > 0
+
+    	if(exists(script) && hasVendors()) {
+    		vendorsSettings = webpackVendor(
+    			vendors,
+    			`${tmpdir}/${name}.vendors.js`,
+    			{
+    				sourcemap: true,
+    				minify: false,
+    			},
+    			{
+    				path: `${tmpdir}/${name}.vendors.js.json`,
+    				name: camel(name, true) + 'Vendors',
+    				context: tmpdir,
+    			},
+    		)
+    	}
 
 
     	/**
@@ -96,21 +106,19 @@ export default function(commander) {
     	 */
 
     	let app = browsersync.create()
-
-    	// modify index.html
     	let middlewares = [
     		{
     			route: '/',
     			handle: function (req, res, next) {
     				res.setHeader('content-type', 'text/html')
-    				gulp.src(indexfile)
+    				gulp.src(index)
     					.pipe(bufferify(html => {
-    						if(stylefile && exists(stylefile)) {
+    						if(exists(style)) {
     							html = html.replace('<!--styles-->', `<link rel="stylesheet" href="${name}.css">`)
     						}
-    						if(scriptfile && exists(scriptfile)) {
-    							if(hasVendors() > 0) {
-    								html = html.replace('<!--vendors-->', `<script src="${name}.vendor.js"></script>`)
+    						if(exists(script)) {
+    							if(hasVendors()) {
+    								html = html.replace('<!--vendors-->', `<script src="${name}.vendors.js"></script>`)
     							}
     							html = html.replace('<!--scripts-->', `<script src="${name}.js"></script>`)
     						}
@@ -120,11 +128,7 @@ export default function(commander) {
     					.pipe(gulp.dest(tmpdir))
     			},
     		},
-    	]
-
-    	// create css
-    	if(stylefile && exists(stylefile)) {
-    		middlewares.unshift({
+    		exists(style) ? {
     			route: `/${name}.css`,
     			handle: function (req, res, next) {
     				// for hot reload
@@ -134,7 +138,7 @@ export default function(commander) {
     				}
     				// http response
     				res.setHeader('content-type', 'text/css')
-    				sassStream(stylefile, `${tmpdir}/${name}.css`, {
+    				sassStream(style, `${tmpdir}/${name}.css`, {
     					sourcemap: true,
     					minify: false,
     					process(content, file) {
@@ -142,18 +146,10 @@ export default function(commander) {
     							res.end(content)
     						}
     					},
-    				}, {
-    					assets: {
-    						srcdirs: glob.sync(path.join(cwd, '**/')),
-    					}
     				})
     			},
-    		})
-    	}
-
-    	// create js
-    	if(scriptfile && exists(scriptfile)) {
-    		middlewares.unshift({
+    		} : undefined,
+    		exists(script) ? {
     			route: `/${name}.js`,
     			handle: function (req, res, next) {
     				// for hot reload
@@ -163,9 +159,9 @@ export default function(commander) {
     				}
     				// http response
     				res.setHeader('content-type', 'application/javascript')
-    				webpackStream(scriptfile, `${tmpdir}/${name}.js`, {
+    				webpackStream(script, `${tmpdir}/${name}.js`, {
     					sourcemap: true,
-    					minify: true,
+    					minify: false,
     					vendors: vendorsSettings,
     					process(content, file) {
     						if(getFileExt(file.path) === '.js') {
@@ -174,12 +170,12 @@ export default function(commander) {
     					},
     				})
     			},
-    		})
-    	}
+    		} : undefined,
+    	]
 
     	// build server
-    	if(serverfile && exists(serverfile)) {
-    		let serverware = load(serverfile)
+    	if(server && exists(server)) {
+    		let serverware = load(server)
     		if(serverware instanceof Array) {
     			middlewares = middlewares.concat(serverware)
     		}
@@ -189,7 +185,7 @@ export default function(commander) {
     	}
 
     	// watch files
-    	let watchFiles = info.watchFiles
+    	let watchFiles = settings.watch
     	if(typeof watchFiles === 'string') {
     		watchFiles = [path.join(cwd, watchFiles)]
     	}
@@ -232,9 +228,9 @@ export default function(commander) {
     	}
 
     	// setup server
-    	var port = arg.port || 8000 + parseInt(Math.random() * 1000)
-    	var uiport = port + 1
-    	var weinreport = port + 2
+    	let port = 8000 + parseInt(Math.random() * 1000)
+    	let uiport = port + 1
+    	let weinreport = port + 2
 
     	app.init({
     		port,
@@ -248,7 +244,7 @@ export default function(commander) {
     			baseDir: tmpdir,
     		},
     		files: watchFiles,
-    		watchOptions: info.watchOptions ? info.watchOptions : {},
+    		watchOptions: settings.watchOptions ? settings.watchOptions : {},
     		middleware: middlewares,
     	})
     })

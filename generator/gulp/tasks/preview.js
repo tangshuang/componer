@@ -11,27 +11,26 @@ import sassStream from '../drivers/sass-stream'
 
 gulp.task('preview', () => {
 	let arg = args.preview
-	let componout = dashName(arg.name)
+	let name = dashName(arg.name)
 
-	if(!hasComponout(componout)) {
-		log(`${componout} not exists.`, 'error')
+	if(!hasComponout(name)) {
+		log(name + ' not exists.', 'error')
 		return
 	}
 
-	let cwd = path.join(config.paths.componouts, componout)
+	let cwd = path.join(config.paths.componouts, name)
 	if(!exists(cwd + '/componer.json')) {
-		log(componout + ' componer.json not exists.', 'error')
+		log(name + ' componer.json not exists.', 'error')
 		return
 	}
 
-	let info = getComponoutConfig(componout)
+	let info = getComponoutConfig(name)
 	let settings = info.preview
 	if(!settings) {
-		log(componout + ' preview option in componer.json not found.', 'error')
+		log(name + ' preview option in componer.json not found.', 'error')
 		return
 	}
 
-	let name = info.name
 	let index = path.join(cwd, settings.index)
 	let script = settings.script ? path.join(cwd, settings.script) : false
 	let style = settings.style ? path.join(cwd, settings.style) : false
@@ -39,7 +38,7 @@ gulp.task('preview', () => {
 	let tmpdir = settings.tmpdir ? path.join(cwd, settings.tmpdir) : path.join(cwd, '.preview_tmp')
 
 	if(!exists(index)) {
-		log(componout + ' preview index file not found.', 'error')
+		log(name + ' preview index file not found.', 'error')
 		return
 	}
 

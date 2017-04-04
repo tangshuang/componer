@@ -20,32 +20,32 @@ gulp.task('test', () => {
 		return
 	}
 
-	let componout = dashName(arg.name)
-	if(!hasComponout(componout)) {
-		log(componout + ' not exists.', 'error')
+	let name = dashName(arg.name)
+	if(!hasComponout(name)) {
+		log(name + ' not exists.', 'error')
 		return
 	}
 
-	let cwd = path.join(config.paths.componouts, componout)
+	let cwd = path.join(config.paths.componouts, name)
 	if(!exists(cwd + '/componer.json')) {
-		log(componout + ' componer.json not exists.', 'error')
+		log(name + ' componer.json not exists.', 'error')
 		return
 	}
 
-	let info = getComponoutConfig(componout)
+	let info = getComponoutConfig(name)
 	let settings = info.test
 	if(!settings) {
-		log(componout + ' test option in componer.json not found.', 'error')
+		log(name + ' test option in componer.json not found.', 'error')
 		return
 	}
 	if(!settings.entry) {
-		log(componout + ' test.entry option in componer.json not found.', 'error')
+		log(name + ' test.entry option in componer.json not found.', 'error')
 		return
 	}
 
 	let entryfile = path.join(cwd, settings.entry)
 	if(!exists(entryfile)) {
-		log(componout + ' test entry file not found.', 'error')
+		log(name + ' test entry file not found.', 'error')
 		return
 	}
 
@@ -68,7 +68,7 @@ gulp.task('test', () => {
 
 	let reportersDir = settings.reporters
 	if(!reportersDir) {
-		log(componout + 'test.reporters option is not correct in your componer.json.', 'error')
+		log(name + 'test.reporters option is not correct in your componer.json.', 'error')
 		return
 	}
 
@@ -95,7 +95,7 @@ gulp.task('test', () => {
 			},
 			htmlReporter: {
 				outputDir: reportersPath,
-				reportName: componout,
+				reportName: name,
 			},
 		}
 
@@ -113,7 +113,7 @@ gulp.task('test', () => {
 	return gulp.src(entryfiles)
 		.pipe(karma.server(karmaConfig(karmaSettings)))
 		.on('end', () => {
-			log('Reporters ware created in componouts/' + componout + '/' + reportersDir, 'help')
+			log('Reporters ware created in componouts/' + name + '/' + reportersDir, 'help')
 			exit()
 		})
 

@@ -1,7 +1,9 @@
 import path from 'path'
 import {log} from '../utils/process'
 import {exists, readJSONTMPL, getFileExt, mkdir} from '../utils/file'
+import {root} from '../utils/componer'
 
+import gulp from 'gulp'
 import karmaConfig from '../drivers/karma.config'
 import karma from 'gulp-karma-runner'
 import jasmine from 'gulp-jasmine-node'
@@ -25,70 +27,89 @@ export default function(commander) {
             'path': cwd,
         })
         let settings = info.test
-
-        if(!info) {
-            log('Build option is not found in componer.json.', 'error')
+        let name = info.name || path.dirname(cwd)
+        if(!settings) {
+            log(name + ' test option in componer.json not found.', 'error')
+            return
+        }
+        if(!settings.entry) {
+            log(name + ' test.entry option in componer.json not found.', 'error')
             return
         }
 
         let entryfile = path.join(cwd, settings.entry)
+        if(!exists(entryfile)) {
+            log(name + ' test entry file not found.', 'error')
+            return
+        }
 
-        if(info.browsers === 'Terminal') {
-    		return gulp.src(entryfile).pipe(jasmine({
-    			timeout: 10000,
-    			includeStackTrace: false,
-    			color: process.argv.indexOf('--color')
-    		}))
-    	}
 
-        let reportersDir = info.reporters
-    	if(!reportersDir) {
-    		log('test.reporters option is not correct in your componer.json', 'error')
-    		return
-    	}
+        /**
+         * if it is a npm package, run test with jasmine-node
+         */
+        if(settings.browsers === 'Terminal') {
+            return gulp.src(entryfile).pipe(jasmine({
+                timeout: 10000,
+                includeStackTrace: false,
+                color: process.argv.indexOf('--color')
+            }))
+        }
 
-    	let reportersPath = path.join(cwd, reportersDir)
-    	if(!exists(reportersPath)) {
-    		mkdir(reportersPath)
-    	}
 
-    	let preprocessors = {}
-    	preprocessors[cwd + '/**/*.js'] = ['webpack', 'sourcemap']
-    	preprocessors[cwd + '/**/*.scss'] = ['scss']
+        /**
+         * if it is normal package can be run in browser
+         */
 
-    	let karmaSettings = {
-    			singleRun: options.debug !== undefined ? !options.debug : !info.debug,
-    			browsers: options.browser ? [options.browser] : info.browsers,
-    			preprocessors: preprocessors,
-    			coverageReporter: {
-    				reporters: [
-    					{
-    						type: 'html',
-    						dir: reportersPath,
-    					},
-    				],
-    			},
-    			htmlReporter: {
-    				outputDir: reportersPath,
-    				reportName: settings.name,
-    			},
-    		}
+        let reportersDir = settings.reporters
+        if(!reportersDir) {
+            log(name + 'test.reporters option is not correct in your componer.json.', 'error')
+            return
+        }
 
-    	let entryfiles = [entryfile]
-    	// if use PhantomJS to test, it do not support new functions directly, use babal-polyfill to fix
-    	// in fact, lower version of Chrome or Firefox are not support to. however, developer should make sure to use higher version of this browsers
-    	let launchers = karmaSettings.browsers
-        let root = path.resolve(__dirname, '../..')
-    	if(launchers.indexOf('PhantomJS') > -1 || launchers.indexOf('IE') > -1 || launchers.indexOf('Safari') > -1) {
-    		entryfiles.unshift(path.join(root, 'node_modules/core-js/es6/symbol.js'))
-    	}
+        let reportersPath = path.join(cwd, reportersDir)
+        if(!exists(reportersPath)) {
+            mkdir(reportersPath)
+        }
 
-    	return gulp.src(entryfiles)
-    		.pipe(karma.server(karmaConfig(karmaSettings)))
-    		.on('end', () => {
-    			log('Reporters ware created in componouts/' + name + '/' + reportersDir, 'help')
-    			exit()
-    		})
+        let preprocessors = {}
+        preprocessors[cwd + '/**/*.js'] = ['webpack', 'sourcemap']
+        preprocessors[cwd + '/**/*.scss'] = ['scss']
+
+        let karmaSettings = {
+                singleRun: !options.debug || !settings.debug,
+                browsers: options.browser ? [options.browser] : settings.browsers,
+                preprocessors: preprocessors,
+                coverageReporter: {
+                    reporters: [
+                        {
+                            type: 'html',
+                            dir: reportersPath,
+                        },
+                    ],
+                },
+                htmlReporter: {
+                    outputDir: reportersPath,
+                    reportName: name,
+                },
+            }
+
+        let entryfiles = [entryfile]
+
+        // if use PhantomJS to test, it do not support new functions directly, use babal-polyfill to fix
+        // in fact, lower version of Chrome or Firefox are not support to. however, developer should make sure to use higher version of this browsers
+        let rootPath = root()
+        let launchers = karmaSettings.browsers
+        if(launchers.indexOf('PhantomJS') > -1 || launchers.indexOf('IE') > -1 || launchers.indexOf('Safari') > -1) {
+            entryfiles.unshift(path.join(rootPath, 'node_modules/core-js/es6/symbol.js'))
+            preprocessors[path.join(rootPath, 'node_modules/core-js/**/*.js')] = ['webpack']
+        }
+
+        return gulp.src(entryfiles)
+            .pipe(karma.server(karmaConfig(karmaSettings)))
+            .on('end', () => {
+                log('Reporters ware created in componouts/' + name + '/' + reportersDir, 'help')
+                exit()
+            })
 
     })
 }

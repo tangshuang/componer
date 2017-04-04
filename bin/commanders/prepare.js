@@ -13,32 +13,34 @@ export default function(commander) {
 	.action((name, options) => {
 		let picker = PackagesPicker()
         let cwd = root()
+        let pickPackages = name => {
+            let npmJson = `${cwd}/componouts/${name}/package.json`
+            let bowerJson = `${cwd}/componouts/${name}/bower.json`
+            if(exists(npmJson)) {
+                let info = readJSON(npmJson)
+                let deps = info.dependencies
+                let devdeps = info.devDependencies
+                let peerdeps = info.peerDependencies
+                picker.add(deps, 'npm').add(devdeps, 'npm').add(peerdeps, 'npm')
+            }
+            if(exists(bowerJson)) {
+                // bower come first, so here bower should come behind to cover npm
+                let info = readJSON(bowerJson)
+                let deps = info.dependencies
+                let devdeps = info.devDependencies
+                picker.add(deps, 'bower').add(devdeps, 'bower')
+            }
+        }
 
 		/**
-		 * `comoner install`
+		 * `comoner prepare`
 		 * install all dependencies of all componouts
 		 */
 		if(name === undefined) {
 			check()
 
 			// find out packages from json files
-			scandir(cwd + '/componouts').forEach(name => {
-				let npmJson = `${cwd}/componouts/${name}/package.json`
-				let bowerJson = `${cwd}/componouts/${name}/bower.json`
-				if(exists(npmJson)) {
-					let info = readJSON(npmJson)
-					let deps = info.dependencies
-					let devdeps = info.devDependencies
-					picker.add(deps, 'npm').add(devdeps, 'npm')
-				}
-                if(exists(bowerJson)) {
-                    // bower come first, so here bower should come behind to cover npm
-                    let info = readJSON(bowerJson)
-                    let deps = info.dependencies
-                    let devdeps = info.devDependencies
-                    picker.add(deps, 'bower').add(devdeps, 'bower')
-                }
-			})
+			scandir(cwd + '/componouts').forEach(pickPackages)
 		}
 		/**
 		* install all packages of a componout
@@ -48,34 +50,11 @@ export default function(commander) {
 			name = dash(name)
 			name = fixname(name)
 			check(name)
-
-			let pkg = options.package
-			let npmJson = `${cwd}/componouts/${name}/package.json`
-			let bowerJson = `${cwd}/componouts/${name}/bower.json`
-
-			/**
-			* `componer install {{name}}`
-			* install all packages of a componout
-			*/
-			if(!pkg) {
-                if(exists(npmJson)) {
-                    let info = readJSON(npmJson)
-                    let deps = info.dependencies
-                    let devdeps = info.devDependencies
-                    picker.add(deps, 'npm').add(devdeps, 'npm')
-                }
-				if(exists(bowerJson)) {
-                    // bower come first, so here bower should come behind to cover npm
-					let info = readJSON(bowerJson)
-					let deps = info.dependencies
-					let devdeps = info.devDependencies
-					picker.add(deps, 'bower').add(devdeps, 'bower')
-				}
-			}
+			pickPackages(name)
 		}
 
 		// install npm packages
-		installPackages(picker.use(), options.resolve)
+		installPackages(picker.use(), options)
 
 		log('All (dev)dependencies have been installed.', 'done')
 	})
