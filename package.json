@@ -29,7 +29,6 @@
   },
   "homepage": "https://github.com/tangshuang/componer#readme",
   "dependencies": {
-    "commander": "^2.9.0",
     "babel-core": "^6.22.1",
     "babel-loader": "^6.2.8",
     "babel-polyfill": "^6.22.0",
@@ -37,6 +36,7 @@
     "bower": "^1.8.0",
     "bower-webpack-plugin": "^0.1.9",
     "browser-sync": "^2.18.8",
+    "commander": "^2.9.0",
     "css-loader": "^0.26.0",
     "extend": "^3.0.0",
     "file-loader": "^0.9.0",
@@ -56,6 +56,7 @@
     "handlebars-loader": "^1.4.0",
     "html-loader": "^0.4.4",
     "isparta-loader": "^2.0.0",
+    "jade": "^1.11.0",
     "jade-loader": "^0.8.0",
     "jasmine-core": "^2.5.2",
     "js-beautify": "^1.6.7",
