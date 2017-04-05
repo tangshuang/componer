@@ -2,29 +2,27 @@
 	"name": "{{componout-name}}",
 	"version": "0.0.1",
 	"type": "npm",
-	"build": [
-		{
-			"from": "src/{{componout-name}}.js",
-			"to": "dist/{{componout-name}}.js",
-			"options": {
-				"minify": false,
-				"sourcemap": false,
-				"vendors": false
+	"build": {
+		"from": "src/{{componout-name}}.js",
+		"to": "dist/{{componout-name}}.js",
+		"options": {
+			"minify": false,
+			"sourcemap": false,
+			"vendors": false
+		},
+		"settings": {
+			"output": {
+				"libraryTarget": "commonjs2"
 			},
-			"settings": {
-                "output": {
-					"libraryTarget": "commonjs2"
-				},
-				"target": "node",
-				"node": {
-					"global": false,
-					"Buffer": false,
-			        "__dirname": false,
-			        "__filename": false
-				}
-            }
+			"target": "node",
+			"node": {
+				"global": false,
+				"Buffer": false,
+				"__dirname": false,
+				"__filename": false
+			}
 		}
-	],
+	},
 	"test": {
 		"entry": "test/{{componout-name}}.js",
 		"browsers": "Terminal"

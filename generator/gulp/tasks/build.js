@@ -34,7 +34,7 @@ gulp.task('build', () => {
 	 */
 
 	let info = getComponoutConfig(name)
-	let files = info.build
+	let files = Array.isArray(info.build) ? info.build : typeof info.build === 'object' ? [info.build] : null
 	if(!files) {
 		log(name + ' build option in componer.json not found.', 'error')
 		return
