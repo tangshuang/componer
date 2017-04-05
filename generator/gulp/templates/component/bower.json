@@ -7,22 +7,25 @@
         "src/style/{{componout-name}}.scss"
     ],
     "moduleType": [
-        "umd"
+        "es6"
     ],
     "authors": [
         "{{author name}}"
     ],
+    "keywords": [
+        "componer"
+    ],
+    "dependencies": {},
+    "devDependencies": {},
     "homepage": "https://github.com/{{author-name}}/{{componout-name}}",
     "repository": {
         "type": "git",
         "url": "git://github.com/{{author-name}}/{{componout-name}}.git"
     },
-    "keywords": [],
-    "dependencies": {},
-    "devDependencies": {},
     "ignore": [
         "preview/",
         "test/",
+        "src/",
         "componer.json"
     ]
 }

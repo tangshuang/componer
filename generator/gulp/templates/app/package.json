@@ -2,9 +2,11 @@
   "name": "{{componout-name}}",
   "version": "0.0.1",
   "description": "{{componout name}}",
-  "main": "src/script/{{componout-name}}.js",
+  "main": "dist/js/{{componout-name}}.js",
   "scripts": {},
-  "keywords": [],
+  "keywords": [
+      "componer"
+  ],
   "author": "{{author name}}",
   "dependencies": {},
   "devDependencies": {},

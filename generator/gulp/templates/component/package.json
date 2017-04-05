@@ -4,7 +4,9 @@
   "description": "{{componout name}}",
   "main": "src/script/{{componout-name}}.js",
   "scripts": {},
-  "keywords": [],
+  "keywords": [
+      "componer"
+  ],
   "author": "{{author name}}",
   "dependencies": {},
   "devDependencies": {},

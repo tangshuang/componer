@@ -4,8 +4,10 @@
   "description": "{{componout name}}",
   "main": "dist/{{componout-name}}.js",
   "scripts": {},
-  "keywords": [],
   "author": "{{author name}}",
+  "keywords": [
+      "componer"
+  ],
   "dependencies": {},
   "devDependencies": {},
   "repository": {

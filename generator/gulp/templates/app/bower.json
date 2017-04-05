@@ -3,8 +3,8 @@
     "version": "0.0.1",
     "description": "{{componout name}}",
     "main": [
-        "src/script/{{componout-name}}.js",
-        "src/style/{{componout-name}}.scss"
+        "dist/js/{{componout-name}}.js",
+        "dist/css/{{componout-name}}.css"
     ],
     "moduleType": [
         "umd"
@@ -12,17 +12,20 @@
     "authors": [
         "{{author name}}"
     ],
+    "keywords": [
+        "componer"
+    ],
+    "dependencies": {},
+    "devDependencies": {},
     "homepage": "https://github.com/{{author-name}}/{{componout-name}}",
     "repository": {
         "type": "git",
         "url": "git://github.com/{{author-name}}/{{componout-name}}.git"
     },
-    "keywords": [],
-    "dependencies": {},
-    "devDependencies": {},
     "ignore": [
         "preview/",
         "test/",
+        "src/",
         "componer.json"
     ]
 }
