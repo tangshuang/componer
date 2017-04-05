@@ -177,13 +177,23 @@ Remove the named componout, run `unlink` command if possible.
 
 List all componouts information.
 
-### prepare [name] [-F|--force] [-R|--resolve]
+### install [for name] [-F|--force] [-R|--resolve]
 
 Install all dependencies for a componout based on its bower.json and pacakge.json.
 
+```
+componer install for my-componout
+```
+
 If you do not pass componout name, all componouts' dependencies will be installed. This is always run at the first time after you clone your project.
 
+```
+componer install
+```
+
 Packages will be put into node_modules/bower_components directory in your project root path. So all packages are shared amoung different componouts.
+
+When you use `-R|--resolve`, componer will install all packages one by one. This is useful when your computer or server memory is small.
 
 **bower always come first**
 
@@ -210,12 +220,12 @@ Componer keep only one same name package in local, for example, if there is a jq
 
 Bower and npm packages are put in different directories. But, only one package will be installed, even if there are two pacakges have the same name and from bower.json and package.json. Remember *bower always come first*.
 
-### install <package>[@version] to <name> [-S|--save|-D|--savedev] [-F|--force]
+### install <package>[@version] for|to <name> [-S|--save|-D|--savedev] [-F|--force]
 
 Install a package for a componout.
 
 ```
-componer install jquery to my-componout
+componer install jquery for my-componout
 ```
 
 New package will be put into node_modules/bower_components directory in your project root path. A new dependence will be added into your componout's `package.json` or `bower.json`.

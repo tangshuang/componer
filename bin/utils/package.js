@@ -70,6 +70,7 @@ export function PackagesPicker() {
 	var packages = {}
 
 	_.add = (obj, driver) => {
+        if(!obj) return _
 		let names = Object.keys(obj)
 		names.forEach(name => {
 			if(!packages[name]) {

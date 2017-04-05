@@ -5,7 +5,7 @@ import {PackagesPicker, installPackages} from '../utils/package'
 
 export default function(commander) {
     commander
-    .command('prepare')
+    .command('install')
 	.description('install dependencies one by one for componout')
 	.option('-F, --force', 'force to install packages if exists in local')
     .option('-R, --resolve', 'install packages one by one if your computer has no enough memory.')
