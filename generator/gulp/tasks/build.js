@@ -34,18 +34,18 @@ gulp.task('build', () => {
 	 */
 
 	let info = getComponoutConfig(name)
-	let files = Array.isArray(info.build) ? info.build : typeof info.build === 'object' ? [info.build] : null
-	if(!files) {
+	let items = Array.isArray(info.build) ? info.build : typeof info.build === 'object' ? [info.build] : null
+	if(!items) {
 		log(name + ' build option in componer.json not found.', 'error')
 		return
 	}
 
 	let streams = []
-	files.forEach(file => {
-		let from = path.join(cwd, file.from)
-		let to = path.join(cwd, file.to)
-		let settings = file.settings
-		let options = file.options
+	items.forEach(item => {
+		let from = path.join(cwd, item.from)
+		let to = path.join(cwd, item.to)
+		let settings = item.settings
+		let options = item.options
 		let ext = getFileExt(from)
 
 		if(ext === '.js') {

@@ -21,8 +21,7 @@ export default function(commander) {
         let info = readJSONTMPL(jsonfile, {
             'path': cwd,
         })
-        let items = info.build
-
+        let items = Array.isArray(info.build) ? info.build : typeof info.build === 'object' ? [info.build] : null
         if(!items) {
             log('Build option is not found in componer.json.', 'error')
             return
