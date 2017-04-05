@@ -25,7 +25,6 @@
     "ignore": [
         "preview/",
         "test/",
-        "src/",
         "componer.json"
     ]
 }
