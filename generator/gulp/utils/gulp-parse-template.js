@@ -5,7 +5,6 @@ import bufferify from 'gulp-bufferify'
 export default function(parsers) {
 	return bufferify(content => {
 		if(parsers && typeof parsers === 'object') {
-			content = content.toString()
 			let keys = Object.keys(parsers)
 			keys.forEach(key => {
 				let value = parsers[key]
