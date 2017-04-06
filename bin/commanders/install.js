@@ -41,7 +41,7 @@ export default function(commander) {
             writeJSON(file, info)
         }
 
-        let bowerInstall = (pkg, version, componout) => {
+        let bowerInstall = (componout, pkg, version) => {
             let jsonfile = `${cwd}/componouts/${componout}/bower.json`
 
             if(!exists(jsonfile)) return false
@@ -58,7 +58,7 @@ export default function(commander) {
             cmd += options.savedev ? ' --save-dev' : ' --save'
             return execute(cmd)
         }
-        let npmInstall = (pkg, version, componout) => {
+        let npmInstall = (componout, pkg, version) => {
             let jsonfile = `${cwd}/componouts/${componout}/package.json`
 
             if(!exists(jsonfile)) return
@@ -86,7 +86,7 @@ export default function(commander) {
 
             let [pkgName, pkgVer] = pkg.split(/[#@]/)
             log('Installing ' + pkgName + ' for ' + name + '...')
-            bowerInstall(pkgName, pkgVer, name) || npmInstall(pkgName, pkgVer, name) ? log('Package has been installed.', 'done') : log('Package install fail.', 'warn')
+            bowerInstall(name, pkgName, pkgVer) || npmInstall(name, pkgName, pkgVer) ? log('Package has been installed.', 'done') : log('Package install fail.', 'warn')
             return
         }
 
