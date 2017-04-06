@@ -1,0 +1,29 @@
+{
+    "name": "{{componout-name}}",
+    "version": "0.0.1",
+    "description": "{{componout name}}",
+    "main": [
+        "src/{{componout-name}}.js"
+    ],
+    "moduleType": [
+        "es6"
+    ],
+    "authors": [
+        "{{author name}}"
+    ],
+    "keywords": [
+        "componer"
+    ],
+    "dependencies": {},
+    "devDependencies": {},
+    "homepage": "https://github.com/{{author-name}}/{{componout-name}}",
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/{{author-name}}/{{componout-name}}.git"
+    },
+    "ignore": [
+        "preview/",
+        "test/",
+        "componer.json"
+    ]
+}

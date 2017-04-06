@@ -68,7 +68,7 @@ export default function(commander) {
 
             let cmd = `cd "${cwd}" && npm install ${pkg}`
             cmd += version ? `@${version}` : ''
-            return execute(cmd, () => updateVersion(npmJson, pkg, '^' + version, options.savedev))
+            return execute(cmd, () => updateVersion(jsonfile, pkg, '^' + version, options.savedev))
         }
 
         // install pkg for name
@@ -84,7 +84,7 @@ export default function(commander) {
 
             let [pkgName, pkgVer] = pkg.split(/[#@]/)
             log('Installing ' + pkgName + ' for ' + name + '...')
-            bowerInstall(pkgName, pkgVer, name) || npmInstall(pkgName, pkgVer, name) ? log('Package has been installed.', 'done') : log('Your componout type is not bower or npm.', 'warn')
+            bowerInstall(pkgName, pkgVer, name) || npmInstall(pkgName, pkgVer, name) ? log('Package has been installed.', 'done') : log('Package install fail.', 'warn')
             return
         }
 
