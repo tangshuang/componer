@@ -99,8 +99,12 @@ export function load(file, useDefault = true) {
 	return rs
 }
 
-export function getFileExt(file) {
-	return file.substr(file.lastIndexOf('.'))
+export function getFileExt(file, maxnum = 1) {
+	let ext = file.substr(file.lastIndexOf('.'))
+	if(maxnum > 1) for(let i = maxnum;i > 1;i --) {
+		ext = ext.substr(ext.lastIndexOf('.'))
+	}
+	return ext
 }
 
 /**

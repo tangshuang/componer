@@ -5,69 +5,79 @@ Support ES6. On the shoulders of gulp, bower, webpack, karma, jasmine and so on.
 
 ## Install and initialize
 
-Componer is based on `gulp` and `bower`, so you should install them globally first.
+We have two commander `componer` and `componout`, `componer` is for projects which have `.componerrc` and `componout` is for componouts which have `componer.json`, However a componout could be from a project.
 
 ```
-npm install -g bower
-npm install -g gulp-cli
+# install componer globally
 npm install -g componer
-
-mkdir test-project
-cd test-project
-componer init
-npm install
 ```
 
-## Usage
+```
+# initialize a project
+mkdir test-project && cd test-project && componer init
+```
+After this, you will get a project which contains special directory structure.
+
+```
+# initialize a componout which is not in a componer project
+mkdir test-componout && cd test-componout && componout init
+```
+Answer the questions, and get a componout by special template.
+
+## Usage of componer commander
 
 ```
 componer -v
 componer -h
+
 componer init
-componer add name [-t bower -a yourname]
-componer build [name]
-componer watch [name]
-componer preview name
-componer test [name] [-D] [-b Chrome]
-componer remove/rm name
+componer update
+componer add componoutname [-t templatename|typename -a yourgitname]
+componer build [componoutname]
+componer watch [componoutname]
+componer preview componoutname
+componer test [componoutname] [-D] [-b Chrome|Firefox|PhantomJS]
+componer remove/rm componoutname
 componer list/ls
 
-componer clone name
+componer clone componoutname
 
-componer install [name]
-componer link [name]
+componer install [for componoutname]
+componer install packagename for componoutname
+componer link [componoutname]
 ```
 
-### init [-I|--install]
+### init
 
 After your `npm install -g componer`, you should create a empty directory, and enter it to run `componer init`. Then you will see different files be initialized into this directory.
 
-This directory is called `componer` directory.
+This directory is called a componer project directory.
 
-When you run `componer init`, it will ask you two questions: your github name and the package name. The value you typed in will be found in `package.json`. So you can modify the file later.
+When you run `componer init`, it will ask you two questions: your github name and the package name. The value you typed in will be found in `package.json` and `.componerrc`. So you can modify the file later.
 Your github name is important, because it will be used when you run `componer add`. If you do not give a `--author` parameter when you run `componer add` task, componer will use your github name to create the package github registry address.
 
-If you give a `-I` option, `npm install` will be run after init.
+`init` commander will run 'npm install' at the last automaticly.
 
-### reset [-I|--install]
+### update
 
-Copy componer gulp directory/gupfile.babel.js to exists project directory.
+When you use a new version of componer, your local project files a older one. If you want to use componer default program files, you can run update commander.
+However, files in `gulp` directory and `gupfile.babel.js` will be covered, so if you have ever changed these files, do not run update directly.
 
-**Notice**: project files relative with gulp with be rewrited.
+'npm install' will be run automaticly after files updated.
 
-### add <name> [-t|--type component] [-a|--author your-name]
+### add <name> [-t|--template component] [-a|--author your-name]
 
 Add a componout. A `componout` is a production created by componer.
 
 Componout name should must be given.
 
-When you run `componer add` task, you can pass `-t` and `-a` parameters. `-t` is short for `--type`, if you run `componer add my-test -t npm`, my-test componout will be a npm package. Default types are directory names in `gulp/templates`.
+When you run `componer add` task, you can pass `-t` and `-a` parameters. `-t` is short for `--template`, if you run `componer add my-test -t npm`, my-test componout will be a npm package. Default templates are directory names in `gulp/templates`. In fact, a template is a type of componout, so you will see I use type instead of template in the following content.
 
 If it runs successfully, you will find a new dirctory in componouts directory.
 
-If you want to add a new type of componout, just create a new dirctory in your gulp/templates directory. Type name is the directory name. In template file, you can use `{{component-name}}` as string template.
+If you want to add a new type of componout, just create a new dirctory in your gulp/templates directory. Template name is the directory name. In template file, you can use `{{component-name}}` and `{{author-name}}` as string template.
 
-`defaults` options in `.componerrc` in your project root path will be used as default values if you not give a -t or -a option.
+`defaults.template` and `project.author` options in `.componerrc` in your project root path will be used as default values if you not give a -t or -a option.
 
 ### build [name]
 
@@ -75,23 +85,41 @@ When you run build task, componer will compile your ES6 code to ES5 code and com
 
 At the same time, scss files will be compiled to css files, minified by cssmin, and be put in `dist` directory too.
 
-However, `componer.json` is a special file which has information used for compiling.
+However, `componer.json` is a special file which has information used for compiling for a componout.
+
+Use an array to arrange compile files:
 
 ```
-build: [
-	// compile and bundle javascript
+"build": [
+	/* compile and bundle javascript, judged by from file */
 	{
-		"from": "src/script/bar-chart.js", // entry file to build with
-		"to": "dist/js/bar-chart.js", // output file after be built
+		/* entry file to build with */
+		"from": "src/script/bar-chart.js",
+
+		/* output file after be built */
+		"to": "dist/js/bar-chart.js",
+
 		"options": {
-			"minify": true, // create a .min.js file
-			"sourcemap": true, // create sourcemap file
-			"externals": true, // whether to include externals in built file
-			"vendors": [] // vendors to be separated into a .vendors.js file
+			/* create another .min.js file */
+			"minify": true,
+
+			/* create sourcemap file */
+			"sourcemap": true,
+
+			/**
+			vendors to be separated into a .vendors.js file, have three options: array, true, false.
+			true: all dependencies (in bower.json or pacakge.json) will be put in a .vendors.js.
+			array: only dependencies in this array will be put into the .vendors.js file, others will be bundled in the dist file.
+			false: no .vendors.js will be generated and all externals will be ignored in the final bundled file. However, you can use webpack settings `externals` to arrange your externals.
+			**/
+			"vendors": []
 		},
-		"settings": {} // settings for webpack-stream
+
+		/* settings for webpack-stream */
+		"settings": {}
 	},
-	// compile scss to css
+
+	/* compile scss to css */
 	{
 		"from": "src/style/bar-chart.scss",
 		"to": "dist/css/bar-chart.css",
@@ -106,7 +134,21 @@ build: [
 			"assets": {} // settings for gulp-css-copy-assets
 		}
 	}
-]
+],
+```
+
+You can use only one object, if you have only one file to build:
+
+```
+"build": {
+	"from": "src/script/bar-chart.js",
+	"to": "dist/js/bar-chart.js",
+	"options": {
+		"minify": true,
+		"sourcemap": true,
+		"vendors": false
+	}
+},
 ```
 
 If `name` is not given, all componouts will be built one by one.
@@ -124,34 +166,55 @@ If `name` is not given, all componouts's `src` will be being watched.
 Open browser to preview your code. `browser-sync` is used. preview options in `componer.json` make sense.
 
 ```
-preview: {
-	index: "preview/index.html", // required, html to use as home page
-	script: "preview/bar-chart.js", // option, script to inject to home page, will be compiled by webpack
-	style: "preview/bar-chart.scss", // option, will be compiled by sass
-	server: "preview/server.js", // option, middlewares to be used by browser-sync, look into browser-sync config `middleware`
-	tmpdir: ".preview_tmp", // option, default is '.preview_tmp'
-	vendors: [], // option, modules to put into vendors file which will not be rebuild when reload. default "undefined", when preview, dependencies in .json file will be contained, so you do not need to include them.
-	watchFiles: [ // look into browser-sync config `files`
+"preview": {
+	/* html to use as home page */
+	"index": "preview/index.html", // required
+
+	/* script to inject to home page, will be compiled by webpack */
+	"script": "preview/bar-chart.js",
+
+	/* will be compiled by sass */
+	"style": "preview/bar-chart.scss",
+
+	/* middlewares to be used, look into browser-sync config `middleware` */
+	"server": "preview/server.js",
+
+	/* tmp dir to put preview tmp files */
+	"tmpdir": ".preview_tmp", // default: '.preview_tmp'
+
+	/**
+	vendors to be separated into a .vendors.js file, have three options: array, true, false.
+	true: all dependencies (in bower.json or pacakge.json) will be put in a .vendors.js.
+	array: only dependencies in this array will be put into the .vendors.js file, others will be bundled in the dist file.
+	false: no .vendors.js will be generated and all externals will be ignored in the final bundled file. However, you can use webpack settings `externals` to arrange your externals.
+	Why we need this? Because when you preview, browser will refresh automaticly after you change your watch files (in the following), bundle js being built, separate vendors avoid to build this vendors into re-build bundle file, which save your time.
+	**/
+	"vendors": true,
+
+	/* look into browser-sync config `files` */
+	"watch": [
 		"preview/index.html",
 		"preview/bar-chart.js",
 		"preview/bar-chart.scss",
 		"src/**/*",
 	],
-	watchOptions: {}, // look into browser-sync config `watchOptions`
+	/* look into browser-sync config `watchOptions` */
+	"watchOptions": {}
 },
 ```
 
 1) index file
 
-A html file, use `<!--styles-->` and `<!--vendors-->` `<!--scripts-->` for scripts files to be injected. If they are not found, css will be injected before `</head>` and scripts will be injected before `</body>`
+A html file, use `<!--styles-->` and `<!--vendors-->` `<!--scripts-->` for scripts files to be injected.
 
 2) server file
 
-Export an object or an array or a function. Look into browser-sync middleware config.
+Export an object or an array or a function.
+Look into browser-sync middleware config.
 
 3) scripts files
 
-`script` and `style` files will be compiled and be kept in memory, not true local files (though files compiled will be created after page shown). All dependencies will be included in the compiled output content.
+`script` and `style` files will be compiled and be kept in memory, not true local files (though files compiled will be created after page shown).
 
 ### test [name] [-D|--debug] [-b|--browser PhantomJS|Chrome|Firefox|IE|Safari]
 

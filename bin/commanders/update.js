@@ -2,13 +2,14 @@ import {root, check} from '../utils/componer'
 import {log, prompt, exit, execute} from '../utils/process'
 import {readJSON, writeJSON} from '../utils/file'
 import path from 'path'
+import extend from 'extend'
 
 export default function(commander) {
     let cwd = root()
     let generator = path.resolve(__dirname, '../../generator')
 
-    commander.command("reset")
-	.description("reset componer and curent project componer program")
+    commander.command("update")
+	.description("update componer and curent project componer program")
     .action(() => {
         check()
         log("Reset may change componer files in your project directory.")
@@ -23,8 +24,8 @@ export default function(commander) {
             let pkgJson = cwd + "/package.json"
             let pkgInfo = readJSON(pkgJson)
             let newPkgInfo = readJSON(generator + "/package.json")
-            pkgInfo.dependencies = newPkgInfo.dependencies
-            pkgInfo.devDependencies = newPkgInfo.devDependencies
+            extend(true, pkgInfo.dependencies, newPkgInfo.dependencies)
+            extend(true, pkgInfo.devDependencies, newPkgInfo.devDependencies)
             writeJSON(pkgJson, pkgInfo)
 
             log("npm install...", 'help')
