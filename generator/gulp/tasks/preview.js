@@ -93,6 +93,17 @@ gulp.task('preview', () => {
 		)
 	}
 
+	if(exists(style) && hasVendors()) {
+		sassStream(style, `${tmpdir}/${name}.vendors.css`, {
+			sourcemap: true,
+			minify: false,
+			vendors: {
+				enable: 1,
+				modules: vendors,
+			},
+		})
+	}
+
 
 	/**
 	 * create a bs server app
@@ -107,11 +118,14 @@ gulp.task('preview', () => {
 				gulp.src(index)
 					.pipe(bufferify(html => {
 						if(exists(style)) {
+							if(hasVendors()) {
+								html = html.replace('<!--stylevendors-->', `<link rel="stylesheet" href="${name}.vendors.css">`)
+							}
 							html = html.replace('<!--styles-->', `<link rel="stylesheet" href="${name}.css">`)
 						}
 						if(exists(script)) {
 							if(hasVendors()) {
-								html = html.replace('<!--vendors-->', `<script src="${name}.vendors.js"></script>`)
+								html = html.replace('<!--scriptvendors-->', `<script src="${name}.vendors.js"></script>`)
 							}
 							html = html.replace('<!--scripts-->', `<script src="${name}.js"></script>`)
 						}
@@ -134,6 +148,10 @@ gulp.task('preview', () => {
 				sassStream(style, `${tmpdir}/${name}.css`, {
 					sourcemap: true,
 					minify: false,
+					vendors: hasVendors() ? {
+						enable: -1,
+						modules: vendors,
+					} : undefined,
 					process(content, file) {
 						if(getFileExt(file.path) === '.css') {
 							res.end(content)

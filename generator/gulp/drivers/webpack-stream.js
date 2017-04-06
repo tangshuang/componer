@@ -14,6 +14,10 @@ import bufferify from 'gulp-bufferify'
     boolean sourcemap: whether to create a sourcemap file,
     boolean minify: whether to create a minified file,
     object vendors: the settings of vendors want to be seperated from source code, {context, path}
+    {
+        path:
+        context:
+    }
     function before(settings): function to run before build,
     function process(content, file, context): function to run before output with stream content,
     function after(): function to run after build,

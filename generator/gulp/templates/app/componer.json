@@ -18,7 +18,8 @@
 			"to": "dist/css/{{componout-name}}.css",
 			"options": {
 				"minify": true,
-				"sourcemap": true
+				"sourcemap": true,
+				"vendors": true
 			},
 			"settings": {
                 "sass": {},

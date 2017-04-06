@@ -9,6 +9,8 @@ import sourcemaps from 'gulp-sourcemaps'
 import concat from 'pipe-concat'
 import bufferify from 'gulp-bufferify'
 import cssCopyAssets from 'gulp-css-copy-assets'
+import SeparateVendors from 'gulp-sass-separate-vendors'
+
 import sassConfig from './sass.config'
 
 /**
@@ -18,6 +20,11 @@ import sassConfig from './sass.config'
 @param object options: {
 	boolean minify: whether to minify css code,
 	boolean sourcemap: whether to use sourcemap,
+	object vendors: {
+		enable: -1|0|1, -1 => filter, 0 => ignore this operate, 1 => extract, default 0
+		modules: boolean|array, true => all vendors, array => only these vendors will be seperated, default true
+	}
+
 	function before(settings): to run before build,
 	function process(content, file, context): during building,
 	function after(): run after build,
@@ -39,9 +46,25 @@ export default function(from, to, options = {}, settings = {}) {
     var plugins = [
         cssnext(settings.cssnext),
 	]
+	var separator = SeparateVendors({
+		vendors: options.vendors && options.vendors.modules,
+	})
+	var separate = () => {
+		if(options.vendors && options.vendors.enable) {
+			let enable = options.vendors.enable
+			if(enable > 0) {
+				return separator.extract()
+			}
+			else if(enable < 0) {
+				return separator.filter()
+			}
+		}
+		else return bufferify()
+	}
 
     function NoSourceMapNoMinify() {
 		return gulp.src(from)
+			.pipe(separate())
 			.pipe(sass(sassConfig(settings.sass)))
 			.pipe(postcss(plugins, settings.postcss))
 			.pipe(rename(filename))
@@ -57,6 +80,7 @@ export default function(from, to, options = {}, settings = {}) {
 
 	function HasSourceMapNoMinify() {
 		return gulp.src(from)
+			.pipe(separate())
 			.pipe(sourcemaps.init())
 			.pipe(sass(sassConfig(settings.sass)))
 			.pipe(postcss(plugins, settings.postcss))
@@ -75,6 +99,7 @@ export default function(from, to, options = {}, settings = {}) {
 	function NoSourceMapHasMinify() {
         filename = basename + '.min.css'
 		return gulp.src(from)
+			.pipe(separate())
 			.pipe(sass(sassConfig(settings.sass)))
 			.pipe(postcss(plugins, settings.postcss))
 			.pipe(cssmin())
@@ -92,6 +117,7 @@ export default function(from, to, options = {}, settings = {}) {
 	function HasSourceMapHasMinify() {
         filename = basename + '.min.css'
 		return gulp.src(from)
+			.pipe(separate())
 			.pipe(sourcemaps.init())
 			.pipe(sass(sassConfig(settings.sass)))
 			.pipe(postcss(plugins, settings.postcss))

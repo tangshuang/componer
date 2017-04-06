@@ -1,10 +1,11 @@
 import fs from 'fs'
 import path from 'path'
+import concat from 'pipe-concat'
+import extend from 'extend'
+
 import webpackVendor from './webpack-vendor'
 import webpackStream from './webpack-stream'
 import {camelName} from '../utils/convert-name'
-
-import concat from 'pipe-concat'
 
 
 /**
@@ -75,11 +76,12 @@ export default function(from, to, options = {}, settings  = {}) {
     streams.push(stream1)
 
     if(options.minify) {
-        opts.minify = true
+        let opts2 = extend(true, {}, opts)
+        opts2.minify = true
         if(hasVendors()) {
-            opts.vendors = webpackVendor(vendors, outputdir + '/' + name + '.vendors.min.js', opts, sets)
+            opts2.vendors = webpackVendor(vendors, outputdir + '/' + name + '.vendors.min.js', opts2, sets)
         }
-        let stream2 = webpackStream(from, outputdir + '/' + name + '.min.js', opts, settings)
+        let stream2 = webpackStream(from, outputdir + '/' + name + '.min.js', opts2, settings)
         streams.push(stream2)
     }
 
