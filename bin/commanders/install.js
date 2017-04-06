@@ -64,13 +64,13 @@ export default function(commander) {
             if(!exists(jsonfile)) return
 
             if(!options.force && !version && localNpmPkgs[pkg]) {
-                updateVersion(jsonfile, pkg, '^' + localNpmPkgs[pkg].version, options.savedev)
+                updateVersion(jsonfile, pkg, localNpmPkgs[pkg].version, options.savedev)
                 return
             }
 
             let cmd = `cd "${cwd}" && npm install ${pkg}`
             cmd += version ? `@${version}` : ''
-            return execute(cmd, () => updateVersion(jsonfile, pkg, '^' + version, options.savedev))
+            return execute(cmd, () => updateVersion(jsonfile, pkg, version, options.savedev))
         }
 
         // install pkg for name
