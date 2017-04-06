@@ -46,6 +46,8 @@ export default function(commander) {
 
             if(!exists(jsonfile)) return false
 
+            if(!localBowerPkgs[pkg] && localNpmPkgs[pkg]) return false
+
             if(!options.force && !version && localBowerPkgs[pkg]) {
                 updateVersion(jsonfile, pkg, localBowerPkgs[pkg].version, options.savedev)
                 return true
