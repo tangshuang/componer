@@ -63,7 +63,7 @@ export function scandir(dir) {
 
 export function link(from, to) {
     if(!exists(from)) return
-    execute(`ln -s "${from}" "${to}"`)
+    shell.exec(`ln -s "${from}" "${to}"`)
 }
 
 export function remove(file) {

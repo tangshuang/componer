@@ -1,5 +1,4 @@
 import fs from 'fs'
-
 import shell from 'shelljs'
 
 export function exists(file) {
@@ -57,8 +56,9 @@ export function writeJSON(file, json) {
 	write(file, JSON.stringify(json, null, 4))
 }
 
-export function symLink(file, target) {
-	fs.symlinkSync(target, file, isDir(file) ? 'dir' : 'file')
+export function link(from, to) {
+    if(!exists(from)) return
+    shell.exec(`ln -s "${from}" "${to}"`)
 }
 
 export function scandir(dir) {
@@ -86,7 +86,7 @@ export function rename(file, newfile) {
 }
 
 export function copy(from, to) {
-	execute(`cp -rf "${from}" "${to}"`)
+	shell.exec(`cp -rf "${from}" "${to}"`)
 }
 
 export function load(file, useDefault = true) {
