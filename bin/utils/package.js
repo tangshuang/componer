@@ -36,7 +36,7 @@ export function getLocalPackagesByType(type, cwd = root()) {
 }
 
 // get version from version string such as `~1.3.0`, `^2.0.1`, >=6.2.1
-function getVersion(ver) {
+export function getVersion(ver) {
 	var i = ver.search(/\d/)
 	if(i > -1 && i < 3) return ver.substr(i)
 	return ver
