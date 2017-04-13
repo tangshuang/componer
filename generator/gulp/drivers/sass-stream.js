@@ -21,7 +21,7 @@ import sassConfig from './sass.config'
 	boolean minify: whether to minify css code,
 	boolean sourcemap: whether to use sourcemap,
 	object vendors: {
-		enable: -1|0|1, -1 => filter, 0 => ignore this operate, 1 => extract, default 0
+		enable: -1|0|1, 1 => only vendors, 0 => ignore this operate, -1 => without vendors, default 0
 		modules: boolean|array, true => all vendors, array => only these vendors will be seperated, default true
 	}
 
@@ -46,113 +46,44 @@ export default function(from, to, options = {}, settings = {}) {
     var plugins = [
         cssnext(settings.cssnext),
 	]
+
+	var enable = options.vendors && options.vendors.enable
+	var modules = options.vendors && options.vendors.modules
+	var modifier = (factory, ...args) => {
+		if(typeof factory === 'function') return factory(...args)
+		return bufferify(() => {})
+	}
 	var separator = SeparateVendors({
-		vendors: options.vendors && options.vendors.modules,
+		vendors: modules,
+		output: enable
 	})
-	var separate = () => {
-		if(options.vendors && options.vendors.enable) {
-			let enable = options.vendors.enable
-			if(enable > 0) {
-				return separator.extract()
-			}
-			else if(enable < 0) {
-				return separator.filter()
-			}
-		}
-		else return bufferify()
-	}
-
-    function NoSourceMapNoMinify() {
-		return gulp.src(from)
-			.pipe(separate())
-			.pipe(sass(sassConfig(settings.sass)))
-			.pipe(postcss(plugins, settings.postcss))
-			.pipe(rename(filename))
-			.pipe(bufferify((content, file, context) => {
-	            if(typeof options.process === 'function') {
-	                content = options.process(content, file, context)
-	            }
-	            return content
-	        }))
-			.pipe(cssCopyAssets(settings.assets))
-			.pipe(gulp.dest(outputdir))
-	}
-
-	function HasSourceMapNoMinify() {
-		return gulp.src(from)
-			.pipe(separate())
-			.pipe(sourcemaps.init())
-			.pipe(sass(sassConfig(settings.sass)))
-			.pipe(postcss(plugins, settings.postcss))
-			.pipe(rename(filename))
-			.pipe(bufferify((content, file, context) => {
-	            if(typeof options.process === 'function') {
-	                content = options.process(content, file, context)
-	            }
-	            return content
-	        }))
-			.pipe(sourcemaps.write(sourcemapdir))
-			.pipe(cssCopyAssets(settings.assets))
-			.pipe(gulp.dest(outputdir))
-	}
-
-	function NoSourceMapHasMinify() {
-        filename = basename + '.min.css'
-		return gulp.src(from)
-			.pipe(separate())
-			.pipe(sass(sassConfig(settings.sass)))
-			.pipe(postcss(plugins, settings.postcss))
-			.pipe(cssmin())
-			.pipe(rename(filename))
-			.pipe(bufferify((content, file, context) => {
-	            if(typeof options.process === 'function') {
-	                content = options.process(content, file, context)
-	            }
-	            return content
-	        }))
-			.pipe(cssCopyAssets(settings.assets))
-			.pipe(gulp.dest(outputdir))
-	}
-
-	function HasSourceMapHasMinify() {
-        filename = basename + '.min.css'
-		return gulp.src(from)
-			.pipe(separate())
-			.pipe(sourcemaps.init())
-			.pipe(sass(sassConfig(settings.sass)))
-			.pipe(postcss(plugins, settings.postcss))
-			.pipe(cssmin())
-			.pipe(rename(filename))
-			.pipe(bufferify((content, file, context) => {
-	            if(typeof options.process === 'function') {
-	                content = options.process(content, file, context)
-	            }
-	            return content
-	        }))
-			.pipe(sourcemaps.write(sourcemapdir))
-			.pipe(cssCopyAssets(settings.assets))
-			.pipe(gulp.dest(outputdir))
-	}
 
 	// do something before build
 	if(typeof options.before === 'function') {
 		options.before(settings)
 	}
 
-    if(options.sourcemap) {
-        let stream = options.minify ? HasSourceMapHasMinify() : HasSourceMapNoMinify()
-		return stream.on('end', () => {
-			if(typeof options.after === 'function') {
-				options.after()
+	var stream = gulp.src(from)
+		.pipe(modifier(options.sourcemap ? sourcemaps.init : null))
+		.pipe(modifier(enable ? separator.init : null))
+		.pipe(sass(sassConfig(settings.sass)))
+		.pipe(modifier(enable ? separator.extract : null))
+		.pipe(postcss(plugins, settings.postcss))
+		.pipe(modifier(options.minify ? cssmin : null))
+		.pipe(rename(filename)) // ??? does this rename vendors file???
+		.pipe(bufferify((content, file, context, notifier) => {
+			if(typeof options.process === 'function') {
+				content = options.process(content, file, context, notifier)
 			}
-		})
-    }
-	else {
-		let stream = options.minify ? NoSourceMapHasMinify() : NoSourceMapNoMinify()
-		return stream.on('end', () => {
-			if(typeof options.after === 'function') {
-				options.after()
-			}
-		})
-	}
+			return content
+		}))
+		.pipe(modifier(options.sourcemap ? sourcemaps.write : null, sourcemapdir))
+		.pipe(cssCopyAssets(settings.assets))
+		.pipe(gulp.dest(outputdir))
+
+	return stream.on('end', () => {
+		if(typeof options.after === 'function') {
+			options.after()
+		}
+	})
 }
