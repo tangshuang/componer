@@ -1,8 +1,10 @@
 import path from 'path'
-import {scandir, readJSON, writeJSON} from '../utils/file'
 import {is, root} from '../utils/componer'
 import {log, execute, prompt, exit} from '../utils/process'
-import {dash} from '../utils/convert'
+import {dashName} from '../../generator/gulp/utils/convert-name'
+import {scandir, readJSON, writeJSON} from '../../generator/gulp/utils/file'
+
+const yarn = path.resolve(__dirname, '../../node_modules/.bin/yarn')
 
 export default function(commander) {
     let cwd = process.cwd()
@@ -29,7 +31,7 @@ export default function(commander) {
 
         prompt('What is your current project name? (default: ' + dirname + ') ', answer => {
             let project = !answer || answer === '' ? dirname : answer
-            info.name = dash(project)
+            info.name = dashName(project)
 
             prompt('What is your current project version? (default: 0.0.1) ', answer => {
                 let version = !answer || answer === '' ? '0.0.1' : answer
@@ -37,15 +39,15 @@ export default function(commander) {
 
                 prompt('What is your project author name? (default: componer) ', answer => {
                     let author = !answer || answer === '' ? 'componer' : answer
-                    info.author = dash(author)
+                    info.author = dashName(author)
 
                     update(info)
-                    log('npm install ...', 'help')
-                    execute('cd ' + cwd + ' && npm install')
+                    log('install dependencies ...', 'help')
+                    execute(`cd "${cwd}" && "${yarn}" install`)
                     exit()
-                }) //
-            }) //
-        }) //
+                })
+            })
+        })
     }
 
     commander.command('init')
@@ -63,8 +65,8 @@ export default function(commander) {
        }
 
        log('copying files...')
-       execute('cp -rf ' + generator + '/. ' + cwd + '/', true)
-       execute('cd ' + cwd + ' && mkdir componouts', true)
+       execute(`cp -rf "${generator}/." "${cwd}/"`, true)
+       execute(`cd "${cwd}" && mkdir componouts`, true)
        confirm()
    })
 }

@@ -1,10 +1,9 @@
-#!/usr/bin/env node
-
 import fs from 'fs'
-import {exit, execute, log} from './utils/process'
-import {readJSON, scandir, load} from './utils/file'
-
 import commander from 'commander'
+
+import {exit, execute, log} from './utils/process'
+import {readJSON, scandir, load} from '../generator/gulp/utils/file'
+
 
 var argvs = process.argv
 if(argvs.length <= 2) {

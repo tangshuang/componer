@@ -1,6 +1,6 @@
-import {dash} from '../utils/convert'
 import {check, fixname, config, has, root} from '../utils/componer'
 import {log, execute, exit} from '../utils/process'
+import {dashName} from '../../generator/gulp/utils/convert-name'
 
 export default function(commander) {
     commander
@@ -8,7 +8,7 @@ export default function(commander) {
     .description("clone a componout from github.com/componer")
     .option("-u, --url [url]", "use your own registry url")
     .action((name, options) => {
-		name = dash(name)
+		name = dashName(name)
 		name = fixname(name)
         check()
 

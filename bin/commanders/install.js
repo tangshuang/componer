@@ -1,8 +1,8 @@
-import {dash} from '../utils/convert'
-import {check, fixname, root} from '../utils/componer'
 import {log, execute} from '../utils/process'
-import {exists, readJSON, writeJSON, scandir} from '../utils/file'
+import {check, fixname, root} from '../utils/componer'
 import {getLocalPackagesByType, PackagesPicker, installPackages} from '../utils/package'
+import {dashName} from '../../generator/gulp/utils/convert-name'
+import {exists, readJSON, writeJSON, scandir} from '../../generator/gulp/utils/file'
 
 export default function(commander) {
     commander
@@ -80,7 +80,7 @@ export default function(commander) {
                 return
             }
 
-            name = dash(name)
+            name = dashName(name)
             name = fixname(name)
             check(name)
 
@@ -118,7 +118,7 @@ export default function(commander) {
             }
 
             name = to
-            name = dash(name)
+            name = dashName(name)
             name = fixname(name)
             check(name)
             pick(name)

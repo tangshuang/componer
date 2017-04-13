@@ -1,7 +1,7 @@
-import {dash} from '../utils/convert'
 import {fixname, check, config, root} from '../utils/componer'
 import {execute, log} from '../utils/process'
-import {exists} from '../utils/file'
+import {exists} from '../../generator/gulp/utils/file'
+import {dashName} from '../../generator/gulp/utils/convert-name'
 
 let cwd = root()
 let gulp = cwd + '/node_modules/.bin/gulp'
@@ -15,7 +15,7 @@ export default function(commander) {
 	.option('-t, --template [template]', 'template of componout')
 	.option('-a, --author [author]', 'author of componout')
 	.action((name, options) => {
-		name = dash(name)
+		name = dashName(name)
 		name = fixname(name)
         check()
 
@@ -50,7 +50,7 @@ export default function(commander) {
             return
 		}
 
-        name = dash(name)
+        name = dashName(name)
         name = fixname(name)
         check(name)
 
@@ -62,7 +62,7 @@ export default function(commander) {
 	.description('preview a componout')
 	.option('-p, --port [port]', 'use custom port')
 	.action((name, options) => {
-		name = dash(name)
+		name = dashName(name)
 		name = fixname(name)
 		check(name)
 
@@ -83,7 +83,7 @@ export default function(commander) {
 			check()
 		}
 		else {
-			name = dash(name)
+			name = dashName(name)
 			name = fixname(name)
 			check(name)
 
@@ -109,7 +109,7 @@ export default function(commander) {
 			execute(`cd "${cwd}" && "${gulp}" watch`)
 		}
 		else {
-			name = dash(name)
+			name = dashName(name)
 			name = fixname(name)
 			check(name)
 			execute(`cd "${cwd}" && "${gulp}" watch --name=${name}`)

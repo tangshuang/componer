@@ -1,8 +1,7 @@
 import readline from 'readline'
-import {config, root} from './componer'
-
 import shell from 'shelljs'
 import logger from 'process.logger'
+import {config, root} from './componer'
 
 export function exit() {
     process.exit(0)

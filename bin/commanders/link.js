@@ -1,7 +1,7 @@
-import {exists, link, readJSON, scandir, remove, isSymLink} from '../utils/file'
-import {check, fixname, root} from '../utils/componer'
-import {dash} from '../utils/convert'
 import {execute, log} from '../utils/process'
+import {check, fixname, root} from '../utils/componer'
+import {dashName} from '../../generator/gulp/utils/convert-name'
+import {exists, link, readJSON, scandir, remove, isSymLink} from '../../generator/gulp/utils/file'
 
 export default function(commander) {
     commander
@@ -48,7 +48,7 @@ export default function(commander) {
 			scandir(`${cwd}/componouts`).forEach(item => LinkPkg(item))
 		}
 		else {
-			name = dash(name)
+			name = dashName(name)
 			name = fixname(name)
 			check(name)
 			LinkPkg(name)

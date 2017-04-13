@@ -1,27 +1,14 @@
 import path from 'path'
 import gulp from 'gulp'
-import babel from 'gulp-babel'
 import extend from 'extend'
 import {execute, exit} from './generator/gulp/utils/process'
 import {readJSON, writeJSON, exists} from './generator/gulp/utils/file'
 import {getVersion} from './bin/utils/package'
 
-gulp.task('build', () => {
-    // cli
-    gulp.src('./bin/**/*')
-        .pipe(babel())
-        .pipe(gulp.dest('./.bin'))
-    // pacakges
-    let ginfo = readJSON('./generator/package.json');
-    let devdeps = ginfo.devDependencies
-    let cinfo = readJSON('./package.json')
-    let deps = cinfo.dependencies
-    cinfo.dependencies = extend(true, deps, devdeps)
-    writeJSON(__dirname + '/package.json', cinfo)
-})
+const yarn = path.resolve(__dirname, 'node_modules/.bin/yarn')
 
 gulp.task('install', () => {
-    let info = require('./package.json')
+    let info = readJSON('./package.json')
     let deps = info.dependencies
     let devdeps = info.devDependencies
     let install = function(deps) {
@@ -36,7 +23,7 @@ gulp.task('install', () => {
             }
 
             console.log(`installing ${name}@${version} ...`)
-            execute('npm install ' + name + '@' + version, true, () => {
+            execute(`"${yarn}" add ${name}@${version}`, true, () => {
                 let pkgDir = path.join(__dirname, 'node_modules', name)
                 execute(`rm -rf "${pkgDir}"`)
             })
@@ -45,8 +32,4 @@ gulp.task('install', () => {
 
     install(deps)
     install(devdeps)
-})
-
-gulp.task('watch', ['build', 'install'], () => {
-    gulp.watch(['./bin/**/*', './generator/package.json'], ['build', 'install'])
 })

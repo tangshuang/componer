@@ -1,7 +1,7 @@
-import {dash} from '../utils/convert'
 import {fixname, check, root} from '../utils/componer'
 import {execute, prompt, log, exit} from '../utils/process'
-import {exists, remove} from '../utils/file'
+import {exists, remove} from '../../generator/gulp/utils/file'
+import {dashName} from '../../generator/gulp/utils/convert-name'
 
 export default function(commander) {
     commander
@@ -9,7 +9,7 @@ export default function(commander) {
 	.alias('rm')
 	.description('remove a componout from componouts directory')
 	.action(name => {
-		name = dash(name)
+		name = dashName(name)
 		name = fixname(name)
 		check(name)
 

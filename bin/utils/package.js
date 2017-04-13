@@ -1,6 +1,6 @@
-import {exists, readJSON, scandir} from './file'
 import {root} from './componer'
 import {execute} from './process'
+import {exists, readJSON, scandir} from '../../generator/gulp/utils/file'
 
 export function getLocalPackages(cwd = root()) {
     var packages = []

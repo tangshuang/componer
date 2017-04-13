@@ -1,5 +1,5 @@
 import path from 'path'
-import {exists, readJSON} from './file'
+import {exists, readJSON} from '../../generator/gulp/utils/file'
 import {log, exit} from './process'
 
 export function is(dir) {
