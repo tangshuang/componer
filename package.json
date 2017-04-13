@@ -8,7 +8,7 @@
     "cpt": ".bin/componout.js"
   },
   "scripts": {
-    "init": "npm install yarn && yarn add gulp-cli && yarn add babel-core && yarn add babel-register && yarn add babel-preset-env && yarn add gulp && yarn add shelljs && gulp install"
+    "init": "npm install yarn && yarn add shelljs && node ./.scripts/install.js"
   },
   "repository": {
     "type": "git",
@@ -40,7 +40,6 @@
     "glob": "^7.1.1",
     "gulp": "^3.9.1",
     "gulp-bufferify": "0.0.7",
-    "gulp-cli": "^1.2.2",
     "gulp-concat": "^2.6.1",
     "gulp-css-copy-assets": "0.0.3",
     "gulp-cssmin": "^0.1.7",

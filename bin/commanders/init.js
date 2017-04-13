@@ -4,11 +4,11 @@ import {log, execute, prompt, exit} from '../utils/process'
 import {dashName} from '../../generator/gulp/utils/convert-name'
 import {scandir, readJSON, writeJSON} from '../../generator/gulp/utils/file'
 
+const cwd = process.cwd()
+const generator = path.resolve(__dirname, '../../generator')
 const yarn = path.resolve(__dirname, '../../node_modules/.bin/yarn')
 
 export default function(commander) {
-    let cwd = process.cwd()
-    let generator = path.resolve(__dirname, '../../generator')
     let update = info => {
         // update .componerrc
         let componerInfo = readJSON(cwd + '/.componerrc')

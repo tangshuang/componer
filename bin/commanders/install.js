@@ -1,20 +1,22 @@
+import path from 'path'
 import {log, execute} from '../utils/process'
 import {check, fixname, root} from '../utils/componer'
 import {getLocalPackagesByType, PackagesPicker, installPackages} from '../utils/package'
 import {dashName} from '../../generator/gulp/utils/convert-name'
 import {exists, readJSON, writeJSON, scandir} from '../../generator/gulp/utils/file'
 
+const cwd = root()
+const bower = path.resolve(__dirname, '../../node_modules/.bin/bower')
+const yarn = path.resolve(__dirname, '../../node_modules/.bin/yarn')
+
 export default function(commander) {
     commander
     .command('install [pkg] [to] [name]')
     .description('install a pacakge to a componout')
-	.option('-S, --save', 'save to .json dependencies (default)')
-	.option('-D, --savedev', 'save to .json devDependencies')
-	.option('-F, --force', 'force to install packages if exists in local')
-    .option('-R, --resolve', 'install packages one by one if your computer has no enough memory.')
+	.option('-D, --dev', 'save to .json devDependencies (default dependencies)')
+	.option('-F, --force', 'force to install packages no matter exists in local')
     .action((pkg, to, name, options) => {
-        let cwd = root()
-        let bower = cwd + '/node_modules/.bin/bower'
+
         let localBowerPkgs = getLocalPackagesByType('bower')
         let localNpmPkgs = getLocalPackagesByType('npm')
 
@@ -43,34 +45,31 @@ export default function(commander) {
 
         let bowerInstall = (componout, pkg, version) => {
             let jsonfile = `${cwd}/componouts/${componout}/bower.json`
-
             if(!exists(jsonfile)) return false
 
-            if(!localBowerPkgs[pkg] && localNpmPkgs[pkg]) return false
-
             if(!options.force && !version && localBowerPkgs[pkg]) {
-                updateVersion(jsonfile, pkg, localBowerPkgs[pkg].version, options.savedev)
+                updateVersion(jsonfile, pkg, localBowerPkgs[pkg].version, options.dev)
                 return true
             }
 
             let cmd = `cd "${cwd}/componouts/${componout}" && "${bower}" install --config.directory="${cwd}/bower_components" ${pkg}`
-            cmd += version ? `@${version}` : ''
-            cmd += options.savedev ? ' --save-dev' : ' --save'
+            cmd += version ? `#${version}` : ''
+            cmd += options.dev ? ' --save-dev' : ' --save'
             return execute(cmd)
         }
         let npmInstall = (componout, pkg, version) => {
             let jsonfile = `${cwd}/componouts/${componout}/package.json`
-
-            if(!exists(jsonfile)) return
+            if(!exists(jsonfile)) return false
 
             if(!options.force && !version && localNpmPkgs[pkg]) {
-                updateVersion(jsonfile, pkg, localNpmPkgs[pkg].version, options.savedev)
+                updateVersion(jsonfile, pkg, localNpmPkgs[pkg].version, options.dev)
                 return
             }
 
-            let cmd = `cd "${cwd}" && npm install ${pkg}`
+            let cmd = `cd "${cwd}/componouts/${componout}" && "${yarn}" add --modules-folder="${cwd}/node_modules" ${pkg}`
             cmd += version ? `@${version}` : ''
-            return execute(cmd, () => updateVersion(jsonfile, pkg, version, options.savedev))
+            cmd += options.dev ? ' --dev' : ''
+            return execute(cmd)
         }
 
         // install pkg for name
@@ -86,7 +85,7 @@ export default function(commander) {
 
             let [pkgName, pkgVer] = pkg.split(/[#@]/)
             log('Installing ' + pkgName + ' for ' + name + '...')
-            bowerInstall(name, pkgName, pkgVer) || npmInstall(name, pkgName, pkgVer) ? log('Package has been installed.', 'done') : log('Package install fail.', 'warn')
+            npmInstall(name, pkgName, pkgVer) || bowerInstall(name, pkgName, pkgVer) ? log('Package has been installed.', 'done') : log('Package install fail.', 'warn')
             return
         }
 
@@ -136,10 +135,13 @@ export default function(commander) {
             log('Install all dependencies for all componouts...')
         }
 
-        // install npm packages
-		installPackages(picker.use(), options)
-
+        // install packages
+		let installer = PackagesInstaller()
+        installer.install(picker.use())
 		log('All (dev)dependencies have been installed.', 'done')
-
+        let conflicts = installer.conflict()
+        if(conflicts) {
+            // TODO: tell the user which packages are in conflicts
+        }
 	})
 }

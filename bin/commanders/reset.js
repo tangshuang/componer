@@ -4,13 +4,13 @@ import {root, check} from '../utils/componer'
 import {log, prompt, exit, execute} from '../utils/process'
 import {readJSON, writeJSON} from '../../generator/gulp/utils/file'
 
+const cwd = root()
+const generator = path.resolve(__dirname, '../../generator')
 const yarn = path.resolve(__dirname, '../../node_modules/.bin/yarn')
 
 export default function(commander) {
-    let cwd = root()
-    let generator = path.resolve(__dirname, '../../generator')
-
-    commander.command('reset')
+    commander
+    .command('reset')
 	.description('reset componer and curent project componer program')
     .action(() => {
         check()

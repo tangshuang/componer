@@ -1,7 +1,12 @@
+import path from 'path'
 import {execute, log} from '../utils/process'
 import {check, fixname, root} from '../utils/componer'
 import {dashName} from '../../generator/gulp/utils/convert-name'
 import {exists, link, readJSON, scandir, remove, isSymLink} from '../../generator/gulp/utils/file'
+
+const cwd = root()
+const bower = path.resolve(__dirname, '../../node_modules/.bin/bower')
+const yarn = path.resolve(__dirname, '../../node_modules/.bin/yarn')
 
 export default function(commander) {
     commander
@@ -9,9 +14,6 @@ export default function(commander) {
 	.description('link local componout as package')
     .option('-F, --force', 'force use bower/npm link to symbolic link')
 	.action(name => {
-        let cwd = root()
-        let bower = cwd + '/node_modules/.bin/bower'
-
 		let LinkPkg = name => {
             let jsonfile = `${cwd}/componouts/${name}/componer.json`
             if(!exists(jsonfile)) {
@@ -32,9 +34,9 @@ export default function(commander) {
 			else if(type === 'npm' && exists(`${cwd}/componouts/${name}/package.json`)) {
                 remove(`${cwd}/node_modules/${name}`)
 				link(`${cwd}/componouts/${name}`, `${cwd}/node_modules/${name}`)
-                if(!isSymLink(`${cwd}/bower_components/${name}`) && options.force) {
-                    execute(`cd "${cwd}/componouts/${name}" && npm link`)
-                    execute(`cd "${cwd}" && npm link ${name}`)
+                if(!isSymLink(`${cwd}/node_modules/${name}`) && options.force) {
+                    execute(`cd "${cwd}/componouts/${name}" && "${yarn}" link`)
+                    execute(`cd "${cwd}" && npm "${yarn}" ${name}`)
                 }
                 log(name + ' is linked as npm package.', 'done')
 			}

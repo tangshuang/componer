@@ -2,6 +2,8 @@ import {check, fixname, config, has, root} from '../utils/componer'
 import {log, execute, exit} from '../utils/process'
 import {dashName} from '../../generator/gulp/utils/convert-name'
 
+const cwd = root()
+
 export default function(commander) {
     commander
     .command("clone [name]")
@@ -17,7 +19,6 @@ export default function(commander) {
             exit()
         }
 
-        let cwd = root()
         let configs = config()
 		let url = options.url
 		if(!url && configs.defaults.registries) url = `${configs.defaults.registries}/${name}.git`
@@ -25,7 +26,7 @@ export default function(commander) {
 
 		execute(`cd "${cwd}" && cd componouts && git clone ${url} ${name}`, true, () => log("Fail! You can enter componouts directory and run `git clone`.", 'error'))
         log('install dependencies...', 'help')
-        execute(`cd "${cwd}" && componer prepare ${name}`, true)
+        execute(`cd "${cwd}" && componer install for ${name}`, true)
         log("Done! Componout has been added to componouts directory.", "done")
 	})
 }
