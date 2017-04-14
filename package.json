@@ -7,9 +7,7 @@
     "componer": ".bin/componer.js",
     "cpt": ".bin/componout.js"
   },
-  "scripts": {
-    "init": "npm install yarn && yarn add shelljs && node ./.scripts/install.js"
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/tangshuang/componer.git"
@@ -83,8 +81,7 @@
     "url-loader": "^0.5.7",
     "webpack": "^1.14.0",
     "webpack-bufferify": "^0.0.3",
-    "webpack-stream": "^3.2.0",
-    "yarn": "^0.22.0"
+    "webpack-stream": "^3.2.0"
   },
   "devDependencies": {}
 }

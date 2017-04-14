@@ -56,9 +56,14 @@ export function writeJSON(file, json) {
 	write(file, JSON.stringify(json, null, 4))
 }
 
-export function link(from, to) {
+export function symlink(from, to) {
     if(!exists(from)) return
-    shell.exec(`ln -s "${from}" "${to}"`)
+    fs.symlinkSync(from, to, isDir(from) ? 'dir' : 'file')
+}
+
+export function unSymlink(symlink) {
+	if(!isSymLink(symlink)) return
+	remove(symlink)
 }
 
 export function scandir(dir) {
@@ -72,7 +77,7 @@ export function clear(dir) {
 }
 
 export function remove(file) {
-	fs.unlinkSync(file)
+	shell.exec('rm -rf "' + file + '"')
 }
 
 export function mkdir(dir) {

@@ -240,7 +240,7 @@ Remove the named componout, run `unlink` command if possible.
 
 List all componouts information.
 
-### install [for name] [-F|--force] [-R|--resolve]
+### install [for name] [-F|--force]
 
 Install all dependencies for a componout based on its bower.json and pacakge.json.
 
@@ -255,8 +255,6 @@ componer install
 ```
 
 Packages will be put into node_modules/bower_components directory in your project root path. So all packages are shared amoung different componouts.
-
-When you use `-R|--resolve`, componer will install all packages one by one. This is useful when your computer or server memory is small.
 
 **bower always come first**
 
@@ -283,7 +281,7 @@ Componer keep only one same name package in local, for example, if there is a jq
 
 Bower and npm packages are put in different directories. But, only one package will be installed, even if there are two pacakges have the same name and from bower.json and package.json. Remember *bower always come first*.
 
-### install <package>[@version] for|to <name> [-S|--save|-D|--savedev] [-F|--force]
+### install <package>[@version] for|to <name> [-D|--dev] [-F|--force]
 
 Install a package for a componout.
 
@@ -295,7 +293,7 @@ New package will be put into node_modules/bower_components directory in your pro
 
 Bower components always come first. So if your componout has a bower.json, new packages will always be installed by bower. But if a package has only npm package, bower install will fail, when this happens, npm install will be run to install this package.
 
-Pass `-S` to save this dependence to package.json or bower.json dependencies option, `-D` is to save to devDependencies. If you do not pass `-S` or `-D`, `-S` will be as default. `-S` or `-D` is nouseful when there is no `-p`.
+`-D` is to save to devDependencies. If you do not pass `-D`, new pacakge will be save to `dependencies`.
 
 `-F` is to install new package ignore local virtual cache.
 

@@ -1,6 +1,6 @@
 import {fixname, check, root} from '../utils/componer'
 import {execute, prompt, log, exit} from '../utils/process'
-import {exists, remove} from '../../generator/gulp/utils/file'
+import {exists, unSymlink} from '../../generator/gulp/utils/file'
 import {dashName} from '../../generator/gulp/utils/convert-name'
 
 const cwd = root()
@@ -17,8 +17,8 @@ export default function(commander) {
 
 		prompt('Are you sure to remove ' + name + ' componout? yes/No  ', choice => {
 			if(choice === 'yes') {
-                remove(`${cwd}/bower_components/${name}`)
-                remove(`${cwd}/node_modules/${name}`)
+                unSymlink(`${cwd}/bower_components/${name}`)
+                unSymlink(`${cwd}/node_modules/${name}`)
 				execute(`cd "${cwd}/componouts" && rm -rf ${name}`, true)
 				log('Done! ' + name + ' has been deleted.', 'done')
 			}

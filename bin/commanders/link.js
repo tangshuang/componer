@@ -2,18 +2,17 @@ import path from 'path'
 import {execute, log} from '../utils/process'
 import {check, fixname, root} from '../utils/componer'
 import {dashName} from '../../generator/gulp/utils/convert-name'
-import {exists, link, readJSON, scandir, remove, isSymLink} from '../../generator/gulp/utils/file'
+import {exists, symlink, isSymLink, unSymlink, readJSON, scandir} from '../../generator/gulp/utils/file'
 
 const cwd = root()
 const bower = path.resolve(__dirname, '../../node_modules/.bin/bower')
-const yarn = path.resolve(__dirname, '../../node_modules/.bin/yarn')
 
 export default function(commander) {
     commander
     .command('link [name]')
 	.description('link local componout as package')
     .option('-F, --force', 'force use bower/npm link to symbolic link')
-	.action(name => {
+	.action((name, options) => {
 		let LinkPkg = name => {
             let jsonfile = `${cwd}/componouts/${name}/componer.json`
             if(!exists(jsonfile)) {
@@ -22,21 +21,25 @@ export default function(commander) {
             }
 			let info = readJSON(jsonfile)
 			let type = info.type
-			if(type === 'bower' && exists(`${cwd}/componouts/${name}/bower.json`)) {
-                remove(`${cwd}/bower_components/${name}`)
-				link(`${cwd}/componouts/${name}`, `${cwd}/bower_components/${name}`)
-                if(!isSymLink(`${cwd}/bower_components/${name}`) && options.force) {
+			if(type === 'component' && exists(`${cwd}/componouts/${name}/bower.json`)) {
+                unSymlink(`${cwd}/bower_components/${name}`)
+                if(options.force) {
                     execute(`cd "${cwd}/componouts/${name}" && "${bower}" link`)
                     execute(`cd "${cwd}" && "${bower}" link ${name}`)
+                }
+                else {
+                    symlink(`${cwd}/componouts/${name}`, `${cwd}/bower_components/${name}`)
                 }
                 log(name + ' is linked as bower component.', 'done')
 			}
 			else if(type === 'npm' && exists(`${cwd}/componouts/${name}/package.json`)) {
-                remove(`${cwd}/node_modules/${name}`)
-				link(`${cwd}/componouts/${name}`, `${cwd}/node_modules/${name}`)
-                if(!isSymLink(`${cwd}/node_modules/${name}`) && options.force) {
-                    execute(`cd "${cwd}/componouts/${name}" && "${yarn}" link`)
-                    execute(`cd "${cwd}" && npm "${yarn}" ${name}`)
+                unSymlink(`${cwd}/node_modules/${name}`)
+                if(options.force) {
+                    execute(`cd "${cwd}/componouts/${name}" && npm link`)
+                    execute(`cd "${cwd}" && npm link ${name}`)
+                }
+                else {
+                    symlink(`${cwd}/componouts/${name}`, `${cwd}/node_modules/${name}`)
                 }
                 log(name + ' is linked as npm package.', 'done')
 			}
