@@ -12,17 +12,37 @@ We have two commander `componer` and `componout`, `componer` is for projects whi
 npm install -g componer
 ```
 
+However, you have a way to use it without install it globally.
+
+```
+git clone https://github.com/tangshuang/componer.git && cd componer
+npm install && npm run build && npm link
+```
+
+With runing link, you can use componer commanders in local without installing.
+
 ```
 # initialize a project
 mkdir test-project && cd test-project && componer init
 ```
+
 After this, you will get a project which contains special directory structure.
 
 ```
 # initialize a componout which is not in a componer project
 mkdir test-componout && cd test-componout && componout init
 ```
+
 Answer the questions, and get a componout by special template.
+
+If you only want to create a componout, run:
+
+```
+mkdir my-componout && cd my-componout
+cpon init
+```
+
+`cpon` commander is a simple commander to run in a componout directory with a componer.json file in it.
 
 ## Usage of componer commander
 
