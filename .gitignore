@@ -5,6 +5,7 @@ generator/componouts/
 generator/bower_components/
 generator/node_modules/
 
+.bin/
+
 npm-*
 yarn-*
-.bin/
