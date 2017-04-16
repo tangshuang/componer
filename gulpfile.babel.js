@@ -12,9 +12,9 @@ gulp.task('build', () => {
         .pipe(gulp.dest('./.bin/drivers'))
     // build utils
     gulp.src([
-        './generator/gulp/utils/file.js',
-        './generator/gulp/utils/convert-name.js',
-    ])
+            './generator/gulp/utils/file.js',
+            './generator/gulp/utils/convert-name.js',
+        ])
         .pipe(babel())
         .pipe(gulp.dest('./.bin/utils'))
 })
