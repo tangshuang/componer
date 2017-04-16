@@ -1,12 +1,15 @@
-import path from 'path'
-import {log} from '../utils/process'
-import {exists, readJSONTMPL, getFileExt, mkdir} from '../utils/file'
-import {root} from '../utils/componer'
-
 import gulp from 'gulp'
-import karmaConfig from '../drivers/karma.config'
 import karma from 'gulp-karma-runner'
 import jasmine from 'gulp-jasmine-node'
+import path from 'path'
+import extend from 'extend'
+import {log} from '../utils/process'
+import {exists, readJSON, readJSONTMPL, getFileExt, mkdir, writeJSON} from '../../generator/gulp/utils/file'
+import karmaConfig from '../../generator/gulp/drivers/karma.config'
+import {webpack as extendSettings} from '../extend-config'
+
+const cwd = process.cwd()
+const jsonfile = path.join(cwd, 'componer.json')
 
 export default function(commander) {
     commander
@@ -15,19 +18,17 @@ export default function(commander) {
     .option('-D, --debug', 'whether to use browser to debug code')
 	.option('-b, --browser [browser]', 'which browser to use select one from [PhantomJS|Chrome|Firefox]')
 	.action(options => {
-        let cwd = process.cwd()
-        let jsonfile = path.join(cwd, 'componer.json')
-
         if(!exists(jsonfile)) {
             log('There is no componer.json in current directory.', 'error')
             return
         }
 
+        let name = readJSON(jsonfile).name
         let info = readJSONTMPL(jsonfile, {
-            'path': cwd,
+            name,
+            path: cwd,
         })
         let settings = info.test
-        let name = info.name || path.dirname(cwd)
         if(!settings) {
             log(name + ' test option in componer.json not found.', 'error')
             return
@@ -42,7 +43,6 @@ export default function(commander) {
             log(name + ' test entry file not found.', 'error')
             return
         }
-
 
         /**
          * if it is a npm package, run test with jasmine-node
@@ -95,17 +95,20 @@ export default function(commander) {
 
         let entryfiles = [entryfile]
 
+
         // if use PhantomJS to test, it do not support new functions directly, use babal-polyfill to fix
         // in fact, lower version of Chrome or Firefox are not support to. however, developer should make sure to use higher version of this browsers
-        let rootPath = root()
         let launchers = karmaSettings.browsers
         if(launchers.indexOf('PhantomJS') > -1 || launchers.indexOf('IE') > -1 || launchers.indexOf('Safari') > -1) {
-            entryfiles.unshift(path.join(rootPath, 'node_modules/core-js/es6/symbol.js'))
-            preprocessors[path.join(rootPath, 'node_modules/core-js/**/*.js')] = ['webpack']
+            entryfiles.unshift(path.resolve(__dirname, '../../node_modules/core-js/es6/symbol.js'))
+            preprocessors[path.resolve(__dirname, '../../node_modules/core-js/**/*.js')] = ['webpack']
         }
 
+        karmaSettings = karmaConfig(karmaSettings)
+        karmaSettings.webpack = extend(true, karmaSettings.webpack, extendSettings)
+
         return gulp.src(entryfiles)
-            .pipe(karma.server(karmaConfig(karmaSettings)))
+            .pipe(karma.server(karmaSettings))
             .on('end', () => {
                 log('Reporters ware created in componouts/' + name + '/' + reportersDir, 'help')
                 exit()

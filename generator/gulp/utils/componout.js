@@ -32,7 +32,6 @@ export function getComponout(name) {
 export function getComponoutConfig(name) {
 	var componoutPath = config.paths.componouts + '/' + name
 	var data = readJSONTMPL(componoutPath + '/componer.json', {
-		'root': config.paths.root,
 		'path': componoutPath,
 		'name': name,
 	})

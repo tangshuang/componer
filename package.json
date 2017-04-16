@@ -5,7 +5,7 @@
   "main": "index.js",
   "bin": {
     "componer": ".bin/componer.js",
-    "cpt": ".bin/componout.js"
+    "cpon": ".bin/componout.js"
   },
   "scripts": {},
   "repository": {
@@ -67,7 +67,7 @@
     "karma-scss-preprocessor": "^2.0.0",
     "karma-sourcemap-loader": "^0.3.7",
     "karma-spec-reporter": "0.0.26",
-    "karma-verbose-reporter": "0.0.4",
+    "karma-verbose-reporter": "0.0.6",
     "karma-webpack": "^1.8.0",
     "phantomjs-prebuilt": "^2.1.14",
     "pipe-concat": "0.0.2",

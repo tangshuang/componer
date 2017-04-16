@@ -13,6 +13,9 @@ import webpack from 'webpack'
 * @param object options: {
     boolean sourcemap: whether to use sourcemap,
     boolean minfiy: whether to minify output file,
+
+    function before(settings): function to run before build,
+    function after(): function to run after build,
 }
 * @param object settings: settings of DllPlugin
 * @return object: the same with settings of DllPlugin, useful for DllReferencePlugin
@@ -58,7 +61,15 @@ export default function(vendors, to, options = {}, settings = {}) {
         )
     }
 
+    if(typeof options.before === 'function') {
+        options.before(settings, config)
+    }
+
     webpack(webpackConfig(config)).run((error, handle) => {})
+
+    if(typeof options.after === 'function') {
+        options.after()
+    }
 
     return settings
 }

@@ -1,3 +1,4 @@
+import path from 'path'
 import extend from 'extend'
 import webpack from './webpack.config'
 
@@ -22,7 +23,7 @@ export default function(settings) {
                 preLoaders: [
                     {
                         test: /\.js$/,
-                        loader: 'isparta',
+                        loader: 'isparta-loader',
                         exclude: /node_modules|bower_components/,
                     },
                 ],

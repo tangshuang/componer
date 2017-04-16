@@ -5,7 +5,7 @@ import {exists} from '../../generator/gulp/utils/file'
 import {dashName} from '../../generator/gulp/utils/convert-name'
 
 const cwd = root()
-const gulp = path.resolve(__dirname, './../../node_modules/.bin/gulp')
+const gulp = path.resolve(__dirname, '../../node_modules/.bin/gulp')
 
 export default function(commander) {
     commander

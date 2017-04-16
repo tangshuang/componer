@@ -1,23 +1,23 @@
 import path from 'path'
-import {exists, scandir, readJSON, writeJSON} from '../utils/file'
+import {exists, scandir, readJSON, writeJSON, rename} from '../../generator/gulp/utils/file'
 import {log, execute, prompt, exit} from '../utils/process'
-import {camel, dash, separate} from '../utils/convert'
+import {camelName, dashName, spaceName} from '../../generator/gulp/utils/convert-name'
 
 import gulp from 'gulp'
 import bufferify from 'gulp-bufferify'
+
+const cwd = process.cwd()
+const generator = path.resolve(__dirname, '../../generator')
 
 export default function(commander) {
     commander.command('init')
     .description('create a componout')
     .action(() => {
-        let cwd = process.cwd()
-
         if(scandir(cwd).length > 0) {
             log('Current directory is not empty.', 'error')
             return
         }
 
-        let generator = path.resolve(__dirname, '../../generator')
         let dirname = path.basename(cwd)
         let info = {}
         let create = info => {
@@ -42,12 +42,12 @@ export default function(commander) {
                     keys.forEach(key => {
                         let value = parsers[key]
                         content = content
-                            .replace((new RegExp('{{' + camel(key) + '}}','g')), camel(value))
-                            .replace((new RegExp('{{' + camel(key, true) + '}}','g')), camel(value, true))
-                            .replace((new RegExp('{{' + dash(key) + '}}','g')), dash(value))
-                            .replace((new RegExp('{{' + dash(key, true) + '}}','g')), dash(value, true))
-                            .replace((new RegExp('{{' + separate(key) + '}}','g')), separate(value))
-                            .replace((new RegExp('{{' + separate(key, true) + '}}', 'g')), separate(value, true))
+                            .replace((new RegExp('{{' + camelName(key) + '}}','g')), camelName(value))
+                            .replace((new RegExp('{{' + camelName(key, true) + '}}','g')), camelName(value, true))
+                            .replace((new RegExp('{{' + dashName(key) + '}}','g')), dashName(value))
+                            .replace((new RegExp('{{' + dashName(key, true) + '}}','g')), dashName(value, true))
+                            .replace((new RegExp('{{' + spaceName(key) + '}}','g')), spaceName(value))
+                            .replace((new RegExp('{{' + spaceName(key, true) + '}}', 'g')), spaceName(value, true))
                     })
 
             		return content
@@ -64,7 +64,7 @@ export default function(commander) {
 
         prompt('What is name of componout? (default: ' + dirname + ') ', answer => {
             let name = !answer || answer === '' ? dirname : answer
-            info.name = dash(name)
+            info.name = dashName(name)
 
             prompt('What is the version of componout? (default: 0.0.1) ', answer => {
                 let version = !answer || answer === '' ? '0.0.1' : answer
@@ -76,9 +76,22 @@ export default function(commander) {
 
                     prompt('What is your registry author name? (default: componer) ', answer => {
                         let author = !answer || answer === '' ? 'componer' : answer
-                        info.author = dash(author)
+                        info.author = dashName(author)
 
-                        create(info).on('end', exit)
+                        create(info).on('end', () => {
+                            rename(cwd + '/src/index.js', cwd + '/src/' + name + '.js')
+                			rename(cwd + '/src/script/index.js', cwd + '/src/script/' + name + '.js')
+                			rename(cwd + '/src/style/index.scss', cwd + '/src/style/' + name + '.scss')
+
+                			rename(cwd + '/test/index.js', cwd + '/test/' + name + '.js')
+                			rename(cwd + '/test/specs/index.js', cwd + '/test/specs/' + name + '.js')
+
+                			rename(cwd + '/preview/index.js', cwd + '/preview/' + name + '.js')
+                			rename(cwd + '/preview/index.scss', cwd + '/preview/' + name + '.scss')
+
+                            log('Done! Componout has been created. Please run `cpot install` to install dependencies.', 'done')
+                            exit()
+                        })
                     })
                 })
             })

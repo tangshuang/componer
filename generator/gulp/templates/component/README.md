@@ -22,9 +22,9 @@ mkdir my-project && cd my-project && componer init
 # get from registry
 componer clone {{componout-name}} -u https://github.com/{{author-name}}/{{componout-name}}.git
 # install dependencies
-componout install
+componer install
 # preview this component
-componout preview {{componout-name}}
+componer preview {{componout-name}}
 ```
 
 To learn more about componer, read [this](https://github.com/tangshuang/componer).

@@ -1,17 +1,17 @@
 import path from 'path'
 import {log, execute} from '../utils/process'
-import {exists, readJSON} from '../utils/file'
-import {PackagesPicker, installPackages} from '../utils/package'
+import {exists, readJSON} from '../../generator/gulp/utils/file'
+import {PackagesPicker, PackagesInstaller} from '../utils/package'
+
+const cwd = process.cwd()
 
 export default function(commander) {
     commander
     .command('install')
 	.description('install dependencies one by one for componout')
 	.option('-F, --force', 'force to install packages if exists in local')
-    .option('-R, --resolve', 'install packages one by one if your computer has no enough memory.')
 	.action(options => {
         let picker = PackagesPicker()
-        let cwd = process.cwd()
         let bowerJson = path.join(cwd, 'bower.json')
         let npmJson = path.join(cwd, 'package.json')
         if(exists(npmJson)) {
@@ -29,8 +29,13 @@ export default function(commander) {
             picker.add(deps, 'bower').add(devdeps, 'bower')
         }
 
-        options.cwd = cwd
-        installPackages(picker.use(), options)
+        let pkgs = picker.use()
+        let installer = PackagesInstaller({
+            cwd,
+            force: options.force,
+        })
+        if(pkgs.npm.length > 0) installer.npmInstall(pkgs.npm)
+        if(pkgs.bower.length > 0) installer.bowerInstall(pkgs.bower)
 		log('All (dev)dependencies have been installed.', 'done')
     })
 }

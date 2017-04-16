@@ -18,6 +18,7 @@ import bufferify from 'gulp-bufferify'
         path:
         context:
     }
+    
     function before(settings): function to run before build,
     function process(content, file, context): function to run before output with stream content,
     function after(): function to run after build,

@@ -21,7 +21,7 @@ export default function(commander) {
             }
 			let info = readJSON(jsonfile)
 			let type = info.type
-			if(type === 'component' && exists(`${cwd}/componouts/${name}/bower.json`)) {
+			if((type === 'component' || type === 'bower') && exists(`${cwd}/componouts/${name}/bower.json`)) {
                 unSymlink(`${cwd}/bower_components/${name}`)
                 if(options.force) {
                     execute(`cd "${cwd}/componouts/${name}" && "${bower}" link`)

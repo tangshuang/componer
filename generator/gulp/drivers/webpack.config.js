@@ -41,11 +41,18 @@ export default function(settings) {
 		},
 		{
 			test: /\.svg$/,
-			loader: 'url-loader?limit=15000&mimetype=image/svg+xml',
+			loader: 'url-loader',
+			query: {
+				limit: 15000,
+				mimetype: 'image/svg+xml',
+			},
 		},
 		{
 			test: /\.html$/,
-			loader: 'html-loader?attrs=img:src input:src',
+			loader: 'html-loader',
+			query: {
+				attrs: 'img:src input:src',
+			},
 		},
 		{
 			test: /\.jade$/,

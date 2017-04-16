@@ -1,35 +1,35 @@
 import fs from 'fs'
 import path from 'path'
-
 import gulp from 'gulp'
 import browsersync from 'browser-sync'
-
 import bufferify from 'gulp-bufferify'
 import glob from 'glob'
-
-import webpackVendor from '../drivers/webpack-vendor'
-import webpackStream from '../drivers/webpack-stream'
-import sassStream from '../drivers/sass-stream'
-
+import extend from 'extend'
+import webpackVendor from '../../generator/gulp/drivers/webpack-vendor'
+import webpackStream from '../../generator/gulp/drivers/webpack-stream'
+import sassStream from '../../generator/gulp/drivers/sass-stream'
 import {log, exit} from '../utils/process'
-import {exists, clear, read, load, readJSON, readJSONTMPL, getFileExt} from '../utils/file'
-import {dash, camel} from '../utils/convert'
+import {exists, clear, read, load, readJSON, readJSONTMPL, getFileExt} from '../../generator/gulp/utils/file'
+import {dashName, camelName} from '../../generator/gulp/utils/convert-name'
+import {webpack as extendSettings} from '../extend-config'
+
+const cwd = process.cwd()
+const jsonfile = path.join(cwd, 'componer.json')
 
 export default function(commander) {
     commander
     .command('preview')
 	.description('preview componout')
 	.action(() => {
-        let cwd = process.cwd()
-        let jsonfile = path.join(cwd, 'componer.json')
-
         if(!exists(jsonfile)) {
             log('There is no componer.json in current directory.', 'error')
             return
         }
 
+        let name = readJSON(jsonfile).name
         let info = readJSONTMPL(jsonfile, {
-            'path': cwd,
+            name,
+            path: cwd,
         })
         let settings = info.preview
         if(!settings) {
@@ -37,7 +37,6 @@ export default function(commander) {
             return
         }
 
-        let name = info.name || path.dirname(cwd)
         let index = path.join(cwd, settings.index)
     	let script = settings.script ? path.join(cwd, settings.script) : false
     	let style = settings.style ? path.join(cwd, settings.style) : false
@@ -91,10 +90,13 @@ export default function(commander) {
     			{
     				sourcemap: true,
     				minify: false,
+                    before(settings, config) {
+                        extend(true, config, extendSettings)
+                    },
     			},
     			{
     				path: `${tmpdir}/${name}.vendors.js.json`,
-    				name: camel(name, true) + 'Vendors',
+    				name: camelName(name, true) + 'Vendors',
     				context: tmpdir,
     			},
     		)
@@ -181,6 +183,9 @@ export default function(commander) {
     					sourcemap: true,
     					minify: false,
     					vendors: vendorsSettings,
+                        before(settings) {
+                            extend(true, settings, extendSettings)
+                        },
     					process(content, file) {
     						if(getFileExt(file.path) === '.js') {
     							res.end(content)

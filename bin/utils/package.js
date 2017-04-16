@@ -83,7 +83,7 @@ export function getLocalPackages(cwd = root()) {
         npm: [],
         bower: [],
     }
-    scandir(cwd + '/node_modules').forEach(item => {
+    if(exists(cwd + '/node_modules')) scandir(cwd + '/node_modules').forEach(item => {
         let firstLetter = item.substr(0, 1)
         if(firstLetter === '.' || firstLetter === '@') return
         let info = readJSON(cwd + '/node_modules/' + item + '/package.json')
@@ -135,7 +135,7 @@ export function PackagesInstaller(options = {}) {
             return true
     	})
         if(pkgs.length === 0) return
-        
+
         let sep = driver === 'bower' ? '#' : '@'
         let installer = driver === 'bower' ? `"${bower}"` : 'npm'
         pkgs = pkgs.map(pkg => {

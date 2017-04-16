@@ -47,7 +47,7 @@ componer install packagename for componoutname
 componer link [componoutname]
 ```
 
-### init
+### componer init
 
 After your `npm install -g componer`, you should create a empty directory, and enter it to run `componer init`. Then you will see different files be initialized into this directory.
 
@@ -58,14 +58,14 @@ Your github name is important, because it will be used when you run `componer ad
 
 `init` commander will run 'npm install' at the last automaticly.
 
-### update
+### componer reset
 
 When you use a new version of componer, your local project files a older one. If you want to use componer default program files, you can run update commander.
 However, files in `gulp` directory and `gupfile.babel.js` will be covered, so if you have ever changed these files, do not run update directly.
 
 'npm install' will be run automaticly after files updated.
 
-### add <name> [-t|--template component] [-a|--author your-name]
+### componer add <name> [-t|--template component] [-a|--author your-name]
 
 Add a componout. A `componout` is a production created by componer.
 
@@ -79,7 +79,7 @@ If you want to add a new type of componout, just create a new dirctory in your g
 
 `defaults.template` and `project.author` options in `.componerrc` in your project root path will be used as default values if you not give a -t or -a option.
 
-### build [name]
+### componer build [name]
 
 When you run build task, componer will compile your ES6 code to ES5 code and combine your code into one file by webpack.
 
@@ -153,7 +153,7 @@ You can use only one object, if you have only one file to build:
 
 If `name` is not given, all componouts will be built one by one.
 
-### watch [name]
+### componer watch [name]
 
 When you are coding, you can run a `componer watch` task to build your code automaticly after you change your code and save the changes.
 
@@ -161,7 +161,7 @@ Only `src` directory is being watched.
 
 If `name` is not given, all componouts's `src` will be being watched.
 
-### preview <name>
+### componer preview <name>
 
 Open browser to preview your code. `browser-sync` is used. preview options in `componer.json` make sense.
 
@@ -216,7 +216,7 @@ Look into browser-sync middleware config.
 
 `script` and `style` files will be compiled and be kept in memory, not true local files (though files compiled will be created after page shown).
 
-### test [name] [-D|--debug] [-b|--browser PhantomJS|Chrome|Firefox|IE|Safari]
+### componer test [name] [-D|--debug] [-b|--browser PhantomJS|Chrome|Firefox|IE|Safari]
 
 Componer use karma and jasmine as framework.
 
@@ -232,15 +232,15 @@ If `name` is not given, all componouts will be tested. `-D` will not work, and d
 
 **Notice:** if you want to use PhantomJS, you should install PhantomJS browser first on you compouter, it is a browser.
 
-### remove <name>
+### componer remove <name>
 
 Remove the named componout, run `unlink` command if possible.
 
-### list
+### componer list
 
 List all componouts information.
 
-### install [for name] [-F|--force]
+### componer install [for name] [-F|--force]
 
 Install all dependencies for a componout based on its bower.json and pacakge.json.
 
@@ -281,7 +281,7 @@ Componer keep only one same name package in local, for example, if there is a jq
 
 Bower and npm packages are put in different directories. But, only one package will be installed, even if there are two pacakges have the same name and from bower.json and package.json. Remember *bower always come first*.
 
-### install <package>[@version] for|to <name> [-D|--dev] [-F|--force]
+### componer install <package>[@version] for|to <name> [-D|--dev] [-F|--force]
 
 Install a package for a componout.
 
@@ -301,7 +301,7 @@ Bower components always come first. So if your componout has a bower.json, new p
 
 But force install may cause version conflicts. For example, one of your componouts dependents on jquery@1.12.0, but you try `jquery --force`, the latest version of jquery will be download, and old verison will be covered. So you should have to update your componouts to support higher version jquery manually.
 
-### link <name> [-F|--force]
+### componer link <name> [-F|--force]
 
 Link (Symbolic link) componout as package/component into node_modules/bower_components.
 
@@ -316,9 +316,9 @@ However, when you remove componouts, unlink will be automaticly run by componer.
 
 **Notice:** on windows, it is different. If you have no permission to do `ln`, and you pass `-F`, componer will use `bower/npm link` instead. For this, you have to know about `bower link` and `npm link`. Or componer will copy componout to packages directory, so you have to run `link` again after you update your code.
 
-### clone [name] [-u|--url your-git-registry-address] [-I|--install] [-L|--link]
+### componer clone [name] [-u|--url your-git-registry-address] [-I|--install] [-L|--link]
 
-Clone a compount from http://github.com/componer, by git.
+Clone a componout from http://github.com/componer, by git.
 You can change registries in `.componerrc` with `defaults` options.
 If `-u` options is set, registry will be insteaded by this url.
 
@@ -335,6 +335,40 @@ You will find this componout to be a git registry.
 `-L` is to run `componer link` task after it cloned to link it to package directories.
 
 If you do not pass a name to the cli, all of `dependencies` in .componerrc will be download into componouts directories. *Notice, dependencies in .componerrc are different from ones in bower.json or pacakge.json, they are only use for clone, not for package dependencies.* So after you clone from git, you should run componer install to install their dependencies.
+
+## `cpon` commander
+
+Componer provide a `cpon` commander to run in a local componout directory. For example, you git clone a registry which has a componer.json from github, and do not want to create a componer project, want to re-build the componout, you can do like this:
+
+```
+git clone https://github.com/xxx/xxx.git && cd xxx
+# install dependencies
+cpon install
+# build
+cpon build
+```
+
+### cpon init
+
+create a new componout with componer templates, which has three type, npm, component and app. Componer will ask you some questions, you could just follow the questions and give the answers.
+
+### cpon install [-F|--force]
+
+Install dependencies for current componout. All npm and bower dependencies will be installed in current directory.
+
+### cpon build
+
+Build current componout following the default rule of componer.
+
+If you use componer to create a componer project, you can change the files in gulp directory to build up your own workflow, but if you use `cpon`, it will use componer default workflow rules.
+
+### cpon preview
+
+Preview current componout by browsersync.
+
+### cpon test
+
+Test current componout by karma and jasmine.
 
 ## Generator
 
