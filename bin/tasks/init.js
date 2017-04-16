@@ -89,7 +89,7 @@ export default function(commander) {
                 			rename(cwd + '/preview/index.js', cwd + '/preview/' + name + '.js')
                 			rename(cwd + '/preview/index.scss', cwd + '/preview/' + name + '.scss')
 
-                            log('Done! Componout has been created. Please run `cpot install` to install dependencies.', 'done')
+                            log('Done! Componout has been created. Please run `cpon install` to install dependencies.', 'done')
                             exit()
                         })
                     })
