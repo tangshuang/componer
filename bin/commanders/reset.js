@@ -2,7 +2,7 @@ import path from 'path'
 import extend from 'extend'
 import {root, check} from '../utils/componer'
 import {log, prompt, exit, execute} from '../utils/process'
-import {readJSON, writeJSON} from '../../generator/gulp/utils/file'
+import {readJSON, writeJSON} from '../utils/file'
 
 const cwd = root()
 const generator = path.resolve(__dirname, '../../generator')

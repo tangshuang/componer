@@ -1,7 +1,7 @@
 import {fixname, check, root} from '../utils/componer'
 import {execute, prompt, log, exit} from '../utils/process'
-import {exists, unSymlink} from '../../generator/gulp/utils/file'
-import {dashName} from '../../generator/gulp/utils/convert-name'
+import {exists, unSymlink} from '../utils/file'
+import {dashName} from '../utils/convert-name'
 
 const cwd = root()
 

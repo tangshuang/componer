@@ -4,8 +4,8 @@ import jasmine from 'gulp-jasmine-node'
 import path from 'path'
 import extend from 'extend'
 import {log} from '../utils/process'
-import {exists, readJSON, readJSONTMPL, getFileExt, mkdir, writeJSON} from '../../generator/gulp/utils/file'
-import karmaConfig from '../../generator/gulp/drivers/karma.config'
+import {exists, readJSON, readJSONTMPL, getFileExt, mkdir, writeJSON} from '../utils/file'
+import karmaConfig from '../drivers/karma.config'
 import {webpack as extendSettings} from '../extend-config'
 
 const cwd = process.cwd()

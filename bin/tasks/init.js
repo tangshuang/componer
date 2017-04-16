@@ -1,7 +1,7 @@
 import path from 'path'
-import {exists, scandir, readJSON, writeJSON, rename} from '../../generator/gulp/utils/file'
+import {exists, scandir, readJSON, writeJSON, rename} from '../utils/file'
 import {log, execute, prompt, exit} from '../utils/process'
-import {camelName, dashName, spaceName} from '../../generator/gulp/utils/convert-name'
+import {camelName, dashName, spaceName} from '../utils/convert-name'
 
 import gulp from 'gulp'
 import bufferify from 'gulp-bufferify'

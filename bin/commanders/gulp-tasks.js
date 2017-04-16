@@ -1,8 +1,8 @@
 import path from 'path'
 import {fixname, check, config, root} from '../utils/componer'
 import {execute, log} from '../utils/process'
-import {exists} from '../../generator/gulp/utils/file'
-import {dashName} from '../../generator/gulp/utils/convert-name'
+import {exists} from '../utils/file'
+import {dashName} from '../utils/convert-name'
 
 const cwd = root()
 const gulp = path.resolve(__dirname, '../../node_modules/.bin/gulp')

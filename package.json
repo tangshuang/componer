@@ -7,7 +7,9 @@
     "componer": ".bin/componer.js",
     "cpon": ".bin/componout.js"
   },
-  "scripts": {},
+  "scripts": {
+    "build": "gulp build"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/tangshuang/componer.git"
@@ -82,5 +84,7 @@
     "webpack-bufferify": "^0.0.3",
     "webpack-stream": "^3.2.0"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "gulp-babel": "^6.1.2"
+  }
 }

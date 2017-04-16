@@ -2,9 +2,9 @@ import path from 'path'
 import extend from 'extend'
 import concat from 'pipe-concat'
 import {log} from '../utils/process'
-import {exists, readJSON, readJSONTMPL, getFileExt} from '../../generator/gulp/utils/file'
-import webpack from '../../generator/gulp/drivers/webpack'
-import sass from '../../generator/gulp/drivers/sass'
+import {exists, readJSON, readJSONTMPL, getFileExt} from '../utils/file'
+import webpack from '../drivers/webpack'
+import sass from '../drivers/sass'
 import {webpack as extendSettings} from '../extend-config'
 
 const cwd = process.cwd()

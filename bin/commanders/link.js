@@ -1,8 +1,8 @@
 import path from 'path'
 import {execute, log} from '../utils/process'
 import {check, fixname, root} from '../utils/componer'
-import {dashName} from '../../generator/gulp/utils/convert-name'
-import {exists, symlink, isSymLink, unSymlink, readJSON, scandir} from '../../generator/gulp/utils/file'
+import {dashName} from '../utils/convert-name'
+import {exists, symlink, isSymLink, unSymlink, readJSON, scandir} from '../utils/file'
 
 const cwd = root()
 const bower = path.resolve(__dirname, '../../node_modules/.bin/bower')

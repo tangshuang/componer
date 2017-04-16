@@ -1,7 +1,7 @@
 import path from 'path'
 import {root} from './componer'
 import {execute} from './process'
-import {exists, readJSON, scandir} from '../../generator/gulp/utils/file'
+import {exists, readJSON, scandir} from './file'
 
 const bower = path.resolve(__dirname, '../../node_modules/.bin/bower')
 

@@ -1,6 +1,6 @@
 import path from 'path'
 import {log, execute} from '../utils/process'
-import {exists, readJSON} from '../../generator/gulp/utils/file'
+import {exists, readJSON} from '../utils/file'
 import {PackagesPicker, PackagesInstaller} from '../utils/package'
 
 const cwd = process.cwd()

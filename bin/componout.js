@@ -1,8 +1,10 @@
+#!/usr/bin/env node
+
 import fs from 'fs'
 import commander from 'commander'
 
 import {exit, execute, log} from './utils/process'
-import {readJSON, scandir, load} from '../generator/gulp/utils/file'
+import {readJSON, scandir, load} from './utils/file'
 
 
 var argvs = process.argv

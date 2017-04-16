@@ -1,8 +1,8 @@
 import path from 'path'
 import {is, root} from '../utils/componer'
 import {log, execute, prompt, exit} from '../utils/process'
-import {dashName} from '../../generator/gulp/utils/convert-name'
-import {scandir, readJSON, writeJSON, link} from '../../generator/gulp/utils/file'
+import {dashName} from '../utils/convert-name'
+import {scandir, readJSON, writeJSON, link} from '../utils/file'
 
 const cwd = process.cwd()
 const generator = path.resolve(__dirname, '../../generator')

@@ -7,3 +7,4 @@ generator/node_modules/
 
 npm-*
 yarn-*
+.bin/
