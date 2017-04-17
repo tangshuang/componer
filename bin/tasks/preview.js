@@ -196,6 +196,9 @@ export default function(commander) {
     		} : undefined,
     	]
 
+        // filter undefined
+    	middlewares = middlewares.filter(item => !!item)
+
     	// build server
     	if(server && exists(server)) {
     		let serverware = load(server)
