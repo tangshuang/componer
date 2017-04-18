@@ -1,11 +1,10 @@
 import path from 'path'
-import webpackConfig from './webpack.config'
-
 import gulp from 'gulp'
 import extend from 'extend'
 import webpack from 'webpack-stream'
 import bufferify from 'gulp-bufferify'
-
+import webpackConfig from './webpack.config'
+import {camelName} from '../utils/convert-name'
 
 /**
 @param from: entry file absolute path,
@@ -18,7 +17,7 @@ import bufferify from 'gulp-bufferify'
         path:
         context:
     }
-    
+
     function before(settings): function to run before build,
     function process(content, file, context): function to run before output with stream content,
     function after(): function to run after build,
@@ -34,7 +33,7 @@ export default function(from, to, options = {}, settings  = {}) {
     var defaults = {
         output: {
             filename: filename,
-            library: name,
+            library: camelName(name, true),
             sourceMapFilename: filename + '.map',
         },
         plugins: [],

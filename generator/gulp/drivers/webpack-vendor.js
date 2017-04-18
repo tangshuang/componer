@@ -1,9 +1,8 @@
 import path from 'path'
-import webpackConfig from './webpack.config'
-import {camelName} from '../utils/convert-name'
-
 import extend from 'extend'
 import webpack from 'webpack'
+import webpackConfig from './webpack.config'
+import {camelName} from '../utils/convert-name'
 
 
 /**
@@ -41,7 +40,7 @@ export default function(vendors, to, options = {}, settings = {}) {
         output: {
             path: tmpdir,
             filename,
-            library: settings.name,
+            library: camelName(settings.name, true),
             sourceMapFilename: filename + '.map',
         },
         plugins: [
