@@ -35,9 +35,9 @@ gulp.task('preview', () => {
 	let script = settings.script ? path.join(cwd, settings.script) : false
 	let style = settings.style ? path.join(cwd, settings.style) : false
 	let server = settings.server ? path.join(cwd, settings.server) : false
-	let tmpdir = settings.tmpdir ? path.join(cwd, settings.tmpdir) : path.join(cwd, '.preview_tmp')
+	let tmpdir = settings.dir ? path.join(cwd, settings.dir) : path.join(cwd, '.preview_tmp')
 
-	if(!exists(index)) {
+	if(!exists(index.from)) {
 		log(name + ' preview index file not found.', 'error')
 		return
 	}
@@ -69,39 +69,50 @@ gulp.task('preview', () => {
  		return deps
  	}
 
- 	let vendors = getDeps(bowerJson).concat(getDeps(pkgJson))
-	if(Array.isArray(settings.vendors)) {
-		vendors = vendors.concat(settings.vendors)
+	// script vendors
+	let scriptVendorsSettings = null
+	if(exists(script.from) && script.options.vendors) {
+		let options = script.options
+		let vendors = options.vendors
+		if(vendors === true) {
+			vendors = getDeps(bowerJson).concat(getDeps(pkgJson))
+		}
+		if(Array.isArray(vendors) && vendors.length > 0) {
+			scriptVendorsSettings = webpackVendor(
+				vendors,
+				`${tmpdir}/${name}.vendors.js`,
+				{
+					sourcemap: options.sourcemap,
+					minify: options.minify,
+				},
+				{
+					path: `${tmpdir}/${name}.vendors.js.json`,
+					name: camelName(name, true) + 'Vendors',
+					context: tmpdir,
+				},
+			)
+		}
 	}
 
-	let vendorsSettings = null
-	let hasVendors = () => Array.isArray(vendors) && vendors.length > 0
-
-	if(exists(script) && hasVendors()) {
-		vendorsSettings = webpackVendor(
-			vendors,
-			`${tmpdir}/${name}.vendors.js`,
-			{
-				sourcemap: true,
-				minify: false,
-			},
-			{
-				path: `${tmpdir}/${name}.vendors.js.json`,
-				name: camelName(name, true) + 'Vendors',
-				context: tmpdir,
-			},
-		)
-	}
-
-	if(exists(style) && hasVendors()) {
-		sassStream(style, `${tmpdir}/${name}.vendors.css`, {
-			sourcemap: true,
-			minify: false,
-			vendors: {
-				enable: 1,
-				modules: vendors,
-			},
-		})
+	// style vendors
+	let styleVendors = null
+	if(exists(style.from) && style.options.vendors) {
+		let options = script.options
+		let vendors = options.vendors
+		if(vendors === true) {
+			vendors = getDeps(bowerJson).concat(getDeps(pkgJson))
+		}
+		if(Array.isArray(vendors) && vendors.length > 0) {
+			styleVendors = vendors
+			sassStream(style.from, `${tmpdir}/${name}.vendors.css`, {
+				sourcemap: options.sourcemap,
+				minify: options.minify,
+				vendors: {
+					enable: 1,
+					modules: vendors,
+				},
+			})
+		}
 	}
 
 
@@ -115,16 +126,16 @@ gulp.task('preview', () => {
 			route: '/',
 			handle: function (req, res, next) {
 				res.setHeader('content-type', 'text/html')
-				gulp.src(index)
+				gulp.src(index.from)
 					.pipe(bufferify(html => {
 						if(exists(style)) {
-							if(hasVendors()) {
+							if(scriptVendorsSettings) {
 								html = html.replace('<!--stylevendors-->', `<link rel="stylesheet" href="${name}.vendors.css">`)
 							}
 							html = html.replace('<!--styles-->', `<link rel="stylesheet" href="${name}.css">`)
 						}
 						if(exists(script)) {
-							if(hasVendors()) {
+							if(styleVendors) {
 								html = html.replace('<!--scriptvendors-->', `<script src="${name}.vendors.js"></script>`)
 							}
 							html = html.replace('<!--scripts-->', `<script src="${name}.js"></script>`)
@@ -145,12 +156,12 @@ gulp.task('preview', () => {
 				}
 				// http response
 				res.setHeader('content-type', 'text/css')
-				sassStream(style, `${tmpdir}/${name}.css`, {
-					sourcemap: true,
-					minify: false,
-					vendors: hasVendors() ? {
+				sassStream(style.from, `${tmpdir}/${name}.css`, {
+					sourcemap: style.options.sourcemap,
+					minify: style.options.minify,
+					vendors: styleVendors ? {
 						enable: -1,
-						modules: vendors,
+						modules: styleVendors,
 					} : undefined,
 					process(content, file) {
 						if(getFileExt(file.path) === '.css') {
@@ -170,10 +181,10 @@ gulp.task('preview', () => {
 				}
 				// http response
 				res.setHeader('content-type', 'application/javascript')
-				webpackStream(script, `${tmpdir}/${name}.js`, {
-					sourcemap: true,
-					minify: false,
-					vendors: vendorsSettings,
+				webpackStream(script.from, `${tmpdir}/${name}.js`, {
+					sourcemap: script.options.sourcemap,
+					minify: script.options.minify,
+					vendors: scriptVendorsSettings,
 					process(content, file) {
 						if(getFileExt(file.path) === '.js') {
 							res.end(content)

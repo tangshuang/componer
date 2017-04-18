@@ -38,7 +38,7 @@ export default function(commander) {
             return
         }
 
-        let entryfile = path.join(cwd, settings.entry)
+        let entryfile = path.join(cwd, settings.entry.from)
         if(!exists(entryfile)) {
             log(name + ' test entry file not found.', 'error')
             return
@@ -104,6 +104,7 @@ export default function(commander) {
             preprocessors[path.resolve(__dirname, '../../node_modules/core-js/**/*.js')] = ['webpack']
         }
 
+        karmaSettings.webpack = settings.entry.settings
         karmaSettings = karmaConfig(karmaSettings)
         karmaSettings.webpack = extend(true, karmaSettings.webpack, extendSettings)
 

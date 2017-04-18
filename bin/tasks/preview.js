@@ -43,7 +43,11 @@ export default function(commander) {
     	let server = settings.server ? path.join(cwd, settings.server) : false
     	let tmpdir = settings.tmpdir ? path.join(cwd, settings.tmpdir) : path.join(cwd, '.preview_tmp')
 
-    	if(!exists(index)) {
+        /**
+         * following code is copied from generator directly
+         */
+
+    	if(!exists(index.from)) {
     		log(name + ' preview index file not found.', 'error')
     		return
     	}
@@ -75,43 +79,51 @@ export default function(commander) {
      		return deps
      	}
 
-     	let vendors = getDeps(bowerJson).concat(getDeps(pkgJson))
-    	if(Array.isArray(settings.vendors)) {
-    		vendors = vendors.concat(settings.vendors)
+    	// script vendors
+    	let scriptVendorsSettings = null
+    	if(exists(script.from) && script.options.vendors) {
+    		let options = script.options
+    		let vendors = options.vendors
+    		if(vendors === true) {
+    			vendors = getDeps(bowerJson).concat(getDeps(pkgJson))
+    		}
+    		if(Array.isArray(vendors) && vendors.length > 0) {
+    			scriptVendorsSettings = webpackVendor(
+    				vendors,
+    				`${tmpdir}/${name}.vendors.js`,
+    				{
+    					sourcemap: options.sourcemap,
+    					minify: options.minify,
+    				},
+    				{
+    					path: `${tmpdir}/${name}.vendors.js.json`,
+    					name: camelName(name, true) + 'Vendors',
+    					context: tmpdir,
+    				},
+    			)
+    		}
     	}
 
-    	let vendorsSettings = null
-    	let hasVendors = () => Array.isArray(vendors) && vendors.length > 0
-
-    	if(exists(script) && hasVendors()) {
-    		vendorsSettings = webpackVendor(
-    			vendors,
-    			`${tmpdir}/${name}.vendors.js`,
-    			{
-    				sourcemap: true,
-    				minify: false,
-                    before(settings, config) {
-                        extend(true, config, extendSettings)
-                    },
-    			},
-    			{
-    				path: `${tmpdir}/${name}.vendors.js.json`,
-    				name: camelName(name, true) + 'Vendors',
-    				context: tmpdir,
-    			},
-    		)
+    	// style vendors
+    	let styleVendors = null
+    	if(exists(style.from) && style.options.vendors) {
+    		let options = script.options
+    		let vendors = options.vendors
+    		if(vendors === true) {
+    			vendors = getDeps(bowerJson).concat(getDeps(pkgJson))
+    		}
+    		if(Array.isArray(vendors) && vendors.length > 0) {
+    			styleVendors = vendors
+    			sassStream(style.from, `${tmpdir}/${name}.vendors.css`, {
+    				sourcemap: options.sourcemap,
+    				minify: options.minify,
+    				vendors: {
+    					enable: 1,
+    					modules: vendors,
+    				},
+    			})
+    		}
     	}
-
-        if(exists(style) && hasVendors()) {
-            sassStream(style, `${tmpdir}/${name}.vendors.css`, {
-                sourcemap: true,
-                minify: false,
-                vendors: {
-                    enable: 1,
-                    modules: vendors,
-                },
-            })
-        }
 
 
     	/**
@@ -124,16 +136,16 @@ export default function(commander) {
     			route: '/',
     			handle: function (req, res, next) {
     				res.setHeader('content-type', 'text/html')
-    				gulp.src(index)
+    				gulp.src(index.from)
     					.pipe(bufferify(html => {
     						if(exists(style)) {
-                                if(hasVendors()) {
+    							if(scriptVendorsSettings) {
     								html = html.replace('<!--stylevendors-->', `<link rel="stylesheet" href="${name}.vendors.css">`)
     							}
     							html = html.replace('<!--styles-->', `<link rel="stylesheet" href="${name}.css">`)
     						}
     						if(exists(script)) {
-    							if(hasVendors()) {
+    							if(styleVendors) {
     								html = html.replace('<!--scriptvendors-->', `<script src="${name}.vendors.js"></script>`)
     							}
     							html = html.replace('<!--scripts-->', `<script src="${name}.js"></script>`)
@@ -154,12 +166,12 @@ export default function(commander) {
     				}
     				// http response
     				res.setHeader('content-type', 'text/css')
-    				sassStream(style, `${tmpdir}/${name}.css`, {
-    					sourcemap: true,
-    					minify: false,
-                        vendors: hasVendors() ? {
+    				sassStream(style.from, `${tmpdir}/${name}.css`, {
+    					sourcemap: style.options.sourcemap,
+    					minify: style.options.minify,
+    					vendors: styleVendors ? {
     						enable: -1,
-    						modules: vendors,
+    						modules: styleVendors,
     					} : undefined,
     					process(content, file) {
     						if(getFileExt(file.path) === '.css') {
@@ -179,13 +191,10 @@ export default function(commander) {
     				}
     				// http response
     				res.setHeader('content-type', 'application/javascript')
-    				webpackStream(script, `${tmpdir}/${name}.js`, {
-    					sourcemap: true,
-    					minify: false,
-    					vendors: vendorsSettings,
-                        before(settings) {
-                            extend(true, settings, extendSettings)
-                        },
+    				webpackStream(script.from, `${tmpdir}/${name}.js`, {
+    					sourcemap: script.options.sourcemap,
+    					minify: script.options.minify,
+    					vendors: scriptVendorsSettings,
     					process(content, file) {
     						if(getFileExt(file.path) === '.js') {
     							res.end(content)
@@ -196,7 +205,7 @@ export default function(commander) {
     		} : undefined,
     	]
 
-        // filter undefined
+    	// filter undefined
     	middlewares = middlewares.filter(item => !!item)
 
     	// build server
@@ -253,7 +262,7 @@ export default function(commander) {
     		})
     	}
 
-    	// setup server
+        // setup server
     	let port = 8000 + parseInt(Math.random() * 1000)
     	let uiport = port + 1
     	let weinreport = port + 2
@@ -273,5 +282,6 @@ export default function(commander) {
     		watchOptions: settings.watchOptions ? settings.watchOptions : {},
     		middleware: middlewares,
     	})
+
     })
 }

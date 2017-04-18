@@ -43,7 +43,7 @@ gulp.task('test', () => {
 		return
 	}
 
-	let entryfile = path.join(cwd, settings.entry)
+	let entryfile = path.join(cwd, settings.entry.from)
 	if(!exists(entryfile)) {
 		log(name + ' test entry file not found.', 'error')
 		return
@@ -109,6 +109,8 @@ gulp.task('test', () => {
 		entryfiles.unshift(path.join(rootPath, 'node_modules/core-js/es6/symbol.js'))
 		preprocessors[path.join(rootPath, 'node_modules/core-js/**/*.js')] = ['webpack']
 	}
+
+	karmaSettings.webpack = settings.entry.settings
 
 	return gulp.src(entryfiles)
 		.pipe(karma.server(karmaConfig(karmaSettings)))
