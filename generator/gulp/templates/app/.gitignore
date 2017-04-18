@@ -1,9 +1,0 @@
-bower_components/
-node_modules/
-npm-debug.log
-
-.git/
-.tmp/
-
-.preview_tmp/
-test/reporters/
