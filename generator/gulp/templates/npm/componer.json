@@ -24,7 +24,10 @@
 		}
 	},
 	"test": {
-		"entry": "test/{{componout-name}}.js",
+		"entry": {
+			"from": "test/specs/{{componout-name}}.js",
+			"settings": {}
+		},
 		"browsers": "Terminal"
 	}
 }

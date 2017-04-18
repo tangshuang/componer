@@ -30,20 +30,39 @@
 		}
 	],
 	"preview": {
-		"index": "preview/index.html",
-		"script": "src/script/{{componout-name}}.js",
-		"style": "src/style/{{componout-name}}.scss",
-		"server": "preview/server.js",
-        "tmpdir": ".preview_tmp",
-		"vendors": [],
+		"dir": ".preview_tmp",
+		"script": {
+			"from": "src/script/{{componout-name}}.js",
+			"options": {
+				"minify": false,
+				"sourcemap": true,
+                "vendors": true
+			},
+			"settings": {}
+		},
+		"style": {
+			"from": "src/style/{{componout-name}}.scss",
+			"options": {
+				"minify": false,
+				"sourcemap": true,
+                "vendors": true
+			},
+			"settings": {}
+		},
+		"index": {
+			"from": "preview/index.html"
+		},
 		"watch": [
 			"preview/index.html",
-            "src/**/*.js",
-			"src/**/*.scss"
-		]
+            "src/**/*"
+		],
+		"server": "preview/server.js"
 	},
 	"test": {
-		"entry": "test/specs/{{componout-name}}.js",
+		"entry": {
+			"from": "test/specs/{{componout-name}}.js",
+			"settings": {}
+		},
 		"reporters": "test/reporters",
 		"debug": false,
 		"browsers": ["PhantomJS"]
