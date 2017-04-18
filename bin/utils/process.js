@@ -1,21 +1,23 @@
+import path from 'path'
 import readline from 'readline'
 import shell from 'shelljs'
 import logger from 'process.logger'
 import {config, root} from './componer'
+
+const cwd = root()
+const gulp = path.resolve(__dirname, '../../node_modules/.bin/gulp')
+const settings = config()
 
 export function exit() {
     process.exit(0)
 }
 
 export function execute(cmd, done, fail) {
-    var settings = config()
-    var gulp = root() + '/node_modules/.bin/gulp'
-
     if(cmd.indexOf(gulp) === 0 || cmd.indexOf(' "' + gulp + '" ') > 0) {
 		if(settings.color) {
 			cmd += ' --color'
 		}
-		if(settings.slient) {
+		if(settings.silent) {
 			cmd += ' --silent'
 		}
 	}
