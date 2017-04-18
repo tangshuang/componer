@@ -81,7 +81,7 @@ export default function(commander) {
 
     	// script vendors
     	let scriptVendorsSettings = null
-    	if(exists(script.from) && script.options.vendors) {
+    	if(script && exists(script.from) && script.options.vendors) {
     		let options = script.options
     		let vendors = options.vendors
     		if(vendors === true) {
@@ -106,7 +106,7 @@ export default function(commander) {
 
     	// style vendors
     	let styleVendors = null
-    	if(exists(style.from) && style.options.vendors) {
+    	if(style && exists(style.from) && style.options.vendors) {
     		let options = script.options
     		let vendors = options.vendors
     		if(vendors === true) {
@@ -156,7 +156,7 @@ export default function(commander) {
     					.pipe(gulp.dest(tmpdir))
     			},
     		},
-    		exists(style) ? {
+    		style && exists(style.from) ? {
     			route: `/${name}.css`,
     			handle: function (req, res, next) {
     				// for hot reload
@@ -181,7 +181,7 @@ export default function(commander) {
     				})
     			},
     		} : undefined,
-    		exists(script) ? {
+    		script && exists(script.from) ? {
     			route: `/${name}.js`,
     			handle: function (req, res, next) {
     				// for hot reload

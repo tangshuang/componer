@@ -110,7 +110,9 @@ gulp.task('test', () => {
 		preprocessors[path.join(rootPath, 'node_modules/core-js/**/*.js')] = ['webpack']
 	}
 
-	karmaSettings.webpack = settings.entry.settings
+	if(settings.entry.settings) {
+		karmaSettings.webpack = settings.entry.settings
+	}
 
 	return gulp.src(entryfiles)
 		.pipe(karma.server(karmaConfig(karmaSettings)))
