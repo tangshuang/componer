@@ -38,12 +38,8 @@ gulp.task('test', () => {
 		log(name + ' test option in componer.json not found.', 'error')
 		return
 	}
-	if(!settings.entry) {
-		log(name + ' test.entry option in componer.json not found.', 'error')
-		return
-	}
 
-	let entryfile = path.join(cwd, settings.entry.from)
+	let entryfile = settings.entry && settings.entry.from ? path.join(cwd, settings.entry.from) : false
 	if(!exists(entryfile)) {
 		log(name + ' test entry file not found.', 'error')
 		return
@@ -97,6 +93,7 @@ gulp.task('test', () => {
 				outputDir: reportersPath,
 				reportName: name,
 			},
+			webpack: settings.entry.settings
 		}
 
 	let entryfiles = [entryfile]
@@ -108,10 +105,6 @@ gulp.task('test', () => {
 	if(launchers.indexOf('PhantomJS') > -1 || launchers.indexOf('IE') > -1 || launchers.indexOf('Safari') > -1) {
 		entryfiles.unshift(path.join(rootPath, 'node_modules/core-js/es6/symbol.js'))
 		preprocessors[path.join(rootPath, 'node_modules/core-js/**/*.js')] = ['webpack']
-	}
-
-	if(settings.entry.settings) {
-		karmaSettings.webpack = settings.entry.settings
 	}
 
 	return gulp.src(entryfiles)

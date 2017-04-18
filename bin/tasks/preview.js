@@ -5,6 +5,7 @@ import browsersync from 'browser-sync'
 import bufferify from 'gulp-bufferify'
 import glob from 'glob'
 import extend from 'extend'
+import sleep from 'system-sleep'
 import webpackVendor from '../drivers/webpack-vendor'
 import webpackStream from '../drivers/webpack-stream'
 import sassStream from '../drivers/sass-stream'
@@ -125,6 +126,7 @@ export default function(commander) {
     		}
     	}
 
+        sleep(100) // to make sure vendors are created
 
     	/**
     	 * create a bs server app
@@ -178,7 +180,7 @@ export default function(commander) {
     							res.end(content)
     						}
     					},
-    				})
+    				}, style.settings)
     			},
     		} : undefined,
     		script && exists(script.from) ? {
@@ -200,7 +202,7 @@ export default function(commander) {
     							res.end(content)
     						}
     					},
-    				})
+    				}, extend(extendSettings, script.settings))
     			},
     		} : undefined,
     	]

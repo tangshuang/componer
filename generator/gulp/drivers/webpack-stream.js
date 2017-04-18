@@ -5,6 +5,7 @@ import webpack from 'webpack-stream'
 import bufferify from 'gulp-bufferify'
 import webpackConfig from './webpack.config'
 import {camelName} from '../utils/convert-name'
+import {load} from '../utils/file'
 
 /**
 @param from: entry file absolute path,
@@ -57,7 +58,7 @@ export default function(from, to, options = {}, settings  = {}) {
         settings.plugins.push(
             new webpack.webpack.DllReferencePlugin({
                 context: options.vendors.context,
-                manifest: require(options.vendors.path),
+                manifest: load(options.vendors.path),
             })
         )
     }

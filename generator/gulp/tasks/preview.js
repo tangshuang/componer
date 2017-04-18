@@ -1,9 +1,9 @@
 import {gulp, path, fs, args, log, config, exit, exists, clear, read, readJSON, load, hasComponout, getComponoutConfig, dashName, camelName, getFileExt} from '../loader'
 
 import browsersync from 'browser-sync'
-
 import bufferify from 'gulp-bufferify'
 import glob from 'glob'
+import sleep from 'system-sleep'
 
 import webpackVendor from '../drivers/webpack-vendor'
 import webpackStream from '../drivers/webpack-stream'
@@ -31,13 +31,13 @@ gulp.task('preview', () => {
 		return
 	}
 
-	let index = path.join(cwd, settings.index)
-	let script = settings.script ? path.join(cwd, settings.script) : false
-	let style = settings.style ? path.join(cwd, settings.style) : false
-	let server = settings.server ? path.join(cwd, settings.server) : false
+	let indexfile = settings.index && settings.index.from ? path.join(cwd, settings.index.from) : false
+	let scriptfile = settings.script && settings.script.from ? path.join(cwd, settings.script.from) : false
+	let stylefile = settings.style && settings.style.from ? path.join(cwd, settings.style.from) : false
+	let serverfile = settings.server ? path.join(cwd, settings.server) : false
 	let tmpdir = settings.dir ? path.join(cwd, settings.dir) : path.join(cwd, '.preview_tmp')
 
-	if(!exists(index.from)) {
+	if(!exists(indexfile)) {
 		log(name + ' preview index file not found.', 'error')
 		return
 	}
@@ -71,8 +71,8 @@ gulp.task('preview', () => {
 
 	// script vendors
 	let scriptVendorsSettings = null
-	if(script && exists(script.from) && script.options.vendors) {
-		let options = script.options
+	if(exists(scriptfile) && settings.script.options && settings.script.options.vendors) {
+		let options = settings.script.options
 		let vendors = options.vendors
 		if(vendors === true) {
 			vendors = getDeps(bowerJson).concat(getDeps(pkgJson))
@@ -96,15 +96,15 @@ gulp.task('preview', () => {
 
 	// style vendors
 	let styleVendors = null
-	if(style && exists(style.from) && style.options.vendors) {
-		let options = script.options
+	if(exists(stylefile) && settings.style.options && settings.style.options.vendors) {
+		let options = settings.style.options
 		let vendors = options.vendors
 		if(vendors === true) {
 			vendors = getDeps(bowerJson).concat(getDeps(pkgJson))
 		}
 		if(Array.isArray(vendors) && vendors.length > 0) {
 			styleVendors = vendors
-			sassStream(style.from, `${tmpdir}/${name}.vendors.css`, {
+			sassStream(stylefile, `${tmpdir}/${name}.vendors.css`, {
 				sourcemap: options.sourcemap,
 				minify: options.minify,
 				vendors: {
@@ -115,6 +115,7 @@ gulp.task('preview', () => {
 		}
 	}
 
+	sleep(100) // to make sure vendors are created
 
 	/**
 	 * create a bs server app
@@ -126,16 +127,16 @@ gulp.task('preview', () => {
 			route: '/',
 			handle: function (req, res, next) {
 				res.setHeader('content-type', 'text/html')
-				gulp.src(index.from)
+				gulp.src(indexfile)
 					.pipe(bufferify(html => {
-						if(exists(style)) {
-							if(scriptVendorsSettings) {
+						if(exists(stylefile)) {
+							if(styleVendors) {
 								html = html.replace('<!--stylevendors-->', `<link rel="stylesheet" href="${name}.vendors.css">`)
 							}
 							html = html.replace('<!--styles-->', `<link rel="stylesheet" href="${name}.css">`)
 						}
-						if(exists(script)) {
-							if(styleVendors) {
+						if(exists(scriptfile)) {
+							if(scriptVendorsSettings) {
 								html = html.replace('<!--scriptvendors-->', `<script src="${name}.vendors.js"></script>`)
 							}
 							html = html.replace('<!--scripts-->', `<script src="${name}.js"></script>`)
@@ -146,9 +147,10 @@ gulp.task('preview', () => {
 					.pipe(gulp.dest(tmpdir))
 			},
 		},
-		style && exists(style.from) ? {
+		exists(stylefile) ? {
 			route: `/${name}.css`,
 			handle: function (req, res, next) {
+				let options = settings.style.options
 				// for hot reload
 				if(req.originalUrl !== `/${name}.css` && req.originalUrl.indexOf(`/${name}.css?`) === -1) {
 					next()
@@ -156,9 +158,9 @@ gulp.task('preview', () => {
 				}
 				// http response
 				res.setHeader('content-type', 'text/css')
-				sassStream(style.from, `${tmpdir}/${name}.css`, {
-					sourcemap: style.options.sourcemap,
-					minify: style.options.minify,
+				sassStream(stylefile, `${tmpdir}/${name}.css`, {
+					sourcemap: options.sourcemap,
+					minify: options.minify,
 					vendors: styleVendors ? {
 						enable: -1,
 						modules: styleVendors,
@@ -168,12 +170,13 @@ gulp.task('preview', () => {
 							res.end(content)
 						}
 					},
-				})
+				}, settings.style.settings)
 			},
 		} : undefined,
-		script && exists(script.from) ? {
+		exists(scriptfile) ? {
 			route: `/${name}.js`,
-			handle: function (req, res, next) {
+			handle(req, res, next) {
+				let options = settings.script.options
 				// for hot reload
 				if(req.originalUrl !== `/${name}.js` && req.originalUrl.indexOf(`/${name}.js?`) === -1) {
 					next()
@@ -181,16 +184,16 @@ gulp.task('preview', () => {
 				}
 				// http response
 				res.setHeader('content-type', 'application/javascript')
-				webpackStream(script.from, `${tmpdir}/${name}.js`, {
-					sourcemap: script.options.sourcemap,
-					minify: script.options.minify,
+				webpackStream(scriptfile, `${tmpdir}/${name}.js`, {
+					sourcemap: options.sourcemap,
+					minify: options.minify,
 					vendors: scriptVendorsSettings,
 					process(content, file) {
 						if(getFileExt(file.path) === '.js') {
 							res.end(content)
 						}
 					},
-				})
+				}, settings.script.settings)
 			},
 		} : undefined,
 	]
@@ -199,8 +202,8 @@ gulp.task('preview', () => {
 	middlewares = middlewares.filter(item => !!item)
 
 	// build server
-	if(server && exists(server)) {
-		let serverware = load(server)
+	if(exists(serverfile)) {
+		let serverware = load(serverfile)
 		if(serverware instanceof Array) {
 			middlewares = middlewares.concat(serverware)
 		}

@@ -1,7 +1,9 @@
 import fs from 'fs'
 import shell from 'shelljs'
+import reload from 'require-reload'
 
 export function exists(file) {
+	if(typeof file !== 'string') return
 	return fs.existsSync(file)
 }
 
@@ -22,18 +24,17 @@ export function isSymLink(file) {
 
 export function read(file) {
 	if(!exists(file)) return
-	return fs.readFileSync(file)
+	return fs.readFileSync(file).toString()
 }
 
 export function readJSON(file) {
 	if(!exists(file)) return
-	return JSON.parse(read(file).toString())
+	return JSON.parse(read(file))
 }
 
 export function readTMPL(file, parsers) {
 	if(!exists(file)) return
 	var content = read(file)
-	content = content.toString()
 	var keys = Object.keys(parsers)
 	keys.forEach(key => {
 		let value = parsers[key]
@@ -96,7 +97,7 @@ export function copy(from, to) {
 
 export function load(file, useDefault = true) {
 	if(!exists(file)) return
-	var rs = require(file)
+	var rs = reload(file)
 	if(typeof rs === 'object') {
 		if(useDefault && rs.default) return rs.default
 		else return rs

@@ -33,12 +33,8 @@ export default function(commander) {
             log(name + ' test option in componer.json not found.', 'error')
             return
         }
-        if(!settings.entry) {
-            log(name + ' test.entry option in componer.json not found.', 'error')
-            return
-        }
 
-        let entryfile = path.join(cwd, settings.entry.from)
+        let entryfile = settings.entry && settings.entry.from ? path.join(cwd, settings.entry.from) : false
         if(!exists(entryfile)) {
             log(name + ' test entry file not found.', 'error')
             return
@@ -91,6 +87,7 @@ export default function(commander) {
                     outputDir: reportersPath,
                     reportName: name,
                 },
+                webpack: extend(true, {}, extendSettings, settings.entry.settings)
             }
 
         let entryfiles = [entryfile]
@@ -104,12 +101,8 @@ export default function(commander) {
             preprocessors[path.resolve(__dirname, '../../node_modules/core-js/**/*.js')] = ['webpack']
         }
 
-        karmaSettings.webpack = settings.entry.settings
-        karmaSettings = karmaConfig(karmaSettings)
-        karmaSettings.webpack = extend(true, karmaSettings.webpack, extendSettings)
-
         return gulp.src(entryfiles)
-            .pipe(karma.server(karmaSettings))
+            .pipe(karma.server(karmaConfig(karmaSettings)))
             .on('end', () => {
                 log('Reporters ware created in componouts/' + name + '/' + reportersDir, 'help')
                 exit()

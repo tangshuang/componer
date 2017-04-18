@@ -64,11 +64,11 @@ export default function(vendors, to, options = {}, settings = {}) {
         options.before(settings, config)
     }
 
-    webpack(webpackConfig(config)).run((error, handle) => {})
-
-    if(typeof options.after === 'function') {
-        options.after()
-    }
+    webpack(webpackConfig(config)).run((error, handle) => {
+        if(typeof options.after === 'function') {
+            options.after(error, handle)
+        }
+    })
 
     return settings
 }

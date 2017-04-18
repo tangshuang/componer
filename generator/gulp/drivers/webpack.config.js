@@ -66,8 +66,8 @@ export default function(settings) {
 			},
 		},
 		{
-			test: /\.jade$/,
-			loader: 'jade-loader',
+			test: /\.jade|\.pug$/,
+			loader: 'pug-loader',
 		},
 		{
 			test: /\.hbs$/,
