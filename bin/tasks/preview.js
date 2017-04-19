@@ -126,6 +126,11 @@ export default function(commander) {
     		}
     	}
 
+        if(scriptVendorsSettings || styleVendors) {
+    		log('Vendors have been created.', 'done')
+    		log('Waiting for server setup up ...')
+    	}
+
     	/**
     	 * create a bs server app
     	 */
