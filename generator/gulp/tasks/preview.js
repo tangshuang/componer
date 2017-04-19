@@ -68,6 +68,11 @@ gulp.task('preview', () => {
  		return deps
  	}
 
+	let callback = null
+	let promise = new Promise((resolve, reject) => {
+		callback = resolve
+	})
+
 	// script vendors
 	let scriptVendorsSettings = null
 	if(exists(scriptfile) && settings.script.options && settings.script.options.vendors) {
@@ -83,6 +88,9 @@ gulp.task('preview', () => {
 				{
 					sourcemap: options.sourcemap,
 					minify: options.minify,
+					after() {
+						callback()
+					},
 				},
 				{
 					path: `${tmpdir}/${name}.vendors.js.json`,
@@ -112,11 +120,6 @@ gulp.task('preview', () => {
 				},
 			})
 		}
-	}
-
-	if(scriptVendorsSettings || styleVendors) {
-		log('Vendors have been created.', 'done')
-		log('Waiting for server setup up ...')
 	}
 
 	/**
@@ -262,7 +265,8 @@ gulp.task('preview', () => {
 	let uiport = port + 1
 	let weinreport = port + 2
 
-	app.init({
+	setTimeout(() => callback(), 1000)
+	promise.then(() => app.init({
 		port,
 		ui: {
 			port: uiport,
@@ -276,6 +280,6 @@ gulp.task('preview', () => {
 		files: watchFiles,
 		watchOptions: settings.watchOptions ? settings.watchOptions : {},
 		middleware: middlewares,
-	})
+	}))
 
 })

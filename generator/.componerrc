@@ -1,6 +1,6 @@
 {
 	"color": true,
-	"silent": false,
+	"silent": true,
 	"defaults": {
 		"template": "component",
 		"registries": "https://github.com/componer"

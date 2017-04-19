@@ -80,6 +80,11 @@ export default function(commander) {
      		return deps
      	}
 
+        let callback = null
+    	let promise = new Promise((resolve, reject) => {
+    		callback = resolve
+    	})
+
     	// script vendors
     	let scriptVendorsSettings = null
     	if(script && exists(script.from) && script.options.vendors) {
@@ -95,6 +100,9 @@ export default function(commander) {
     				{
     					sourcemap: options.sourcemap,
     					minify: options.minify,
+                        after() {
+                            callback()
+                        },
     				},
     				{
     					path: `${tmpdir}/${name}.vendors.js.json`,
@@ -272,7 +280,8 @@ export default function(commander) {
     	let uiport = port + 1
     	let weinreport = port + 2
 
-    	app.init({
+        setTimeout(() => callback(), 1000)
+    	promise.then(() => app.init({
     		port,
     		ui: {
     			port: uiport,
@@ -286,7 +295,7 @@ export default function(commander) {
     		files: watchFiles,
     		watchOptions: settings.watchOptions ? settings.watchOptions : {},
     		middleware: middlewares,
-    	})
+    	}))
 
     })
 }
