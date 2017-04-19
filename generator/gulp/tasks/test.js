@@ -103,7 +103,8 @@ gulp.task('test', () => {
 	let rootPath = config.paths.root
 	let launchers = karmaSettings.browsers
 	if(launchers.indexOf('PhantomJS') > -1 || launchers.indexOf('IE') > -1 || launchers.indexOf('Safari') > -1) {
-		entryfiles.unshift(path.join(rootPath, 'node_modules/core-js/index.js'))
+		entryfiles.unshift(path.join(rootPath, 'node_modules/babel-polyfill/lib/index.js'))
+		preprocessors[path.join(rootPath, 'node_modules/babel-polyfill/**/*.js')] = ['webpack']
 		preprocessors[path.join(rootPath, 'node_modules/core-js/**/*.js')] = ['webpack']
 	}
 
