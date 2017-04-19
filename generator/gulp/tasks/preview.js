@@ -3,7 +3,6 @@ import {gulp, path, fs, args, log, config, exit, exists, clear, read, readJSON, 
 import browsersync from 'browser-sync'
 import bufferify from 'gulp-bufferify'
 import glob from 'glob'
-import sleep from 'system-sleep'
 
 import webpackVendor from '../drivers/webpack-vendor'
 import webpackStream from '../drivers/webpack-stream'
@@ -114,8 +113,6 @@ gulp.task('preview', () => {
 			})
 		}
 	}
-
-	sleep(100) // to make sure vendors are created
 
 	/**
 	 * create a bs server app

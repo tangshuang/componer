@@ -126,8 +126,6 @@ export default function(commander) {
     		}
     	}
 
-        sleep(100) // to make sure vendors are created
-
     	/**
     	 * create a bs server app
     	 */
