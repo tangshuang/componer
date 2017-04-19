@@ -103,7 +103,7 @@ gulp.task('test', () => {
 	let rootPath = config.paths.root
 	let launchers = karmaSettings.browsers
 	if(launchers.indexOf('PhantomJS') > -1 || launchers.indexOf('IE') > -1 || launchers.indexOf('Safari') > -1) {
-		entryfiles.unshift(path.join(rootPath, 'node_modules/core-js/es6/symbol.js'))
+		entryfiles.unshift(path.join(rootPath, 'node_modules/core-js/index.js'))
 		preprocessors[path.join(rootPath, 'node_modules/core-js/**/*.js')] = ['webpack']
 	}
 
