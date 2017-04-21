@@ -32,7 +32,7 @@
 	"preview": {
 		"dir": ".preview_tmp",
 		"script": {
-			"from": "src/script/{{componout-name}}.js",
+			"from": "preview/{{componout-name}}.js",
 			"options": {
 				"minify": false,
 				"sourcemap": true,
@@ -41,7 +41,7 @@
 			"settings": {}
 		},
 		"style": {
-			"from": "src/style/{{componout-name}}.scss",
+			"from": "preview/{{componout-name}}.scss",
 			"options": {
 				"minify": false,
 				"sourcemap": true,
