@@ -90,7 +90,7 @@ export default function(commander) {
                     reportName: name,
                 },
                 webpack: extend(true, {}, extendSettings, settings.entry.settings),
-                externals: settings.externals,
+                exclude: settings.exclude,
             }
 
         let entryfiles = [entryfile]

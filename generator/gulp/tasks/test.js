@@ -94,7 +94,7 @@ gulp.task('test', () => {
 				reportName: name,
 			},
 			webpack: settings.entry.settings,
-			externals: settings.externals,
+			exclude: settings.exclude,
 		}
 
 	let entryfiles = [entryfile]
