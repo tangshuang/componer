@@ -25,8 +25,10 @@ export default function(commander) {
 
         let name = readJSON(jsonfile).name
         let info = readJSONTMPL(jsonfile, {
-            name,
+            node_modules: path.join(cwd, 'node_modules'),
+            bower_components: path.join(cwd, 'bower_components'),
             path: cwd,
+            name,
         })
         let settings = info.test
         if(!settings) {
@@ -87,7 +89,8 @@ export default function(commander) {
                     outputDir: reportersPath,
                     reportName: name,
                 },
-                webpack: extend(true, {}, extendSettings, settings.entry.settings)
+                webpack: extend(true, {}, extendSettings, settings.entry.settings),
+                externals: settings.externals,
             }
 
         let entryfiles = [entryfile]

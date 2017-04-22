@@ -93,7 +93,8 @@ gulp.task('test', () => {
 				outputDir: reportersPath,
 				reportName: name,
 			},
-			webpack: settings.entry.settings
+			webpack: settings.entry.settings,
+			externals: settings.externals,
 		}
 
 	let entryfiles = [entryfile]

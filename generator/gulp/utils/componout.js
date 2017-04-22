@@ -1,4 +1,4 @@
-import {config, exists, scandir, readJSON, readJSONTMPL, dashName} from '../loader'
+import {config, exists, path, scandir, readJSON, readJSONTMPL, dashName} from '../loader'
 
 export function hasComponout(name) {
 	if(!exists(config.paths.componouts + '/' + name)) {
@@ -32,8 +32,10 @@ export function getComponout(name) {
 export function getComponoutConfig(name) {
 	var componoutPath = config.paths.componouts + '/' + name
 	var data = readJSONTMPL(componoutPath + '/componer.json', {
-		'path': componoutPath,
-		'name': name,
+		node_modules: path.join(config.paths.root, 'node_modules'),
+		bower_components: path.join(config.paths.root, 'bower_components'),
+		path: componoutPath,
+		name,
 	})
 	return data
 }
