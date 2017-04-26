@@ -49,8 +49,10 @@ gulp.task('build', () => {
 		let options = item.options
 
 		let todir = path.dirname(to)
-		let tofile = path.basename(to, ext)
-		remove(path.join(todir, tofile.substr(0, tofile.length - 4) + '*'))
+		let toext = getFileExt(to)
+		let tofile = path.basename(to, toext)
+		remove(to)
+    	remove(path.join(todir, tofile + '.*'))
 
 		if(ext === '.js') {
 			settings.output = settings.output || {}
