@@ -46,7 +46,7 @@ export default function(commander) {
 
             let todir = path.dirname(to)
     		let tofile = path.basename(to, ext)
-    		remove(path.join(todir, tofile + '*'))
+    		remove(path.join(todir, tofile.substr(0, tofile.length - 4) + '*'))
 
             if(ext === '.js') {
                 settings.output = settings.output || {}

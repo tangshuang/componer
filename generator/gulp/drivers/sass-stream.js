@@ -86,7 +86,7 @@ export default function(from, to, options = {}, settings = {}) {
             if(options.hashfile && path.extname(filepath) === '.css') {
                 var dir = path.dirname(filepath)
                 var filename = path.basename(filepath, '.css')
-                var hex = md5(content, 8)
+                var hex = md5(content, 20)
                 file.path = path.join(dir, filename + '.' + hex + '.css')
             }
         }))
