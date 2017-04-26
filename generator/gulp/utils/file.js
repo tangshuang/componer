@@ -1,3 +1,4 @@
+import path from 'path'
 import fs from 'fs'
 import shell from 'shelljs'
 import reload from 'require-reload'
@@ -78,7 +79,9 @@ export function clear(dir) {
 }
 
 export function remove(file) {
-	shell.exec('rm -rf "' + file + '"')
+	var filename = path.basename(file)
+	var dirname = path.dirname(file)
+	shell.exec(`cd "${dirname}" && rm -rf ${filename}`)
 }
 
 export function mkdir(dir) {

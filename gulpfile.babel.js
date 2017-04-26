@@ -14,6 +14,7 @@ gulp.task('build', () => {
     gulp.src([
             './generator/gulp/utils/file.js',
             './generator/gulp/utils/convert-name.js',
+            './generator/gulp/utils/crypt.js',
         ])
         .pipe(babel())
         .pipe(gulp.dest('./.bin/utils'))

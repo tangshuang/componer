@@ -19,6 +19,7 @@ import {camelName} from '../utils/convert-name'
         if array, seperated them from output built file to be in a single bundle file,
         if true, use dependencies as vendors,
         if false, ignore all externals packages, ignore means without vendors bundle,
+    boolean hashfile: whether to use hashed filename for output files
     string cwd: absolute path of json files path, for example: componer.json
 }
 @param object settings: webpack settings
@@ -37,6 +38,7 @@ export default function(from, to, options = {}, settings  = {}) {
     var opts = {
         minify: false,
         sourcemap: options.sourcemap,
+        hashfile: options.hashfile,
     }
     var sets = {
         name: camelName(name, true) + 'Vendors',

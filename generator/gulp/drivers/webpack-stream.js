@@ -14,10 +14,11 @@ import {load} from '../utils/file'
     boolean sourcemap: whether to create a sourcemap file,
     boolean minify: whether to create a minified file,
     object vendors: the settings of vendors want to be seperated from source code, {context, path}
-    {
-        path:
-        context:
-    }
+        {
+            path:
+            context:
+        },
+    boolean hashfile: whether to use hashed filename for output files
 
     function before(settings): function to run before build,
     function process(content, file, context): function to run before output with stream content,
@@ -61,6 +62,11 @@ export default function(from, to, options = {}, settings  = {}) {
                 manifest: load(options.vendors.path),
             })
         )
+    }
+
+    if(options.hashfile) {
+        let filename = settings.output.filename
+        settings.output.filename = filename.substr(0, filename.lastIndexOf('.')) + '.[hash].js'
     }
 
     if(typeof options.before === 'function') {

@@ -10,8 +10,8 @@ import concat from 'pipe-concat'
 import bufferify from 'gulp-bufferify'
 import cssCopyAssets from 'gulp-css-copy-assets'
 import SeparateVendors from 'gulp-sass-separate-vendors'
-
 import sassConfig from './sass.config'
+import {md5} from '../utils/crypt'
 
 /**
 @desc build scss to css
@@ -20,10 +20,12 @@ import sassConfig from './sass.config'
 @param object options: {
 	boolean minify: whether to minify css code,
 	boolean sourcemap: whether to use sourcemap,
-	object vendors: {
-		enable: -1|0|1, 1 => only vendors, 0 => ignore this operate, -1 => without vendors, default 0
-		modules: boolean|array, true => all vendors, array => only these vendors will be seperated, default true
-	}
+	object vendors:
+		{
+			enable: -1|0|1, 1 => only vendors, 0 => ignore this operate, -1 => without vendors, default 0
+			modules: boolean|array, true => all vendors, array => only these vendors will be seperated, default true
+		}
+	boolean hashfile: whether to use hashed filename for output files
 
 	function before(settings): to run before build,
 	function process(content, file, context): during building,
@@ -79,6 +81,15 @@ export default function(from, to, options = {}, settings = {}) {
 		}))
 		.pipe(modifier(options.sourcemap ? sourcemaps.write : null, sourcemapdir))
 		.pipe(cssCopyAssets(settings.assets))
+		.pipe(bufferify((content, file) => {
+			let filepath = file.path
+            if(options.hashfile && path.extname(filepath) === '.css') {
+                var dir = path.dirname(filepath)
+                var filename = path.basename(filepath, '.css')
+                var hex = md5(content, 8)
+                file.path = path.join(dir, filename + '.' + hex + '.css')
+            }
+        }))
 		.pipe(gulp.dest(outputdir))
 
 	return stream.on('end', () => {

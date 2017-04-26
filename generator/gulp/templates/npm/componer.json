@@ -8,7 +8,8 @@
 		"options": {
 			"minify": false,
 			"sourcemap": false,
-			"vendors": false
+			"vendors": false,
+			"hashfile": false
 		},
 		"settings": {
 			"output": {

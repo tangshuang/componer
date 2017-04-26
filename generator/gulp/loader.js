@@ -10,6 +10,7 @@ export * from './utils/process'
 export * from './utils/str-pad'
 export * from './utils/convert-name'
 export * from './utils/componout'
+export * from './utils/crypt'
 
 import {readJSON} from './utils/file'
 

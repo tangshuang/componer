@@ -5,21 +5,23 @@
 	"build": [
 		{
 			"from": "src/script/{{componout-name}}.js",
-			"to": "dist/js/{{componout-name}}.js",
+			"to": "dist/js/[name].js",
 			"options": {
 				"minify": true,
 				"sourcemap": true,
-                "vendors": true
+                "vendors": true,
+				"hashfile": true
 			},
 			"settings": {}
 		},
 		{
 			"from": "src/style/{{componout-name}}.scss",
-			"to": "dist/css/{{componout-name}}.css",
+			"to": "dist/css/[name].css",
 			"options": {
 				"minify": true,
 				"sourcemap": true,
-				"vendors": true
+				"vendors": true,
+				"hashfile": true
 			},
 			"settings": {
                 "sass": {},
