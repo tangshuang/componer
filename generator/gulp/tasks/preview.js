@@ -182,6 +182,9 @@ gulp.task('preview', () => {
 			route: `/${name}.js`,
 			handle(req, res, next) {
 				let options = settings.script.options
+				let scriptSettings = settings.script.settings
+				scriptSettings.output = scriptSettings.output || {}
+				scriptSettings.output.library = scriptSettings.output.library || camelName(info.name, true)
 				// for hot reload
 				if(req.originalUrl !== `/${name}.js` && req.originalUrl.indexOf(`/${name}.js?`) === -1) {
 					next()
@@ -198,7 +201,7 @@ gulp.task('preview', () => {
 							res.end(content)
 						}
 					},
-				}, settings.script.settings)
+				}, scriptSettings)
 			},
 		} : undefined,
 	]

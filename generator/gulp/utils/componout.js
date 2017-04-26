@@ -16,13 +16,14 @@ export function getComponout(name) {
 
 	var infofile = dir + '/componer.json'
 	var info = exists(infofile) ? readJSON(infofile) : {
+		name,
 		type: 'config file not found!',
-		version: ''
+		version: '',
 	}
 
 	return {
-		name,
-		type: info.type || 'Not defined!',
+		name: info.name,
+		type: info.type,
 		version: info.version,
 		path: dir,
 		info,
@@ -31,11 +32,14 @@ export function getComponout(name) {
 
 export function getComponoutConfig(name) {
 	var componoutPath = config.paths.componouts + '/' + name
+	var info = getComponout(name)
 	var data = readJSONTMPL(componoutPath + '/componer.json', {
 		node_modules: path.join(config.paths.root, 'node_modules'),
 		bower_components: path.join(config.paths.root, 'bower_components'),
 		path: componoutPath,
-		name,
+		name: info.name,
+		type: info.type,
+		version: info.version,
 	})
 	return data
 }

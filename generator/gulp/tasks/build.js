@@ -1,5 +1,5 @@
 import Stream from 'stream'
-import {gulp, fs, path, args, log, config, exit, exists, scandir, readJSONTMPL, hasComponout, getComponoutConfig, dashName, run, getFileExt} from '../loader'
+import {gulp, fs, path, args, log, config, exit, exists, scandir, remove, readJSONTMPL, hasComponout, getComponoutConfig, dashName, camelName, run, getFileExt} from '../loader'
 import webpack from '../drivers/webpack'
 import sass from '../drivers/sass'
 
@@ -44,11 +44,17 @@ gulp.task('build', () => {
 	items.forEach(item => {
 		let from = path.join(cwd, item.from)
 		let to = path.join(cwd, item.to)
+		let ext = getFileExt(from)
 		let settings = item.settings
 		let options = item.options
-		let ext = getFileExt(from)
+
+		let todir = path.dirname(to)
+		let tofile = path.basename(to, ext)
+		remove(path.join(todir, tofile + '*'))
 
 		if(ext === '.js') {
+			settings.output = settings.output || {}
+			settings.output.library = settings.output.library || camelName(info.name, true)
 			streams.push(webpack(from, to, options, settings))
 		}
 		else if(ext === '.scss') {

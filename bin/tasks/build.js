@@ -20,10 +20,15 @@ export default function(commander) {
             return
         }
 
-        let name = readJSON(jsonfile).name
-        let info = readJSONTMPL(jsonfile, {
-            name,
+        let info = readJSON(jsonfile)
+        let name = info.name
+        info = readJSONTMPL(jsonfile, {
+            node_modules: path.join(cwd, 'node_modules'),
+    		bower_components: path.join(cwd, 'bower_components'),
             path: cwd,
+    		name: info.name,
+    		type: info.type,
+    		version: info.version,
         })
         let items = Array.isArray(info.build) ? info.build : typeof info.build === 'object' ? [info.build] : null
         if(!items) {
@@ -36,12 +41,21 @@ export default function(commander) {
             let from = path.join(cwd, item.from)
             let to = path.join(cwd, item.to)
             let ext = getFileExt(item.from)
+    		let settings = item.settings
+    		let options = item.options
+
+            let todir = path.dirname(to)
+    		let tofile = path.basename(to, ext)
+    		remove(path.join(todir, tofile + '*'))
+
             if(ext === '.js') {
+                settings.output = settings.output || {}
+    			settings.output.library = settings.output.library || camelName(info.name, true)
                 extend(true, item.settings, extendSettings)
-                streams.push(webpack(from, to, item.options, item.settings))
+                streams.push(webpack(from, to, options, settings))
             }
             else if(ext === '.scss') {
-                streams.push(sass(from, to, item.options, item.settings))
+                streams.push(sass(from, to, options, settings))
             }
         })
 

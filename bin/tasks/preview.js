@@ -27,10 +27,15 @@ export default function(commander) {
             return
         }
 
-        let name = readJSON(jsonfile).name
-        let info = readJSONTMPL(jsonfile, {
-            name,
+        let info = readJSON(jsonfile)
+        let name = info.name
+        info = readJSONTMPL(jsonfile, {
+            node_modules: path.join(cwd, 'node_modules'),
+    		bower_components: path.join(cwd, 'bower_components'),
             path: cwd,
+    		name: info.name,
+    		type: info.type,
+    		version: info.version,
         })
         let settings = info.preview
         if(!settings) {
