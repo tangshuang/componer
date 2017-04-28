@@ -47,7 +47,7 @@ export default function(settings) {
 			loader: 'style-loader!css-loader',
 		},
 		{
-			test: /\.jpe?g$|\.gif$|\.png$|\.svg$|\.woff$|\.ttf$|\.wav$|\.mp3$/,
+			test: /\.jpeg$|\.jpg|\.gif$|\.png$|\.svg$|\.woff$|\.ttf$|\.wav$|\.mp3$/,
 			loader: 'file-loader',
 		},
 		{
@@ -64,14 +64,6 @@ export default function(settings) {
 			query: {
 				attrs: 'img:src input:src',
 			},
-		},
-		{
-			test: /\.jade|\.pug$/,
-			loader: 'pug-loader',
-		},
-		{
-			test: /\.hbs$/,
-			loader: 'handlebars-loader',
 		},
 		{
 			test: /\.json$/,
