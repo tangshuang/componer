@@ -47,7 +47,14 @@ export function readTMPL(file, parsers) {
 
 export function readJSONTMPL(file, parsers) {
 	if(!exists(file)) return
-	return JSON.parse(readTMPL(file, parsers))
+	var content = readTMPL(file, parsers)
+	content = content.replace(new RegExp('"\\[\\/(.*?)\\/\\]"', 'g'), (match, offset, string) => {
+        return '/' + offset.replace(/\\\\/g, '\\') + '/'
+    })
+	var _content
+	var json = '_content = ' + content
+	eval(json)
+	return _content
 }
 
 export function write(file, content) {
@@ -55,7 +62,7 @@ export function write(file, content) {
 }
 
 export function writeJSON(file, json) {
-	write(file, JSON.stringify(json, null, 4))
+	write(file, JSON.stringify(json, null, 2))
 }
 
 export function symlink(from, to) {
