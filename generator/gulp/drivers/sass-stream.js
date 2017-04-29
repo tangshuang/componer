@@ -83,19 +83,19 @@ export default function(from, to, options = {}, settings = {}) {
 		.pipe(cssCopyAssets(settings.assets))
 		.pipe(bufferify((content, file) => {
 			let filepath = file.path
-            if(options.hashfile && path.extname(filepath) === '.css') {
+      if(options.hashfile && path.extname(filepath) === '.css') {
 				var hex = md5(content, 20)
-                var dir = path.dirname(filepath)
-                var filename = path.basename(filepath, '.css')
+        var dir = path.dirname(filepath)
+        var filename = path.basename(filepath, '.css')
 				if(path.extname(filename) === '.min') {
 					filename = filename.substr(0, filename.lastIndexOf('.'))
-					file.path = path.join(dir, filename + '.' + hex + '.css')
+					file.path = path.join(dir, filename + '.' + hex + '.min.css')
 				}
 				else {
 					file.path = path.join(dir, filename + '.' + hex + '.css')
 				}
-            }
-        }))
+      }
+    }))
 		.pipe(gulp.dest(outputdir))
 
 	return stream.on('end', () => {

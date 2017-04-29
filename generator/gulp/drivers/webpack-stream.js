@@ -4,6 +4,7 @@ import extend from 'extend'
 import webpack from 'webpack-stream'
 import bufferify from 'gulp-bufferify'
 import webpackConfig from './webpack.config'
+import WebpackBufferify from 'webpack-bufferify'
 import {camelName} from '../utils/convert-name'
 import {load} from '../utils/file'
 
@@ -21,6 +22,7 @@ import {load} from '../utils/file'
     boolean hashfile: whether to use hashed filename for output files
 
     function before(settings): function to run before build,
+    function building(content, file, assets, compilation): function to run when webpack is building
     function process(content, file, context): function to run before output with stream content,
     function after(): function to run after build,
 }
@@ -66,7 +68,25 @@ export default function(from, to, options = {}, settings  = {}) {
 
     if(options.hashfile) {
         let filename = settings.output.filename
-        settings.output.filename = filename.substr(0, filename.lastIndexOf('.')) + '.[hash].js'
+        filename = filename.substr(0, filename.lastIndexOf('.'))
+        if(path.extname(filename) === '.min') {
+          filename = filename.substr(0, filename.lastIndexOf('.'))
+					settings.output.filename = filename + '.[hash].min.js'
+				}
+				else {
+          settings.output.filename = filename + '.[hash].js'
+				}
+    }
+
+    if(typeof options.building === function) {
+      class WebpackBuilding extends WebpackBufferify {
+        process(content, file, assets, compilation) {
+          return options.building(content, file, assets, compilation)
+        }
+      }
+      settings.plugins.push(
+        new WebpackBuilding()
+      )
     }
 
     if(typeof options.before === 'function') {
