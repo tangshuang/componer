@@ -78,7 +78,7 @@ export default function(from, to, options = {}, settings  = {}) {
 				}
     }
 
-    if(typeof options.building === function) {
+    if(typeof options.building === 'function') {
       class WebpackBuilding extends WebpackBufferify {
         process(content, file, assets, compilation) {
           return options.building(content, file, assets, compilation)
