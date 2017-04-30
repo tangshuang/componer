@@ -22,8 +22,8 @@ import {md5} from '../utils/crypt'
 	boolean sourcemap: whether to use sourcemap,
 	object vendors:
 		{
-			enable: -1|0|1, 1 => only vendors, 0 => ignore this operate, -1 => without vendors, default 0
-			modules: boolean|array, true => all vendors, array => only these vendors will be seperated, default true
+			extract: -1|0|1, 1 => only vendors, 0 => ignore this operate, combine all styles in a file, -1 => without vendors, default 0
+			modules: boolean|array, true => all vendors and modules which are imported, array => only these vendors and modules will be seperated, default true
 		}
 	boolean hashfile: whether to use hashed filename for output files
 
@@ -49,7 +49,7 @@ export default function(from, to, options = {}, settings = {}) {
         cssnext(settings.cssnext),
 	]
 
-	var enable = options.vendors && options.vendors.enable
+	var extract = options.vendors && options.vendors.extract
 	var modules = options.vendors && options.vendors.modules
 	var modifier = (factory, ...args) => {
 		if(typeof factory === 'function') return factory(...args)
@@ -57,7 +57,7 @@ export default function(from, to, options = {}, settings = {}) {
 	}
 	var separator = SeparateVendors({
 		vendors: modules,
-		output: enable
+		extract,
 	})
 
 	// do something before build
@@ -67,9 +67,11 @@ export default function(from, to, options = {}, settings = {}) {
 
 	var stream = gulp.src(from)
 		.pipe(modifier(options.sourcemap ? sourcemaps.init : null))
-		.pipe(modifier(enable ? separator.init : null))
+		.pipe(modifier(extract ? separator.init : null))
 		.pipe(sass(sassConfig(settings.sass)))
-		.pipe(modifier(enable ? separator.extract : null))
+		.pipe(modifier(extract ? separator.compile : null))
+		.pipe(modifier(extract ? separator.combine : null))
+		.pipe(modifier(extract ? separator.extract : null))
 		.pipe(postcss(plugins, settings.postcss))
 		.pipe(modifier(options.minify ? cssmin : null))
 		.pipe(rename(filename)) // ??? does this rename vendors file???

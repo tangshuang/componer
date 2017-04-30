@@ -1,7 +1,7 @@
 {
 	"name": "{{componout-name}}",
 	"version": "0.0.1",
-    "type": "app",
+  "type": "app",
 	"build": [
 		{
 			"from": "src/script/{{componout-name}}.js",
@@ -9,7 +9,7 @@
 			"options": {
 				"minify": true,
 				"sourcemap": true,
-                "vendors": true,
+        "vendors": true,
 				"hashfile": true
 			},
 			"settings": {}
@@ -24,11 +24,11 @@
 				"hashfile": true
 			},
 			"settings": {
-                "sass": {},
-    			"postcss": {},
-    			"nextcss": {},
-    			"assets": {}
-            }
+        "sass": {},
+    		"postcss": {},
+    		"nextcss": {},
+    		"assets": {}
+      }
 		}
 	],
 	"preview": {
@@ -38,7 +38,7 @@
 			"options": {
 				"minify": false,
 				"sourcemap": true,
-                "vendors": true
+        "vendors": true
 			},
 			"settings": {}
 		},
@@ -47,7 +47,7 @@
 			"options": {
 				"minify": false,
 				"sourcemap": true,
-                "vendors": true
+        "vendors": true
 			},
 			"settings": {}
 		},
@@ -56,7 +56,7 @@
 		},
 		"watch": [
 			"preview/index.html",
-            "src/**/*"
+      "src/**/*"
 		],
 		"server": "preview/server.js"
 	},
