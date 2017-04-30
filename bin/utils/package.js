@@ -7,6 +7,7 @@ const bower = path.resolve(__dirname, '../../node_modules/.bin/bower')
 
 // get version from version string such as `~1.3.0`, `^2.0.1`, >=6.2.1 to be `1.3.0` `2.0.1` `6.2.1`
 export function getVersion(ver) {
+	if(ver === undefined) return '*'
 	var i = ver.search(/\d/)
 	if(i > -1 && i < 3) return ver.substr(i)
 	return ver
@@ -26,7 +27,7 @@ export function PackagesPicker() {
                 return
             }
             // version
-            let version = getVersion(pkg.version)
+            let version = getVersion(item.version)
             if(result.version < version) {
                 result.version = version
             }
