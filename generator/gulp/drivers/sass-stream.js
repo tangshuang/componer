@@ -75,9 +75,9 @@ export default function(from, to, options = {}, settings = {}) {
 		.pipe(postcss(plugins, settings.postcss))
 		.pipe(modifier(options.minify ? cssmin : null))
 		.pipe(rename(filename)) // ??? does this rename vendors file???
-		.pipe(bufferify((content, file, context, notifier) => {
+		.pipe(bufferify((content, file, context) => {
 			if(typeof options.process === 'function') {
-				content = options.process(content, file, context, notifier)
+				content = options.process(content, file, context)
 			}
 			return content
 		}))

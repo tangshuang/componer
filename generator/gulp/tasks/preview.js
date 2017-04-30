@@ -115,7 +115,7 @@ gulp.task('preview', () => {
 				sourcemap: options.sourcemap,
 				minify: options.minify,
 				vendors: {
-					enable: 1,
+					extract: 1,
 					modules: vendors,
 				},
 			})
@@ -167,7 +167,7 @@ gulp.task('preview', () => {
 					sourcemap: options.sourcemap,
 					minify: options.minify,
 					vendors: styleVendors ? {
-						enable: -1,
+						extract: -1,
 						modules: styleVendors,
 					} : undefined,
 					process(content, file) {
