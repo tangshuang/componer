@@ -2,6 +2,7 @@ import path from 'path'
 import fs from 'fs'
 import shell from 'shelljs'
 import reload from 'require-reload'
+import {md5} from './crypt'
 
 export function exists(file) {
 	if(typeof file !== 'string') return
@@ -141,7 +142,9 @@ export function setFileExt(file, ext, search) {
 let contents = {}
 export function hasFileChanged(file) {
 	let content = read(file)
-	if(contents[file] && contents[file] === content) return false
-	contents[file] = content
+	let key = md5(file)
+	let value = md5(content)
+	if(contents[key] && contents[key] === value) return false
+	contents[key] = value
 	return true
 }

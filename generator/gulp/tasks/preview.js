@@ -1,4 +1,4 @@
-import {gulp, path, fs, args, log, config, exit, exists, clear, read, readJSON, load, hasComponout, getComponoutConfig, dashName, camelName, getFileExt} from '../loader'
+import {gulp, path, fs, args, log, config, exit, exists, clear, read, readJSON, load, hasComponout, getComponoutConfig, dashName, camelName, getFileExt, hasFileChanged} from '../loader'
 
 import browsersync from 'browser-sync'
 import bufferify from 'gulp-bufferify'
@@ -125,12 +125,16 @@ gulp.task('preview', () => {
 	/**
 	 * create a bs server app
 	 */
-
 	let app = browsersync.create()
 	let middlewares = [
 		{
 			route: '/',
 			handle: function (req, res, next) {
+				if(!hasFileChanged(indexfile)) {
+					next()
+					return
+				}
+
 				res.setHeader('content-type', 'text/html')
 				gulp.src(indexfile)
 					.pipe(bufferify(html => {
@@ -155,6 +159,11 @@ gulp.task('preview', () => {
 		exists(stylefile) ? {
 			route: `/${name}.css`,
 			handle: function (req, res, next) {
+				if(!hasFileChanged(stylefile)) {
+					next()
+					return
+				}
+
 				let options = settings.style.options
 				// for hot reload
 				if(req.originalUrl !== `/${name}.css` && req.originalUrl.indexOf(`/${name}.css?`) === -1) {
@@ -181,6 +190,11 @@ gulp.task('preview', () => {
 		exists(scriptfile) ? {
 			route: `/${name}.js`,
 			handle(req, res, next) {
+				if(!hasFileChanged(scriptfile)) {
+					next()
+					return
+				}
+
 				let options = settings.script.options
 				let scriptSettings = settings.script.settings
 				scriptSettings.output = scriptSettings.output || {}
