@@ -125,16 +125,18 @@ gulp.task('preview', () => {
 	/**
 	 * create a bs server app
 	 */
+	let hasIndexChanged = true
+	let hasStyleChanged = true
+	let hasFilesChanged = true
 	let app = browsersync.create()
 	let middlewares = [
 		{
 			route: '/',
 			handle: function (req, res, next) {
-				if(!hasFileChanged(indexfile)) {
+				if(!hasIndexChanged) {
 					next()
 					return
 				}
-
 				res.setHeader('content-type', 'text/html')
 				gulp.src(indexfile)
 					.pipe(bufferify(html => {
@@ -154,16 +156,16 @@ gulp.task('preview', () => {
 						return html
 					}))
 					.pipe(gulp.dest(tmpdir))
+					.on('end', () => hasIndexChanged = false)
 			},
 		},
 		exists(stylefile) ? {
 			route: `/${name}.css`,
 			handle: function (req, res, next) {
-				if(!hasFileChanged(stylefile)) {
+				if(!hasStyleChanged) {
 					next()
 					return
 				}
-
 				let options = settings.style.options
 				// for hot reload
 				if(req.originalUrl !== `/${name}.css` && req.originalUrl.indexOf(`/${name}.css?`) === -1) {
@@ -184,17 +186,19 @@ gulp.task('preview', () => {
 							res.end(content)
 						}
 					},
+					after() {
+						hasStyleChanged = false
+					},
 				}, settings.style.settings)
 			},
 		} : undefined,
 		exists(scriptfile) ? {
 			route: `/${name}.js`,
 			handle(req, res, next) {
-				if(!hasFileChanged(scriptfile)) {
+				if(!hasFilesChanged) {
 					next()
 					return
 				}
-
 				let options = settings.script.options
 				let scriptSettings = settings.script.settings
 				scriptSettings.output = scriptSettings.output || {}
@@ -214,6 +218,9 @@ gulp.task('preview', () => {
 						if(getFileExt(file.path) === '.js') {
 							res.end(content)
 						}
+					},
+					after() {
+						hasFilesChanged = false
 					},
 				}, scriptSettings)
 			},
@@ -239,11 +246,11 @@ gulp.task('preview', () => {
 	if(typeof watchFiles === 'string') {
 		watchFiles = [path.join(cwd, watchFiles)]
 	}
-	else if(watchFiles instanceof Array) {
+	else if(Array.isArray(watchFiles)) {
 		watchFiles = watchFiles.map(item => path.join(cwd, item))
 	}
 	else {
-		watchFiles = []
+		watchFiles = [cwd + '/**/*']
 	}
 
 	if(watchFiles.length > 0) {
@@ -270,10 +277,23 @@ gulp.task('preview', () => {
 		})
 
 		// except style files
-		watchFiles = otherWatchFiles.concat([`!${cwd}/**/*.scss`, `!${cwd}/**/*.css`])
+		otherWatchFiles = otherWatchFiles.concat([`!${cwd}/**/*.scss`, `!${cwd}/**/*.css`])
 		// watch style files by gulp, and reload css files after style files changed
 		gulp.watch(styleWatchFiles, event => {
-			if(event.type === 'changed') app.reload('*.css')
+			if(event.type === 'changed') {
+				if(!hasFileChanged(event.path)) return
+				hasStyleChanged = true
+				app.reload('*.css')
+			}
+		})
+		// watch js files
+		gulp.watch(otherWatchFiles, event => {
+			if(event.type === 'changed') {
+				if(!hasFileChanged(event.path)) return
+				hasFilesChanged = true
+				hasIndexChanged = true
+				app.reload()
+			}
 		})
 	}
 
@@ -294,9 +314,8 @@ gulp.task('preview', () => {
 		server: {
 			baseDir: tmpdir,
 		},
-		files: watchFiles,
-		watchOptions: settings.watchOptions ? settings.watchOptions : {},
 		middleware: middlewares,
+		reloadDebounce: 1000,
 	}))
 
 })
