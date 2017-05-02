@@ -4,7 +4,7 @@
 	"type": "component",
 	"build": [
 		{
-			"from": "src/script/{{componout-name}}.js",
+			"from": "src/script/index.js",
 			"to": "dist/js/[name]-[version].js",
 			"options": {
 				"minify": true,
@@ -15,7 +15,7 @@
 			"settings": {}
 		},
 		{
-			"from": "src/style/{{componout-name}}.scss",
+			"from": "src/style/index.scss",
 			"to": "dist/css/[name]-[version].css",
 			"options": {
 				"minify": true,
@@ -34,7 +34,7 @@
 	"preview": {
 		"dir": ".preview_tmp",
 		"script": {
-			"from": "preview/{{componout-name}}.js",
+			"from": "preview/index.js",
 			"options": {
 				"minify": false,
 				"sourcemap": true,
@@ -43,7 +43,7 @@
 			"settings": {}
 		},
 		"style": {
-			"from": "preview/{{componout-name}}.scss",
+			"from": "preview/index.scss",
 			"options": {
 				"minify": false,
 				"sourcemap": true,
@@ -56,8 +56,8 @@
 		},
 		"watch": [
 			"preview/index.html",
-			"preview/{{componout-name}}.js",
-			"preview/{{componout-name}}.scss",
+			"preview/index.js",
+			"preview/index.scss",
 			"src/**/*.js",
 			"src/**/*.scss"
 		],
@@ -65,7 +65,7 @@
 	},
 	"test": {
 		"entry": {
-			"from": "test/specs/{{componout-name}}.js",
+			"from": "test/specs/index.js",
 			"settings": {}
 		},
 		"exclude": [],

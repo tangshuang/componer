@@ -4,7 +4,7 @@
   "type": "app",
 	"build": [
 		{
-			"from": "src/script/{{componout-name}}.js",
+			"from": "src/script/index.js",
 			"to": "dist/js/[name].js",
 			"options": {
 				"minify": true,
@@ -15,7 +15,7 @@
 			"settings": {}
 		},
 		{
-			"from": "src/style/{{componout-name}}.scss",
+			"from": "src/style/index.scss",
 			"to": "dist/css/[name].css",
 			"options": {
 				"minify": true,
@@ -34,7 +34,7 @@
 	"preview": {
 		"dir": ".preview_tmp",
 		"script": {
-			"from": "src/script/{{componout-name}}.js",
+			"from": "src/script/index.js",
 			"options": {
 				"minify": false,
 				"sourcemap": true,
@@ -43,7 +43,7 @@
 			"settings": {}
 		},
 		"style": {
-			"from": "src/style/{{componout-name}}.scss",
+			"from": "src/style/index.scss",
 			"options": {
 				"minify": false,
 				"sourcemap": true,
@@ -62,7 +62,7 @@
 	},
 	"test": {
 		"entry": {
-			"from": "test/specs/{{componout-name}}.js",
+			"from": "test/specs/index.js",
 			"settings": {}
 		},
 		"exclude": [],

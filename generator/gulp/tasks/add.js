@@ -28,17 +28,5 @@ gulp.task('add', () => {
 			authorName: author,
 		}))
 		.pipe(gulp.dest(componoutPath))
-		.on('end', () => {
-			rename(componoutPath + '/src/index.js', componoutPath + '/src/' + name + '.js')
-			rename(componoutPath + '/src/script/index.js', componoutPath + '/src/script/' + name + '.js')
-			rename(componoutPath + '/src/style/index.scss', componoutPath + '/src/style/' + name + '.scss')
-
-			rename(componoutPath + '/test/index.js', componoutPath + '/test/' + name + '.js')
-			rename(componoutPath + '/test/specs/index.js', componoutPath + '/test/specs/' + name + '.js')
-
-			rename(componoutPath + '/preview/index.js', componoutPath + '/preview/' + name + '.js')
-			rename(componoutPath + '/preview/index.scss', componoutPath + '/preview/' + name + '.scss')
-
-			log(`${name} has been completely created.`, 'done')
-		})
+		.on('end', () => log(`${name} has been completely created.`, 'done'))
 })

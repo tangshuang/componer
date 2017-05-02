@@ -3,8 +3,8 @@
 	"version": "0.0.1",
 	"type": "npm",
 	"build": {
-		"from": "src/{{componout-name}}.js",
-		"to": "dist/{{componout-name}}.js",
+		"from": "src/index.js",
+		"to": "dist/index.js",
 		"options": {
 			"minify": false,
 			"sourcemap": false,
@@ -26,7 +26,7 @@
 	},
 	"test": {
 		"entry": {
-			"from": "test/specs/{{componout-name}}.js",
+			"from": "test/specs/index.js",
 			"settings": {}
 		},
 		"browsers": "Terminal"

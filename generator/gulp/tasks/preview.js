@@ -233,7 +233,7 @@ gulp.task('preview', () => {
 	// build server
 	if(exists(serverfile)) {
 		let serverware = load(serverfile)
-		if(serverware instanceof Array) {
+		if(Array.isArray(serverware)) {
 			middlewares = middlewares.concat(serverware)
 		}
 		else {
