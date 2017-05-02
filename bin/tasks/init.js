@@ -70,8 +70,8 @@ export default function(commander) {
                 let version = !answer || answer === '' ? '0.0.1' : answer
                 info.version = version
 
-                prompt('What is the type of componout? (select from: component, npm and app, default: component) ', answer => {
-                    let type = !answer || answer === '' ? 'component' : answer
+                prompt('What is the type of componout? (select from: bower, npm and app, default: bower) ', answer => {
+                    let type = !answer || answer === '' ? 'bower' : answer
                     info.type = type
 
                     prompt('What is your registry author name? (default: componer) ', answer => {

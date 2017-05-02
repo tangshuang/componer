@@ -21,7 +21,7 @@ export default function(commander) {
       }
 			let info = readJSON(jsonfile)
 			let type = info.type
-			if((type === 'component' || type === 'bower') && exists(`${cwd}/componouts/${name}/bower.json`)) {
+			if(type === 'bower' && exists(`${cwd}/componouts/${name}/bower.json`)) {
         remove(`${cwd}/bower_components/${name}`)
         if(options.force) {
           execute(`cd "${cwd}/componouts/${name}" && "${bower}" link`)
@@ -32,7 +32,7 @@ export default function(commander) {
         }
         log(name + ' is linked as bower component.', 'done')
 			}
-			else if(type === 'npm' && exists(`${cwd}/componouts/${name}/package.json`)) {
+			if(type === 'npm' && exists(`${cwd}/componouts/${name}/package.json`)) {
         remove(`${cwd}/node_modules/${name}`)
         if(options.force) {
           execute(`cd "${cwd}/componouts/${name}" && npm link`)

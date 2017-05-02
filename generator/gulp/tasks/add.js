@@ -6,7 +6,7 @@ gulp.task('add', () => {
 	let name = dashName(arg.name)
 
 	if(!name.substr(0, 1).match(/[a-z]/)) {
-		log('component name\'s first letter must be in [a-z].', 'error')
+		log('componout name\'s first letter must be in [a-z].', 'error')
 		return
 	}
 

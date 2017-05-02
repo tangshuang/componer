@@ -2,7 +2,8 @@
   "name": "{{componout-name}}",
   "version": "0.0.1",
   "description": "{{componout name}}",
-  "main": "src/script/{{componout-name}}.js",
+  "main": "src/script/index.js",
+  "scss": "src/style/index.scss",
   "scripts": {},
   "keywords": [
       "componer"

@@ -4,7 +4,7 @@
 	"type": "npm",
 	"build": {
 		"from": "src/index.js",
-		"to": "dist/index.js",
+		"to": "dist/[name].js",
 		"options": {
 			"minify": false,
 			"sourcemap": false,

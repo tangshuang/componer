@@ -8,7 +8,7 @@ import concat from 'pipe-concat'
 gulp.task('build', () => {
 	let arg = args.build
 
-	// if there is no name option, build all components
+	// if there is no name option, build all componouts
 	if(arg.name === undefined) {
 		scandir(config.paths.componouts).forEach(item => run('build', {
 			name: item,
@@ -16,7 +16,7 @@ gulp.task('build', () => {
 		return
 	}
 
-	// build named component
+	// build named componout
 	let name = dashName(arg.name)
 	if(!hasComponout(name)) {
 		log(name + ' not exists.', 'error')

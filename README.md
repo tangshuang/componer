@@ -85,7 +85,7 @@ However, files in `gulp` directory and `gupfile.babel.js` will be covered, so if
 
 'npm install' will be run automaticly after files updated.
 
-### componer add <name> [-t|--template component] [-a|--author your-name]
+### componer add <name> [-t|--template default] [-a|--author your-name]
 
 Add a componout. A `componout` is a production created by componer.
 
@@ -370,7 +370,7 @@ cpon build
 
 ### cpon init
 
-create a new componout with componer templates, which has three type, npm, component and app. Componer will ask you some questions, you could just follow the questions and give the answers.
+create a new componout with componer templates, which has three type, npm, bower and app. Componer will ask you some questions, you could just follow the questions and give the answers.
 
 ### cpon install [-F|--force]
 
@@ -422,7 +422,7 @@ We have three default type of componout:
 
 1) npm: use this type to create a npm package, which is created for node runtime modules, not for browser-end.
 
-2) component: use this type to create a component, which is created for browser-end used, not for node runtime.
+2) bower: use this type to create a bower component, which is created for browser-end used, not for node runtime.
 
 3) app: use this type to create a website application, which is NOT used as a node runtime module or browser-end package. So in app template directory, bower.json and package.json only contains (dev)dependencies options.
 

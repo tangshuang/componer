@@ -1,7 +1,7 @@
 {
 	"name": "{{componout-name}}",
 	"version": "0.0.1",
-	"type": "component",
+	"type": "bower",
 	"build": [
 		{
 			"from": "src/script/index.js",
