@@ -1,4 +1,4 @@
-import {{ComponoutName}} from '../../src/script/{{componout-name}}'
+import {{ComponoutName}} from '../../src/script/index'
 
 describe('{{Componout Name}}', () => {
     it('test', () => {

@@ -1,4 +1,4 @@
-import {{ComponoutName}} from '../src/{{componout-name}}'
+import {{ComponoutName}} from '../src/index'
 
 describe('{{Componout Name}} Unit Test', () => {
     it('test', () => {
