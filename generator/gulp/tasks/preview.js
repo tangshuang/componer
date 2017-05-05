@@ -1,8 +1,11 @@
-import {gulp, path, fs, args, log, config, exit, exists, clear, read, readJSON, load, hasComponout, getComponoutConfig, dashName, camelName, getFileExt, hasFileChanged} from '../loader'
+import {gulp, path, fs, args, log, config, exit, exists, clear, read, readJSON, write, load, hasComponout, getComponoutConfig, dashName, camelName, getFileExt, hasFileChanged} from '../loader'
+
+import Stream from 'stream'
 
 import browsersync from 'browser-sync'
 import bufferify from 'gulp-bufferify'
 import glob from 'glob'
+import concat from 'pipe-concat'
 
 import webpackVendor from '../drivers/webpack-vendor'
 import webpackStream from '../drivers/webpack-stream'
@@ -68,10 +71,12 @@ gulp.task('preview', () => {
  		return deps
  	}
 
-	let callback = null
-	let promise = new Promise((resolve, reject) => {
-		callback = resolve
-	})
+
+	/**
+	 * pre-compile vendors
+	 */
+
+	let prestreams = []
 
 	// script vendors
 	let scriptVendorsSettings = null
@@ -82,6 +87,8 @@ gulp.task('preview', () => {
 			vendors = getDeps(bowerJson).concat(getDeps(pkgJson))
 		}
 		if(Array.isArray(vendors) && vendors.length > 0) {
+			let stream = new Stream()
+			prestreams.push(stream)
 			scriptVendorsSettings = webpackVendor(
 				vendors,
 				`${tmpdir}/${name}.vendors.js`,
@@ -89,7 +96,7 @@ gulp.task('preview', () => {
 					sourcemap: options.sourcemap,
 					minify: options.minify,
 					after() {
-						callback()
+						stream.emit('end')
 					},
 				},
 				{
@@ -111,126 +118,92 @@ gulp.task('preview', () => {
 		}
 		if(Array.isArray(vendors) && vendors.length > 0) {
 			styleVendors = vendors
-			sassStream(stylefile, `${tmpdir}/${name}.vendors.css`, {
+			let stream = sassStream(stylefile, `${tmpdir}/${name}.vendors.css`, {
 				sourcemap: options.sourcemap,
 				minify: options.minify,
 				vendors: {
 					extract: 1,
 					modules: vendors,
 				},
+				after() {
+					// create vendors if not exists, so that this file is exists finally
+					if(!exists(`${tmpdir}/${name}.vendors.css`)) {
+						write(`${tmpdir}/${name}.vendors.css`, '')
+					}
+				},
 			})
+			prestreams.push(stream)
 		}
+	}
+
+	/**
+	 * compile styles, scripts and index.html
+	 */
+
+	// compile
+	let compileIndexHtml = () => {
+		return gulp.src(indexfile)
+			.pipe(bufferify(html => {
+				if(exists(stylefile)) {
+					if(styleVendors) {
+						html = html.replace('<!--stylevendors-->', `<link rel="stylesheet" href="${name}.vendors.css">`)
+					}
+					html = html.replace('<!--styles-->', `<link rel="stylesheet" href="${name}.css">`)
+				}
+				if(exists(scriptfile)) {
+					if(scriptVendorsSettings) {
+						html = html.replace('<!--scriptvendors-->', `<script src="${name}.vendors.js"></script>`)
+					}
+					html = html.replace('<!--scripts-->', `<script src="${name}.js"></script>`)
+				}
+				return html
+			}))
+			.pipe(gulp.dest(tmpdir))
+	}
+	let compileStyles = () => {
+		let options = settings.style.options
+		return sassStream(stylefile, `${tmpdir}/${name}.css`, {
+			sourcemap: options.sourcemap,
+			minify: options.minify,
+			vendors: styleVendors ? {
+				extract: -1,
+				modules: styleVendors,
+			} : undefined,
+		}, settings.style.settings)
+	}
+	let compileScripts = () => {
+		let options = settings.script.options
+		let scriptSettings = settings.script.settings
+		scriptSettings.output = scriptSettings.output || {}
+		scriptSettings.output.library = scriptSettings.output.library || camelName(info.name, true)
+		return webpackStream(scriptfile, `${tmpdir}/${name}.js`, {
+			sourcemap: options.sourcemap,
+			minify: options.minify,
+			vendors: scriptVendorsSettings,
+		}, scriptSettings)
+	}
+
+	let ingstreams = []
+	let compileAll = () => {
+		ingstreams.push(compileStyles())
+		ingstreams.push(compileScripts())
+		ingstreams.push(compileIndexHtml())
+	}
+	if(ingstreams.length > 0) {
+		concat(prestreams).on('end', compileAll)
+	}
+	else {
+		compileAll()
 	}
 
 	/**
 	 * create a bs server app
 	 */
-	let hasIndexChanged = true
-	let hasStyleChanged = true
-	let hasFilesChanged = true
+
 	let app = browsersync.create()
-	let middlewares = [
-		{
-			route: '/',
-			handle: function (req, res, next) {
-				if(!hasIndexChanged) {
-					next()
-					return
-				}
-				res.setHeader('content-type', 'text/html')
-				gulp.src(indexfile)
-					.pipe(bufferify(html => {
-						if(exists(stylefile)) {
-							if(styleVendors) {
-								html = html.replace('<!--stylevendors-->', `<link rel="stylesheet" href="${name}.vendors.css">`)
-							}
-							html = html.replace('<!--styles-->', `<link rel="stylesheet" href="${name}.css">`)
-						}
-						if(exists(scriptfile)) {
-							if(scriptVendorsSettings) {
-								html = html.replace('<!--scriptvendors-->', `<script src="${name}.vendors.js"></script>`)
-							}
-							html = html.replace('<!--scripts-->', `<script src="${name}.js"></script>`)
-						}
-						res.end(html)
-						return html
-					}))
-					.pipe(gulp.dest(tmpdir))
-					.on('end', () => hasIndexChanged = false)
-			},
-		},
-		exists(stylefile) ? {
-			route: `/${name}.css`,
-			handle: function (req, res, next) {
-				if(!hasStyleChanged) {
-					next()
-					return
-				}
-				let options = settings.style.options
-				// for hot reload
-				if(req.originalUrl !== `/${name}.css` && req.originalUrl.indexOf(`/${name}.css?`) === -1) {
-					next()
-					return
-				}
-				// http response
-				res.setHeader('content-type', 'text/css')
-				sassStream(stylefile, `${tmpdir}/${name}.css`, {
-					sourcemap: options.sourcemap,
-					minify: options.minify,
-					vendors: styleVendors ? {
-						extract: -1,
-						modules: styleVendors,
-					} : undefined,
-					process(content, file) {
-						if(getFileExt(file.path) === '.css') {
-							res.end(content)
-						}
-					},
-					after() {
-						hasStyleChanged = false
-					},
-				}, settings.style.settings)
-			},
-		} : undefined,
-		exists(scriptfile) ? {
-			route: `/${name}.js`,
-			handle(req, res, next) {
-				if(!hasFilesChanged) {
-					next()
-					return
-				}
-				let options = settings.script.options
-				let scriptSettings = settings.script.settings
-				scriptSettings.output = scriptSettings.output || {}
-				scriptSettings.output.library = scriptSettings.output.library || camelName(info.name, true)
-				// for hot reload
-				if(req.originalUrl !== `/${name}.js` && req.originalUrl.indexOf(`/${name}.js?`) === -1) {
-					next()
-					return
-				}
-				// http response
-				res.setHeader('content-type', 'application/javascript')
-				webpackStream(scriptfile, `${tmpdir}/${name}.js`, {
-					sourcemap: options.sourcemap,
-					minify: options.minify,
-					vendors: scriptVendorsSettings,
-					process(content, file) {
-						if(getFileExt(file.path) === '.js') {
-							res.end(content)
-						}
-					},
-					after() {
-						hasFilesChanged = false
-					},
-				}, scriptSettings)
-			},
-		} : undefined,
-	]
 
-	// filter undefined
-	middlewares = middlewares.filter(item => !!item)
-
-	// build server
+	// build middlewares
+	let middlewares = []
 	if(exists(serverfile)) {
 		let serverware = load(serverfile)
 		if(Array.isArray(serverware)) {
@@ -277,45 +250,57 @@ gulp.task('preview', () => {
 		})
 
 		// except style files
-		otherWatchFiles = otherWatchFiles.concat([`!${cwd}/**/*.scss`, `!${cwd}/**/*.css`])
 		// watch style files by gulp, and reload css files after style files changed
 		gulp.watch(styleWatchFiles, event => {
-			if(event.type === 'changed') {
-				if(!hasFileChanged(event.path)) return
-				hasStyleChanged = true
-				app.reload('*.css')
-			}
+			if(event.type !== 'changed') return
+			if(!hasFileChanged(event.path)) return
+			return compileStyles()
 		})
 		// watch js files
-		gulp.watch(otherWatchFiles, event => {
-			if(event.type === 'changed') {
-				if(!hasFileChanged(event.path)) return
-				hasFilesChanged = true
-				hasIndexChanged = true
-				app.reload()
-			}
+		let scriptWatchFiles = otherWatchFiles.filter(file => getFileExt(file) === '.js')
+		gulp.watch(scriptWatchFiles, event => {
+			if(event.type !== 'changed') return
+			if(!hasFileChanged(event.path)) return
+			return compileScripts()
+		})
+		// watch index.html
+		gulp.watch(indexfile, event => {
+			if(event.type !== 'changed') return
+			if(!hasFileChanged(event.path)) return
+			return compileIndexHtml()
 		})
 	}
 
 	// setup server
-	let port = arg.port || 8000 + parseInt(Math.random() * 1000)
+	let port = parseInt(arg.port) || 8000 + parseInt(Math.random() * 1000)
 	let uiport = port + 1
 	let weinreport = port + 2
 
-	setTimeout(() => callback(), 1000)
-	promise.then(() => app.init({
-		port,
-		ui: {
-			port: uiport,
-			weinre: {
-				port: weinreport
-			}
-		},
-		server: {
-			baseDir: tmpdir,
-		},
-		middleware: middlewares,
-		reloadDebounce: 1000,
-	}))
+	concat(ingstreams).on('end', () => {
+		gulp.watch(tmpdir + '/**/*.css', event => {
+			if(event.type !== 'changed') return
+			if(!hasFileChanged(event.path)) return
+			app.reload('*.css')
+		})
+		gulp.watch([tmpdir + '/**/*.js', tmpdir + '/**/*.html'], event => {
+			if(event.type !== 'changed') return
+			if(!hasFileChanged(event.path)) return
+			app.reload()
+		})
+		app.init({
+			port,
+			ui: {
+				port: uiport,
+				weinre: {
+					port: weinreport
+				}
+			},
+			server: {
+				baseDir: tmpdir,
+			},
+			middleware: middlewares,
+			reloadDebounce: 1000,
+		})
+	})
 
 })
