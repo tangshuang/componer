@@ -45,8 +45,8 @@ gulp.task('build', () => {
 		let from = path.join(cwd, item.from)
 		let to = path.join(cwd, item.to)
 		let ext = getFileExt(from)
-		let settings = item.settings
-		let options = item.options
+		let settings = item.settings || {}
+		let options = item.options || {}
 
 		let todir = path.dirname(to)
 		let toext = getFileExt(to)
