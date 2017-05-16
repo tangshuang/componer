@@ -1,9 +1,7 @@
 import Stream from 'stream'
-import {gulp, fs, path, args, log, config, exit, exists, scandir, remove, readJSONTMPL, hasComponout, getComponoutConfig, dashName, camelName, run, getFileExt} from '../loader'
-import webpack from '../drivers/webpack'
-import sass from '../drivers/sass'
-
-import concat from 'pipe-concat'
+import {gulp, fs, path, args, log, config, exit, exists, scandir, clear, readJSONTMPL, hasComponout, getComponoutConfig, dashName, camelName, run, getFileExt} from '../loader'
+import webpack from 'webpack'
+import webpackConfig from '../../webpack.config'
 
 gulp.task('build', () => {
 	let arg = args.build
@@ -34,34 +32,42 @@ gulp.task('build', () => {
 	 */
 
 	let info = getComponoutConfig(name)
+	let cname = info.name
 	let items = Array.isArray(info.build) ? info.build : typeof info.build === 'object' ? [info.build] : null
 	if(!items) {
 		log(name + ' build option in componer.json not found.', 'error')
 		return
 	}
 
-	let streams = []
 	items.forEach(item => {
-		let from = path.join(cwd, item.from)
-		let to = path.join(cwd, item.to)
-		let ext = getFileExt(from)
-		let settings = item.settings || {}
-		let options = item.options || {}
+		let entry = path.join(cwd, item.entry)
+		let output = path.join(cwd, item.output)
+		let html = path.join(cwd, item.html)
+		let hash = item.hash
 
-		let todir = path.dirname(to)
-		let toext = getFileExt(to)
-		let tofile = path.basename(to, toext)
-		remove(to)
-    	remove(path.join(todir, tofile + '.*'))
+		let options = item.options
+		let settings = webpackConfig(item.env, {
+			entry,
+			output: {
+				path: output,
+				library: camelName(cname, true),
+			},
+		}, {
+			name: cname,
+			html,
+			output,
+			hash,
+		})
 
-		if(ext === '.js') {
-			settings.output = settings.output || {}
-			settings.output.library = settings.output.library || camelName(info.name, true)
-			streams.push(webpack(from, to, options, settings))
-		}
-		else if(ext === '.scss') {
-			streams.push(sass(from, to, options, settings))
-		}
+		clear(outdir)
+
+		let compiler = webpack(settings)
+		compiler.run(function(err, stats) {
+		    if(err) {
+				log(`build ${from} failed!`, 'error')
+				return
+			}
+		})
 	})
 
 	if(streams.length > 0) {

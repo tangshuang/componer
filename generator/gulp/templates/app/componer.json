@@ -1,36 +1,13 @@
 {
 	"name": "{{componout-name}}",
 	"version": "0.0.1",
-  "type": "app",
-	"build": [
-		{
-			"from": "src/script/index.js",
-			"to": "dist/js/[name].js",
-			"options": {
-				"minify": true,
-				"sourcemap": true,
-        "vendors": true,
-				"hashfile": true
-			},
-			"settings": {}
-		},
-		{
-			"from": "src/style/index.scss",
-			"to": "dist/css/[name].css",
-			"options": {
-				"minify": true,
-				"sourcemap": true,
-				"vendors": true,
-				"hashfile": true
-			},
-			"settings": {
-        "sass": {},
-    		"postcss": {},
-    		"nextcss": {},
-    		"assets": {}
-      }
-		}
-	],
+  	"type": "app",
+	"build": {
+		"env": "production",
+		"entry": "src/index.js",
+		"html": "src/index.html",
+		"output": "dist"
+	},
 	"preview": {
 		"dir": ".preview_tmp",
 		"script": {
@@ -38,7 +15,7 @@
 			"options": {
 				"minify": false,
 				"sourcemap": true,
-        "vendors": true
+        		"vendors": true
 			},
 			"settings": {}
 		},
@@ -47,7 +24,7 @@
 			"options": {
 				"minify": false,
 				"sourcemap": true,
-        "vendors": true
+        		"vendors": true
 			},
 			"settings": {}
 		},
