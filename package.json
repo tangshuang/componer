@@ -4,8 +4,7 @@
   "description": "A components builder tool",
   "main": "index.js",
   "bin": {
-    "componer": ".bin/componer.js",
-    "cpon": ".bin/componout.js"
+    "componer": ".bin/componer.js"
   },
   "scripts": {
     "build": "gulp build"

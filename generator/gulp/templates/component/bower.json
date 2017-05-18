@@ -3,7 +3,8 @@
     "version": "0.0.1",
     "description": "{{componout name}}",
     "main": [
-        "src/{{componout-name}}.js"
+        "src/script/index.js",
+        "src/style/index.scss"
     ],
     "moduleType": [
         "es6"

@@ -2,7 +2,7 @@
 	"color": true,
 	"silent": true,
 	"defaults": {
-		"template": "bower",
+		"template": "component",
 		"registries": "https://github.com/componer"
 	},
 	"project": {
