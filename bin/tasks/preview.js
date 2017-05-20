@@ -10,7 +10,7 @@ import webpackVendor from '../drivers/webpack-vendor'
 import webpackStream from '../drivers/webpack-stream'
 import sassStream from '../drivers/sass-stream'
 import {log, exit} from '../utils/process'
-import {exists, clear, read, load, readJSON, readJSONTMPL, getFileExt} from '../utils/file'
+import {exists, clear, read, include, readJSON, readJSONTMPL, getFileExt} from '../utils/file'
 import {dashName, camelName} from '../utils/convert-name'
 import {webpack as extendSettings} from '../_config'
 
@@ -224,7 +224,7 @@ export default function() {
 
     // build server
     if(server && exists(server)) {
-        let serverware = load(server)
+        let serverware = include(server)
         if(serverware instanceof Array) {
             middlewares = middlewares.concat(serverware)
         }

@@ -1,4 +1,4 @@
-import {gulp, path, fs, args, log, config, exit, exists, clear, read, readJSON, write, load, hasComponout, getComponoutConfig, dashName, camelName, getFileExt, hasFileChanged} from '../loader'
+import {gulp, path, fs, args, log, config, exit, exists, clear, read, readJSON, write, include, hasComponout, getComponoutConfig, dashName, camelName, getFileExt, hasFileChanged} from '../loader'
 
 import Stream from 'stream'
 
@@ -205,7 +205,7 @@ gulp.task('preview', () => {
 	// build middlewares
 	let middlewares = []
 	if(exists(serverfile)) {
-		let serverware = load(serverfile)
+		let serverware = include(serverfile)
 		if(Array.isArray(serverware)) {
 			middlewares = middlewares.concat(serverware)
 		}

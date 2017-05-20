@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 
 import fs from 'fs'
+import path from 'path'
 import commander from 'commander'
 
 import {exit, execute, log} from './utils/process'
-import {exists, readJSON, scandir, load} from './utils/file'
-import {fixname, check, config, root} from '../utils/componer'
-import {dashName} from '../utils/convert-name'
+import {exists, readJSON, scandir, include} from './utils/file'
+import {fixname, check, config, root} from './utils/componer'
+import {dashName} from './utils/convert-name'
 
 
 const argvs = process.argv
@@ -35,30 +36,30 @@ commander
 commander
 	.command('init')
 	.description('create a componer project')
-	.action(load('./commanders/init'))
+	.action(include(__dirname + '/commanders/init.js'))
 
 commander
 	.command('reset')
 	.description('reset componer and curent project componer program')
-	.action(load('./commanders/reset'))
+	.action(include(__dirname + '/commanders/reset.js'))
 
 commander
 	.command("clone [name]")
 	.description("clone a componout from github.com/componer")
 	.option("-u, --url [url]", "use your own registry url")
-	.action(load('./commanders/clone'))
+	.action(include(__dirname + '/commanders/clone.js'))
 
 commander
 	.command('link [name]')
 	.description('link local componout as package')
 	.option('-F, --force', 'force use bower/npm link to symbolic link')
-	.action(load('./commanders/link'))
+	.action(include(__dirname + '/commanders/link.js'))
 
 commander
 	.command('remove <name>')
 	.alias('rm')
 	.description('remove a componout from componouts directory')
-	.action(load('./commanders/remove'))
+	.action(include(__dirname + '/commanders/remove.js'))
 
 // ===================================================================
 
@@ -78,10 +79,10 @@ commander
 	.option('-F, --force', 'force to install packages no matter exists in local')
 	.action((pkg, to, name, options) => {
 		if(name === undefined && to === undefined && pkg === undefined && exists(cwd + '/componer.json')) {
-			load('./tasks/install')(options)
+			include(__dirname + '/tasks/install.js')(options)
 			return
 		}
-		load('./commanders/install')(pkg, to, name, options)
+		include(__dirname + '/commanders/install.js')(pkg, to, name, options)
 	})
 
 commander
@@ -91,7 +92,7 @@ commander
 	.option('-a, --author [author]', 'author of componout')
 	.action((name, options) => {
 		if(name === undefined && exists(cwd + '/componer.json')) {
-			load('./tasks/add')()
+			include(__dirname + '/tasks/add.js')()
 			return
 		}
 
@@ -125,7 +126,7 @@ commander
 	.description('build a componout')
 	.action(name => {
 		if(name === undefined && exists(cwd + '/componer.json')) {
-			load('./task/build')()
+			include(__dirname + '/task/build.js')()
 			return
 		}
 
@@ -148,7 +149,7 @@ commander
 	.option('-p, --port [port]', 'use custom port')
 	.action((name, options) => {
 		if(name === undefined && exists(cwd + '/componer.json')) {
-			load('./task/preview')()
+			include(__dirname + '/task/preview.js')()
 			return
 		}
 
@@ -173,7 +174,7 @@ commander
 	.option('-b, --browser [browser]', 'which browser to use select one from [PhantomJS|Chrome|Firefox]')
 	.action((name, options) => {
 		if(name === undefined && exists(cwd + '/componer.json')) {
-			load('./task/test')(options)
+			include(__dirname + '/task/test.js')(options)
 			return
 		}
 

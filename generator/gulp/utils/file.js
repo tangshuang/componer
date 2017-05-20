@@ -106,7 +106,7 @@ export function copy(from, to) {
 	shell.exec(`cp -rf "${from}" "${to}"`)
 }
 
-export function load(file, useDefault = true) {
+export function include(file, useDefault = true) {
 	if(!exists(file)) return
 	var rs = reload(file)
 	if(typeof rs === 'object') {
