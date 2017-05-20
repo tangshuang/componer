@@ -80,7 +80,7 @@
     "style-loader": "^0.13.1",
     "url-loader": "^0.5.7",
     "webpack": "^1.14.0",
-    "webpack-bufferify": "^0.0.3",
+    "webpack-bufferify": "^0.0.4",
     "webpack-stream": "^3.2.0"
   },
   "devDependencies": {
