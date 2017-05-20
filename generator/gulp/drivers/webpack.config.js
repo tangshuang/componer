@@ -57,6 +57,10 @@ export default function(settings) {
 				limit: 15000,
 				mimetype: 'image/svg+xml',
 			},
+            options: {
+                limit: 15000,
+				mimetype: 'image/svg+xml',
+            },
 		},
 		{
 			test: /\.html$/,
@@ -64,6 +68,9 @@ export default function(settings) {
 			query: {
 				attrs: 'img:src input:src',
 			},
+            options: {
+                attrs: 'img:src input:src',
+            },
 		},
 		{
 			test: /\.json$/,
