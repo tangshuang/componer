@@ -11,8 +11,9 @@ import {dashName} from './utils/convert-name'
 
 
 const argvs = process.argv
-const info = readJSON(__dirname + '/../package.json')
-const gulp = path.resolve(__dirname, '../node_modules/.bin/gulp')
+const localPath = path.resolve(__dirname, '..')
+const info = readJSON(localPath + '/package.json')
+const gulp = path.resolve(localPath, './node_modules/.bin/gulp')
 const cwd = process.cwd()
 const rootPath = root()
 
@@ -31,6 +32,17 @@ commander
 	.arguments('<cmd>')
 	.action(cmd => {
 		log("Not found `" + cmd + "` command, use `componer -h` to read more.", "warn")
+	})
+
+commander
+	.command('use [pkg]')
+	.description('use other version in componer original dependencies, i.e. use webpack@2.x')
+	.action(pkg => {
+		let cmd = `cd "${localPath}" && npm install`
+		if(pkg !== undefined && pkg !== 'default') {
+			cmd += ' ' + pkg
+		}
+		execute(cmd)
 	})
 
 commander

@@ -1,9 +1,10 @@
 import path from 'path'
+import extend from 'extend'
 import gulp from 'gulp'
 import sass from 'gulp-sass'
-import cssmin from 'gulp-cssmin'
 import postcss from 'gulp-postcss'
 import cssnext from 'postcss-cssnext'
+import cssnano from 'cssnano'
 import rename from 'gulp-rename'
 import sourcemaps from 'gulp-sourcemaps'
 import concat from 'pipe-concat'
@@ -45,8 +46,15 @@ export default function(from, to, options = {}, settings = {}) {
     var filename = path.basename(to)
 	var basename = path.basename(to, '.css')
 	var sourcemapdir = options.sourcemap === 'inline' ? undefined : './'
+	var cssnanoConfig = extend(true, {
+		core: !!options.minify,
+	}, settings.cssnano)
+	var cssnextConfig = extend(true, {
+		warnForDuplicates: false,
+	}, settings.cssnext)
     var plugins = [
-        cssnext(settings.cssnext),
+        cssnext(cssnextConfig),
+		cssnano(cssnanoConfig),
 	]
 
 	var extract = options.vendors && options.vendors.extract
@@ -73,7 +81,6 @@ export default function(from, to, options = {}, settings = {}) {
 		.pipe(modifier(extract ? separator.combine : null))
 		.pipe(modifier(extract ? separator.extract : null))
 		.pipe(postcss(plugins, settings.postcss))
-		.pipe(modifier(options.minify ? cssmin : null))
 		.pipe(rename(filename)) // ??? does this rename vendors file???
 		.pipe(bufferify((content, file, context) => {
 			if(typeof options.process === 'function') {
@@ -85,10 +92,10 @@ export default function(from, to, options = {}, settings = {}) {
 		.pipe(cssCopyAssets(settings.assets))
 		.pipe(bufferify((content, file) => {
 			let filepath = file.path
-      if(options.hashfile && path.extname(filepath) === '.css') {
-				var hex = md5(content, 20)
-        var dir = path.dirname(filepath)
-        var filename = path.basename(filepath, '.css')
+			if(options.hashfile && path.extname(filepath) === '.css') {
+				var hex = md5(content, 8)
+				var dir = path.dirname(filepath)
+				var filename = path.basename(filepath, '.css')
 				if(path.extname(filename) === '.min') {
 					filename = filename.substr(0, filename.lastIndexOf('.'))
 					file.path = path.join(dir, filename + '.' + hex + '.min.css')
@@ -96,8 +103,8 @@ export default function(from, to, options = {}, settings = {}) {
 				else {
 					file.path = path.join(dir, filename + '.' + hex + '.css')
 				}
-      }
-    }))
+			}
+		}))
 		.pipe(gulp.dest(outputdir))
 
 	return stream.on('end', () => {

@@ -1,6 +1,6 @@
 import crypto from 'crypto'
 
-export function md5(content, length) {
+export function md5(content, length = 32) {
     var hash = crypto.createHash('md5')
     hash.update(content)
     var hex = hash.digest('hex')

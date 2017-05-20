@@ -279,7 +279,7 @@ Packages will be put into node_modules/bower_components directory in your projec
 **bower always come first**
 
 In componer, bower components always come before npm packages.
-For example, if you install a package which has both bower and npm packages, bower package will be recommanded to install firstly. If you `require` a package, and this package has both bower and npm packages in local directory, bower component will be used firstly.
+For example, if you install a package which has both bower and npm packages, bower package will be recommended to install firstly. If you `require` a package, and this package has both bower and npm packages in local directory, bower component will be used firstly.
 
 **virtual cache**
 
@@ -356,39 +356,65 @@ You will find this componout to be a git registry.
 
 If you do not pass a name to the cli, all of `dependencies` in .componerrc will be download into componouts directories. *Notice, dependencies in .componerrc are different from ones in bower.json or pacakge.json, they are only use for clone, not for package dependencies.* So after you clone from git, you should run componer install to install their dependencies.
 
-## `cpon` commander
 
-Componer provide a `cpon` commander to run in a local componout directory. For example, you git clone a registry which has a componer.json from github, and do not want to create a componer project, want to re-build the componout, you can do like this:
+
+## single componout commanders
+
+Componer provide a single commander to run in a local componout directory. For example, you git clone a registry which has a componer.json from github, and do not want to create a componer project, want to re-build the componout, you can do like this:
 
 ```
 git clone https://github.com/xxx/xxx.git && cd xxx
 # install dependencies
-cpon install
+componer install
 # build
-cpon build
+componer build
 ```
 
-### cpon init
+Just run following commanders in your componout dir.
 
-create a new componout with componer templates, which has three type, npm, bower and app. Componer will ask you some questions, you could just follow the questions and give the answers.
+In fact, you should know that when you run single componout commanders, componer will use its self rules to build your code. So we recommend you to use componer project mode.
 
-### cpon install [-F|--force]
+### componer add
+
+create a new componout with componer templates, which has four type: component, npm, bower and app. Componer will ask you some questions, you could just follow the questions and give the answers.
+
+### componer install
 
 Install dependencies for current componout. All npm and bower dependencies will be installed in current directory.
 
-### cpon build
+### componer build
 
 Build current componout following the default rule of componer.
 
 If you use componer to create a componer project, you can change the files in gulp directory to build up your own workflow, but if you use `cpon`, it will use componer default workflow rules.
 
-### cpon preview
+### componer preview
 
 Preview current componout by browsersync.
 
-### cpon test
+### componer test
 
 Test current componout by karma and jasmine.
+
+### componer use [package|default]
+
+However, componer use webpack1.x as default dependence. If you run single commanders in your current componout dir, you will have no chance to use new version modules. So componer provide a way to update original dependencies. Use `use` commander to update:
+
+```
+componer use webpack@2.x
+```
+
+Then you will enjoy tree shaking when running `componer build` in a componout dir.
+
+When you want to reset all dependencies, run:
+
+```
+componer use
+// or
+componer use default
+```
+
+All dependencies will be reinstalled.
 
 ## Generator
 

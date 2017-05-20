@@ -71,10 +71,10 @@ export default function(from, to, options = {}, settings  = {}) {
         filename = filename.substr(0, filename.lastIndexOf('.'))
         if(path.extname(filename) === '.min') {
           filename = filename.substr(0, filename.lastIndexOf('.'))
-					settings.output.filename = filename + '.[hash].min.js'
+					settings.output.filename = filename + '.[chunkhash:8].min.js'
 				}
 				else {
-          settings.output.filename = filename + '.[hash].js'
+          settings.output.filename = filename + '.[chunkhash:8].js'
 				}
     }
 
