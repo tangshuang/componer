@@ -5,7 +5,7 @@ import path from 'path'
 import commander from 'commander'
 
 import {exit, execute, log} from './utils/process'
-import {exists, readJSON, scandir, include} from './utils/file'
+import {exists, readJSON, writeJSON, scandir, include} from './utils/file'
 import {fixname, check, config, root} from './utils/componer'
 import {dashName} from './utils/convert-name'
 
@@ -43,6 +43,16 @@ commander
 			cmd += ' ' + pkg
 		}
 		execute(cmd)
+		// if update to webpack2
+		let babelrc = readJSON(__dirname + '/../.babelrc')
+		if(pkg.indexOf('webpack@2') > -1) {
+			babelrc.presets = [['es2015', {modules: false}]]
+			writeJSON(__dirname + '/../.babelrc', babelrc)
+		}
+		else {
+			babelrc.presets = ['es2015']
+			writeJSON(__dirname + '/../.babelrc', babelrc)
+		}
 	})
 
 commander

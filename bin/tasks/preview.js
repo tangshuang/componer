@@ -12,7 +12,7 @@ import sassStream from '../drivers/sass-stream'
 import {log, exit} from '../utils/process'
 import {exists, clear, read, include, readJSON, readJSONTMPL, getFileExt} from '../utils/file'
 import {dashName, camelName} from '../utils/convert-name'
-import {webpack as extendSettings} from '../_config'
+import webpackExtend from '../drivers/webpack.extend.config'
 
 const cwd = process.cwd()
 const jsonfile = path.join(cwd, 'componer.json')
@@ -214,7 +214,7 @@ export default function() {
                             res.end(content)
                         }
                     },
-                }, extend(extendSettings, script.settings))
+                }, webpackExtend(script.settings))
             },
         } : undefined,
     ]

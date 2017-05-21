@@ -5,7 +5,7 @@ import {log} from '../utils/process'
 import {exists, readJSON, readJSONTMPL, getFileExt} from '../utils/file'
 import webpack from '../drivers/webpack'
 import sass from '../drivers/sass'
-import {webpack as extendSettings} from '../_config'
+import webpackExtend from '../drivers/webpack.extend.config'
 
 const cwd = process.cwd()
 const jsonfile = path.join(cwd, 'componer.json')
@@ -49,8 +49,7 @@ export default function() {
         if(ext === '.js') {
             settings.output = settings.output || {}
             settings.output.library = settings.output.library || camelName(info.name, true)
-            extend(true, item.settings, extendSettings)
-            streams.push(webpack(from, to, options, settings))
+            streams.push(webpack(from, to, options, webpackExtend(settings)))
         }
         else if(ext === '.scss') {
             streams.push(sass(from, to, options, settings))
