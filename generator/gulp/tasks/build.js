@@ -56,7 +56,7 @@ gulp.task('build', () => {
 
 		if(ext === '.js') {
 			settings.output = settings.output || {}
-			settings.output.library = settings.output.library || camelName(info.name, true)
+			settings.output.library = settings.output.library || info.name
 			streams.push(webpack(from, to, options, settings))
 		}
 		else if(ext === '.scss') {

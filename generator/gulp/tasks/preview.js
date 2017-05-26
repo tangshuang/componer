@@ -175,7 +175,7 @@ gulp.task('preview', () => {
 		let options = settings.script.options
 		let scriptSettings = settings.script.settings
 		scriptSettings.output = scriptSettings.output || {}
-		scriptSettings.output.library = scriptSettings.output.library || camelName(info.name, true)
+		scriptSettings.output.library = scriptSettings.output.library || info.name
 		return webpackStream(scriptfile, `${tmpdir}/${name}.js`, {
 			sourcemap: options.sourcemap,
 			minify: options.minify,

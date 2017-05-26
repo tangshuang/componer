@@ -48,7 +48,7 @@ export default function() {
 
         if(ext === '.js') {
             settings.output = settings.output || {}
-            settings.output.library = settings.output.library || camelName(info.name, true)
+            settings.output.library = settings.output.library || info.name
             streams.push(webpack(from, to, options, webpackExtend(settings)))
         }
         else if(ext === '.scss') {
