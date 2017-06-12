@@ -24,7 +24,7 @@
 				"hashfile": true
 			},
 			"settings": {
-        "sass": {},
+        	"sass": {},
     		"postcss": {},
     		"nextcss": {},
     		"assets": {}
@@ -38,7 +38,7 @@
 			"options": {
 				"minify": false,
 				"sourcemap": true,
-        "vendors": true
+        		"vendors": true
 			},
 			"settings": {}
 		},
@@ -47,7 +47,7 @@
 			"options": {
 				"minify": false,
 				"sourcemap": true,
-        "vendors": true
+        		"vendors": true
 			},
 			"settings": {}
 		},

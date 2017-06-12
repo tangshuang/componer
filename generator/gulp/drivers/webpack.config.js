@@ -24,7 +24,7 @@ export function merge(defaults, settings) {
         // merge exists loaders
         let loaderNames = loaders.map(item => item.loader)
         let defaultLoaders = defaults.module.loaders
-        defaultLoaders.forEach((item, i) => {
+        defaultLoaders.forEach(item => {
             let loader = item.loader
             let i = loaderNames.indexOf(loader)
             if(i > -1) {

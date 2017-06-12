@@ -51,7 +51,7 @@ componer -v
 componer -h
 
 componer init
-componer update
+componer reset
 componer add componoutname [-t templatename|typename -a yourgitname]
 componer build [componoutname]
 componer watch [componoutname]
