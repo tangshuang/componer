@@ -87,6 +87,7 @@ export function clear(dir) {
 }
 
 export function remove(file) {
+	if(!exists(file)) return
 	var filename = path.basename(file)
 	var dirname = path.dirname(file)
 	shell.exec(`cd "${dirname}" && rm -rf ${filename}`)
