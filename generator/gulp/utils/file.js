@@ -1,5 +1,5 @@
 import path from 'path'
-import fs from 'fs'
+import fs from 'fs-extra'
 import reload from 'require-reload'
 import {md5} from './crypt'
 
@@ -82,18 +82,18 @@ export function scandir(dir) {
 
 export function clear(dir) {
 	if(!exists(dir)) return
-	fs.rmdirSync(dir)
-	fs.mkdirSync(dir)
+	fs.removeSync(dir)
+	fs.mkdirpSync(dir)
 }
 
 export function remove(file) {
 	if(!exists(file)) return
-	fs.unlinkSync(file)
+	fs.removeSync(file)
 }
 
 export function mkdir(dir) {
 	if(exists(dir)) return
-	fs.mkdirSync(dir)
+	fs.mkdirpSync(dir)
 }
 
 export function rename(file, newfile) {
@@ -103,7 +103,7 @@ export function rename(file, newfile) {
 
 export function copy(from, to) {
 	if(!exists(from)) return
-	fs.renameSync(from, to)
+	fs.copySync(from, to)
 }
 
 export function include(file, useDefault = true) {
