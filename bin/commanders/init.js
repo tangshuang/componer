@@ -2,7 +2,7 @@ import path from 'path'
 import {is, root} from '../utils/componer'
 import {log, execute, prompt, exit} from '../utils/process'
 import {dashName} from '../utils/convert-name'
-import {scandir, readJSON, writeJSON, link} from '../utils/file'
+import {scandir, readJSON, writeJSON, link, copy} from '../utils/file'
 
 const cwd = process.cwd()
 const generator = path.resolve(__dirname, '../../generator')
@@ -22,8 +22,7 @@ export default function() {
 
    // 3.init normally
    log('copying files...')
-   execute(`cp -rf "${generator}/." "${cwd}/"`, true)
-   execute(`cd "${cwd}" && mkdir componouts`, true)
+   copy(generator, cwd)
 
    let dirname = path.basename(cwd)
    let info = {}

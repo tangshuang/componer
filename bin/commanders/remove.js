@@ -1,6 +1,6 @@
 import {fixname, check, root} from '../utils/componer'
 import {execute, prompt, log, exit} from '../utils/process'
-import {exists, unSymlink} from '../utils/file'
+import {exists, unSymlink, remove} from '../utils/file'
 import {dashName} from '../utils/convert-name'
 
 const cwd = root()
@@ -14,7 +14,7 @@ export default function(name) {
         if(choice === 'yes') {
             unSymlink(`${cwd}/bower_components/${name}`)
             unSymlink(`${cwd}/node_modules/${name}`)
-            execute(`cd "${cwd}/componouts" && rm -rf ${name}`, true)
+            remove(`${cwd}/componouts/${name}`)
             log('Done! ' + name + ' has been deleted.', 'done')
         }
         exit()
